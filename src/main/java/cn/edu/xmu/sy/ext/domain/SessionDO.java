@@ -1,0 +1,77 @@
+/*
+ * Copyright © 2017 Xiamen University. All Rights Reserved.
+ */
+package cn.edu.xmu.sy.ext.domain;
+
+import cn.com.lx1992.lib.domain.BaseDO;
+
+import java.time.LocalDateTime;
+
+/**
+ * 会话Domain
+ *
+ * @author luoxin
+ * @version 2017-3-9
+ */
+public class SessionDO extends BaseDO {
+    /**
+     * 柜台ID
+     */
+    private Long counterId;
+    /**
+     * 标识
+     */
+    private String token;
+    /**
+     * 状态
+     */
+    private Integer status;
+    /**
+     * 上线时间
+     */
+    private LocalDateTime onlineTime;
+    /**
+     * 下线时间
+     */
+    private LocalDateTime offlineTime;
+
+    public Long getCounterId() {
+        return counterId;
+    }
+
+    public void setCounterId(Long counterId) {
+        this.counterId = counterId;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getOnlineTime() {
+        return onlineTime;
+    }
+
+    public void setOnlineTime(LocalDateTime onlineTime) {
+        this.onlineTime = onlineTime;
+    }
+
+    public LocalDateTime getOfflineTime() {
+        return offlineTime;
+    }
+
+    public void setOfflineTime(LocalDateTime offlineTime) {
+        this.offlineTime = offlineTime;
+    }
+}
