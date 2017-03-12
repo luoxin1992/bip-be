@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.xmu.sy.ext.mapper.FingerprintMapper">
+    <sql id="generalInsertColumns">
+        id, user_id, finger, template, enroll_time, identify_time, gmt_create, gmt_modify
+    </sql>
+
+    <sql id="generalSelectColumns">
+        id as id, finger as finger, template as template, enroll_time as enrollTime, identify_time as identifyTime
+    </sql>
+
+    <insert id="save" parameterType="cn.edu.xmu.sy.ext.domain.FingerprintDO">
+        insert into tbl_fingerprint(<include refid="generalInsertColumns"/>)
+        values(#{id}, #{userId}, #{finger}, #{template}, #{enrollTime}, #{identifyTime}, #{gmtCreate}, #{gmtModify})
+    </insert>
+
+    <insert id="saveBatch" parameterType="java.util.List">
+        insert into tbl_fingerprint(<include refid="generalInsertColumns"/>)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id}, #{item.userId}, #{item.finger}, #{item.template}, #{item.enrollTime}, #{item.identifyTime},
+            #{item.gmtCreate}, #{item.gmtModify})
+        </foreach>
+    </insert>
+
+    <update id="updateById" parameterType="cn.edu.xmu.sy.ext.domain.FingerprintDO">
+        update tbl_fingerprint
+        set gmt_modify = #{gmtModify}
+        <if test="userId != null">
+            , user_id = #{userId}
+        </if>
+        <if test="finger != null">
+            , finger = #{finger}
+        </if>
+        <if test="template != null">
+            , template = #{template}
+        </if>
+        <if test="enrollTime != null">
+            , enroll_time = #{enrollTime}
+        </if>
+        <if test="identifyTime != null">
+            , identify_time = #{identifyTime}
+        </if>
+        where id = #{id} and is_delete = 0
+    </update>
+
+    <update id="removeById" parameterType="java.lang.Long">
+        update tbl_fingerprint set is_delete = 1
+        where id = #{id} and is_delete = 0
+    </update>
+
+    <update id="removeByUserId" parameterType="java.lang.Long">
+        update tbl_fingerprint set is_delete = 1
+        where user_id = #{userId} and is_delete = 0
+    </update>
+
+    <select id="getById" parameterType="java.lang.Long" resultType="cn.edu.xmu.sy.ext.result.FingerprintQueryResult">
+        select
+        <include refid="generalSelectColumns"/>
+        from tbl_fingerprint
+        where id = #{id} and is_delete = 0
+    </select>
+
+    <select id="getByUserId" parameterType="java.lang.Long"
+            resultType="cn.edu.xmu.sy.ext.result.FingerprintQueryResult">
+        select
+        <include refid="generalSelectColumns"/>
+        from tbl_fingerprint
+        where user_id = #{userId} and is_delete = 0
+    </select>
+
+    <select id="listByUserId" parameterType="java.util.List"
+            resultType="cn.edu.xmu.sy.ext.result.FingerprintQueryResult">
+        select
+        <include refid="generalSelectColumns"/>
+        from tbl_fingerprint
+        where user_id in
+        <foreach collection="list" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+        and is_delete = 0
+    </select>
+</mapper>
