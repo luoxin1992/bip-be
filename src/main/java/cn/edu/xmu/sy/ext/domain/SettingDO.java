@@ -13,39 +13,39 @@ import cn.com.lx1992.lib.domain.BaseDO;
  */
 public class SettingDO extends BaseDO {
     /**
-     * 类型
+     * 类别
      */
-    private String type;
+    private String category;
     /**
-     * 键
+     * 属性名
      */
-    private String key;
+    private String propName;
     /**
-     * 值
+     * 属性值
      */
-    private String value;
+    private String propValue;
 
-    public String getType() {
-        return type;
+    public String getCategory() {
+        return category;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setCategory(String category) {
+        this.category = category;
     }
 
-    public String getKey() {
-        return key;
+    public String getPropName() {
+        return propName;
     }
 
-    public void setKey(String key) {
-        this.key = key;
+    public void setPropName(String propName) {
+        this.propName = propName;
     }
 
-    public String getValue() {
-        return value;
+    public String getPropValue() {
+        return propValue;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setPropValue(String propValue) {
+        this.propValue = propValue;
     }
 }

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.xmu.sy.ext.mapper.CounterMapper">
+    <resultMap id="counterMap" type="cn.edu.xmu.sy.ext.domain.CounterDO">
+        <result column="id" jdbcType="BIGINT" property="id"/>
+        <result column="number" jdbcType="VARCHAR" property="number"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="mac" jdbcType="VARCHAR" property="mac"/>
+        <result column="ip" jdbcType="VARCHAR" property="ip"/>
+        <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
+        <result column="gmt_modify" jdbcType="TIMESTAMP" property="gmtModify"/>
+    </resultMap>
+
+    <sql id="generalInsertColumns">
+        id, number, name, mac, ip, gmt_create, gmt_modify
+    </sql>
+
+    <sql id="generalSelectColumns">
+        id, number, name, mac, ip
+    </sql>
+
+    <insert id="save" parameterType="cn.edu.xmu.sy.ext.domain.CounterDO">
+        insert into tbl_counter(<include refid="generalInsertColumns"/>)
+        values(#{id}, #{number}, #{name}, #{mac}, #{ip}, #{gmtCreate}, #{gmtModify})
+    </insert>
+
+    <insert id="saveBatch" parameterType="cn.edu.xmu.sy.ext.domain.CounterDO">
+        insert into tbl_counter(<include refid="generalInsertColumns"/>)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id}, #{item.number}, #{item.name}, #{item.mac}, #{item.ip}, #{item.gmtCreate}, #{item.gmtModify})
+        </foreach>
+    </insert>
+
+    <update id="updateById" parameterType="cn.edu.xmu.sy.ext.domain.CounterDO">
+        update tbl_counter
+        set gmt_modify = #{gmtModify}
+        <if test="number != null">
+            , number = #{number}
+        </if>
+        <if test="name != null">
+            , name = #{name}
+        </if>
+        <if test="mac != null">
+            , mac = #{mac}
+        </if>
+        <if test="ip != null">
+            , ip = #{ip}
+        </if>
+        where id = #{id} and is_delete = 0
+    </update>
+
+    <update id="removeById" parameterType="java.lang.Long">
+        update tbl_counter set is_delete = 1
+        where id = #{id} and is_delete = 0
+    </update>
+
+    <select id="getById" parameterType="java.lang.Long" resultMap="counterMap">
+        select
+        <include refid="generalSelectColumns"/>
+        from tbl_counter
+        where id = #{id} and is_delete = 0
+    </select>
+</mapper>

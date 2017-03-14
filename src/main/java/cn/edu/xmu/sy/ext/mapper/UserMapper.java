@@ -4,8 +4,6 @@
 package cn.edu.xmu.sy.ext.mapper;
 
 import cn.edu.xmu.sy.ext.domain.UserDO;
-import cn.edu.xmu.sy.ext.param.UserQueryParam;
-import cn.edu.xmu.sy.ext.result.UserQueryResult;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -18,17 +16,17 @@ import java.util.List;
  */
 @Mapper
 public interface UserMapper {
-    Integer save(UserDO userDO);
+    Integer save(UserDO domain);
 
-    Integer saveBatch(List<UserDO> userDOs);
+    Integer saveBatch(List<UserDO> domains);
 
-    Integer updateById(UserDO userDO);
+    Integer updateById(UserDO domain);
 
     Integer removeById(Long id);
 
-    UserQueryResult getById(Long id);
+    UserDO getById(Long id);
 
-    List<UserQueryResult> listByKeyword(UserQueryParam param);
+    //List<UserDO> listByParam(UserQueryParam param);
 
-    Long countByKeyword(UserQueryParam param);
+    //Long countByParam(UserQueryParam param);
 }

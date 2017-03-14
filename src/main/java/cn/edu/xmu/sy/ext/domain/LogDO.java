@@ -21,9 +21,13 @@ public class LogDO extends BaseDO {
      */
     private String version;
     /**
-     * 业务类型
+     * 一级类别
      */
-    private String biz;
+    private String primaryCategory;
+    /**
+     * 二级类别
+     */
+    private String secondaryCategory;
     /**
      * 内容
      */
@@ -45,12 +49,20 @@ public class LogDO extends BaseDO {
         this.version = version;
     }
 
-    public String getBiz() {
-        return biz;
+    public String getPrimaryCategory() {
+        return primaryCategory;
     }
 
-    public void setBiz(String biz) {
-        this.biz = biz;
+    public void setPrimaryCategory(String primaryCategory) {
+        this.primaryCategory = primaryCategory;
+    }
+
+    public String getSecondaryCategory() {
+        return secondaryCategory;
+    }
+
+    public void setSecondaryCategory(String secondaryCategory) {
+        this.secondaryCategory = secondaryCategory;
     }
 
     public String getContent() {

@@ -6,5 +6,11 @@
     <mappers>
         <mapper resource="mybatis/mapper/user-mapper.xml"/>
         <mapper resource="mybatis/mapper/fingerprint-mapper.xml"/>
+        <mapper resource="mybatis/mapper/counter-mapper.xml"/>
+        <mapper resource="mybatis/mapper/session-mapper.xml"/>
+        <mapper resource="mybatis/mapper/message-mapper.xml"/>
+        <mapper resource="mybatis/mapper/setting-mapper.xml"/>
+        <mapper resource="mybatis/mapper/resource-mapper.xml"/>
+        <mapper resource="mybatis/mapper/log-mapper.xml"/>
     </mappers>
 </configuration>

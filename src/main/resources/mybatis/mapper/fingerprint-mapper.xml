@@ -3,12 +3,23 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.edu.xmu.sy.ext.mapper.FingerprintMapper">
+    <resultMap id="fingerprintMap" type="cn.edu.xmu.sy.ext.domain.FingerprintDO">
+        <result column="id" jdbcType="BIGINT" property="id"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="finger" jdbcType="VARCHAR" property="finger"/>
+        <result column="template" jdbcType="VARCHAR" property="template"/>
+        <result column="enroll_time" jdbcType="TIMESTAMP" property="enrollTime"/>
+        <result column="identify_time" jdbcType="TIMESTAMP" property="identifyTime"/>
+        <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
+        <result column="gmt_modify" jdbcType="TIMESTAMP" property="gmtModify"/>
+    </resultMap>
+
     <sql id="generalInsertColumns">
         id, user_id, finger, template, enroll_time, identify_time, gmt_create, gmt_modify
     </sql>
 
     <sql id="generalSelectColumns">
-        id as id, finger as finger, template as template, enroll_time as enrollTime, identify_time as identifyTime
+        id, user_id, finger, template, enroll_time, identify_time
     </sql>
 
     <insert id="save" parameterType="cn.edu.xmu.sy.ext.domain.FingerprintDO">
@@ -16,7 +27,7 @@
         values(#{id}, #{userId}, #{finger}, #{template}, #{enrollTime}, #{identifyTime}, #{gmtCreate}, #{gmtModify})
     </insert>
 
-    <insert id="saveBatch" parameterType="java.util.List">
+    <insert id="saveBatch" parameterType="cn.edu.xmu.sy.ext.domain.CounterDO">
         insert into tbl_fingerprint(<include refid="generalInsertColumns"/>)
         values
         <foreach collection="list" item="item" separator=",">
@@ -56,23 +67,21 @@
         where user_id = #{userId} and is_delete = 0
     </update>
 
-    <select id="getById" parameterType="java.lang.Long" resultType="cn.edu.xmu.sy.ext.result.FingerprintQueryResult">
+    <select id="getById" parameterType="java.lang.Long" resultMap="fingerprintMap">
         select
         <include refid="generalSelectColumns"/>
         from tbl_fingerprint
         where id = #{id} and is_delete = 0
     </select>
 
-    <select id="getByUserId" parameterType="java.lang.Long"
-            resultType="cn.edu.xmu.sy.ext.result.FingerprintQueryResult">
+    <select id="getByUserId" parameterType="java.lang.Long" resultMap="fingerprintMap">
         select
         <include refid="generalSelectColumns"/>
         from tbl_fingerprint
         where user_id = #{userId} and is_delete = 0
     </select>
 
-    <select id="listByUserId" parameterType="java.util.List"
-            resultType="cn.edu.xmu.sy.ext.result.FingerprintQueryResult">
+    <select id="listByUserId" parameterType="java.lang.Long" resultMap="fingerprintMap">
         select
         <include refid="generalSelectColumns"/>
         from tbl_fingerprint

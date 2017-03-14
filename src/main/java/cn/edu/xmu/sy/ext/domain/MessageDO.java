@@ -27,9 +27,9 @@ public class MessageDO extends BaseDO {
      */
     private String type;
     /**
-     * 内容
+     * 附加信息
      */
-    private String content;
+    private String extra;
     /**
      * 发送时间
      */
@@ -63,12 +63,12 @@ public class MessageDO extends BaseDO {
         this.type = type;
     }
 
-    public String getContent() {
-        return content;
+    public String getExtra() {
+        return extra;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setExtra(String extra) {
+        this.extra = extra;
     }
 
     public LocalDateTime getSendTime() {

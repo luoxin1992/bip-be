@@ -3,12 +3,21 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.edu.xmu.sy.ext.mapper.UserMapper">
+    <resultMap id="userMap" type="cn.edu.xmu.sy.ext.domain.UserDO">
+        <result column="id" jdbcType="BIGINT" property="id"/>
+        <result column="number" jdbcType="VARCHAR" property="number"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="photo" jdbcType="VARCHAR" property="photo"/>
+        <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
+        <result column="gmt_modify" jdbcType="TIMESTAMP" property="gmtModify"/>
+    </resultMap>
+
     <sql id="generalInsertColumns">
         id, number, name, photo, gmt_create, gmt_modify
     </sql>
 
     <sql id="generalSelectColumns">
-        id as id, number as number, name as name, photo as photo
+        id, number, name, photo
     </sql>
 
     <insert id="save" parameterType="cn.edu.xmu.sy.ext.domain.UserDO">
@@ -16,7 +25,7 @@
         values(#{id}, #{number}, #{name}, #{photo}, #{gmtCreate}, #{gmtModify})
     </insert>
 
-    <insert id="saveBatch" parameterType="java.util.List">
+    <insert id="saveBatch" parameterType="cn.edu.xmu.sy.ext.domain.UserDO">
         insert into tbl_user(<include refid="generalInsertColumns"/>)
         values
         <foreach collection="list" item="item" separator=",">
@@ -40,47 +49,47 @@
     </update>
 
     <update id="removeById" parameterType="java.lang.Long">
-        <!--TODO 是否修改gmt_modify字段？-->
+        <!--TODO 未修改gmt_modify字段-->
         update tbl_user set is_delete = 1
         where id = #{id} and is_delete = 0
     </update>
 
-    <select id="getById" parameterType="java.lang.Long" resultType="cn.edu.xmu.sy.ext.result.UserQueryResult">
+    <select id="getById" parameterType="java.lang.Long" resultMap="userMap">
         select
         <include refid="generalSelectColumns"/>
         from tbl_user
         where id = #{id} and is_delete = 0
     </select>
 
-    <select id="listByKeyword" parameterType="cn.edu.xmu.sy.ext.param.UserQueryParam"
-            resultType="cn.edu.xmu.sy.ext.result.UserQueryResult">
-        select
-        <include refid="generalSelectColumns"/>
-        from tbl_user
-        where is_delete = 0
-        <if test="keyword != null">
-            <!--and (number like concat(#{keyword}, '%') or name like concat(#{keyword}, '%'))-->
-            and match(number, name) against(#{keyword} in boolean mode)
-            <if test="minId != null">
-                and id > #{minId}
-            </if>
-        </if>
-        <if test="keyword == null">
-            <if test="minId != null">
-                and #{minId} > id
-            </if>
-            order by id desc
-        </if>
-        limit ${pageSize}
-    </select>
+    <!--<select id="listByKeyword" parameterType="cn.edu.xmu.sy.ext.param.UserQueryParam" resultMap="userMap">-->
+        <!--select-->
+        <!--<include refid="generalSelectColumns"/>-->
+        <!--from tbl_user-->
+        <!--where is_delete = 0-->
+        <!--<if test="keyword != null">-->
+            <!--&lt;!&ndash;and (number like concat(#{keyword}, '%') or name like concat(#{keyword}, '%'))&ndash;&gt;-->
+            <!--&lt;!&ndash;MySQL 5.7以后fulltext索引支持ngram中文分词&ndash;&gt;-->
+            <!--and match(number, name) against(#{keyword} in boolean mode)-->
+            <!--<if test="minId != null">-->
+                <!--and id > #{minId}-->
+            <!--</if>-->
+        <!--</if>-->
+        <!--<if test="keyword == null">-->
+            <!--<if test="minId != null">-->
+                <!--and #{minId} > id-->
+            <!--</if>-->
+            <!--order by id desc-->
+        <!--</if>-->
+        <!--limit ${pageSize}-->
+    <!--</select>-->
 
-    <select id="countByKeyword" parameterType="cn.edu.xmu.sy.ext.param.UserQueryParam" resultType="java.lang.Long">
-        select count(1)
-        from tbl_user
-        where is_delete = 0
-        <if test="keyword != null">
-            <!--and (number like concat(#{keyword}, '%') or name like concat(#{keyword}, '%'))-->
-            and match(number, name) against(#{keyword} in boolean mode)
-        </if>
-    </select>
+    <!--<select id="countByKeyword" parameterType="cn.edu.xmu.sy.ext.param.UserQueryParam" resultType="java.lang.Long">-->
+        <!--select count(1)-->
+        <!--from tbl_user-->
+        <!--where is_delete = 0-->
+        <!--<if test="keyword != null">-->
+            <!--&lt;!&ndash;and (number like concat(#{keyword}, '%') or name like concat(#{keyword}, '%'))&ndash;&gt;-->
+            <!--and match(number, name) against(#{keyword} in boolean mode)-->
+        <!--</if>-->
+    <!--</select>-->
 </mapper>

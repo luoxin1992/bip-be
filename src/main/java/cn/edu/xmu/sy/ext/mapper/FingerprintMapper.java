@@ -4,7 +4,6 @@
 package cn.edu.xmu.sy.ext.mapper;
 
 import cn.edu.xmu.sy.ext.domain.FingerprintDO;
-import cn.edu.xmu.sy.ext.result.FingerprintQueryResult;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -17,19 +16,19 @@ import java.util.List;
  */
 @Mapper
 public interface FingerprintMapper {
-    Integer save(FingerprintDO fingerprintDO);
+    Integer save(FingerprintDO domain);
 
-    Integer saveBatch(List<FingerprintDO> fingerprintDOs);
+    Integer saveBatch(List<FingerprintDO> domains);
 
-    Integer updateById(FingerprintDO fingerprintDO);
+    Integer updateById(FingerprintDO domain);
 
     Integer removeById(Long id);
 
     Integer removeByUserId(Long userId);
 
-    FingerprintQueryResult getById(Long id);
+    FingerprintDO getById(Long id);
 
-    List<FingerprintQueryResult> getByUserId(Long userId);
+    List<FingerprintDO> getByUserId(Long userId);
 
-    List<FingerprintQueryResult> listByUserId(List<Long> userIds);
+    List<FingerprintDO> listByUserId(List<Long> userIds);
 }

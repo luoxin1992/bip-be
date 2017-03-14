@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.xmu.sy.ext.mapper.SessionMapper">
+    <resultMap id="sessionMap" type="cn.edu.xmu.sy.ext.domain.SessionDO">
+        <result column="id" jdbcType="BIGINT" property="id"/>
+        <result column="counter_id" jdbcType="BIGINT" property="counterId"/>
+        <result column="token" jdbcType="VARCHAR" property="token"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="online_time" jdbcType="TIMESTAMP" property="onlineTime"/>
+        <result column="offline_time" jdbcType="TIMESTAMP" property="offlineTime"/>
+        <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
+        <result column="gmt_modify" jdbcType="TIMESTAMP" property="gmtModify"/>
+    </resultMap>
+
+    <sql id="generalInsertColumns">
+        id, counter_id, token, status, online_time, offline_time, gmt_create, gmt_modify
+    </sql>
+
+    <sql id="generalSelectColumns">
+        id, counter_id, token, status, online_time, offline_time
+    </sql>
+
+    <insert id="save" parameterType="cn.edu.xmu.sy.ext.domain.SessionDO">
+        insert into tbl_session(<include refid="generalInsertColumns"/>)
+        values(#{id}, #{counterId}, #{token}, #{status}, #{onlineTime}, #{offlineTime}, #{gmtCreate}, #{gmtModify})
+    </insert>
+
+    <insert id="saveBatch" parameterType="cn.edu.xmu.sy.ext.domain.SessionDO">
+        insert into tbl_session(<include refid="generalInsertColumns"/>)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id}, #{item.counterId}, #{item.token}, #{item.status}, #{item.onlineTime}, #{item.offlineTime},
+            #{item.gmtCreate}, #{item.gmtModify})
+        </foreach>
+    </insert>
+
+    <update id="updateById" parameterType="cn.edu.xmu.sy.ext.domain.SessionDO">
+        update tbl_session
+        set gmt_modify = #{gmtModify}
+        <if test="counterId != null">
+            , counter_id = #{counterId}
+        </if>
+        <if test="token != null">
+            , token = #{token}
+        </if>
+        <if test="status != null">
+            , status = #{status}
+        </if>
+        <if test="onlineTime != null">
+            , online_time = #{onlineTime}
+        </if>
+        <if test="offlineTime != null">
+            , offline_time = #{offlineTime}
+        </if>
+        where id = #{id} and is_delete = 0
+    </update>
+
+    <update id="removeById" parameterType="java.lang.Long">
+        update tbl_session set is_delete = 1
+        where id = #{id} and is_delete = 0
+    </update>
+
+    <update id="removeByCounterId" parameterType="java.lang.Long">
+        update tbl_session set is_delete = 1
+        where counter_id = #{counterId} and is_delete = 0
+    </update>
+
+    <select id="getById" parameterType="java.lang.Long" resultMap="sessionMap">
+        select
+        <include refid="generalSelectColumns"/>
+        from tbl_session
+        where id = #{id} and is_delete = 0
+    </select>
+
+    <select id="getByCounterId" parameterType="java.lang.Long" resultMap="sessionMap">
+        select
+        <include refid="generalSelectColumns"/>
+        from tbl_session
+        where counter_id = #{counterId} and is_delete = 0
+    </select>
+
+    <select id="listByCounterId" parameterType="java.lang.Long" resultMap="sessionMap">
+        select
+        <include refid="generalSelectColumns"/>
+        from tbl_session
+        where counter_id in
+        <foreach collection="list" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+        and is_delete = 0
+    </select>
+</mapper>
