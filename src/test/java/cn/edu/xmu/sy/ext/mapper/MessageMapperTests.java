@@ -3,10 +3,7 @@
  */
 package cn.edu.xmu.sy.ext.mapper;
 
-import cn.com.lx1992.lib.util.IDGenerator;
 import cn.edu.xmu.sy.ext.domain.MessageDO;
-import cn.edu.xmu.sy.ext.meta.EntityEnum;
-import cn.edu.xmu.sy.ext.meta.WorkerEnum;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +32,6 @@ public class MessageMapperTests {
     @Test
     public void testSave() {
         MessageDO messageDO = new MessageDO();
-        messageDO.setId(IDGenerator.nextId(EntityEnum.MESSAGE.getCode(), WorkerEnum.DEFAULT.getCode()));
         messageDO.setCounterId(26227809714182L);
         messageDO.setSessionId(26224043098119L);
         messageDO.setType("测试");
@@ -53,7 +49,6 @@ public class MessageMapperTests {
             for (int j = 0; j < 2; j++) {
                 for (int k = 1; k <= 2; k++) {
                     MessageDO messageDO = new MessageDO();
-                    messageDO.setId(IDGenerator.nextId(EntityEnum.MESSAGE.getCode(), WorkerEnum.DEFAULT.getCode()));
                     messageDO.setCounterId(26224043098119L + i);
                     messageDO.setSessionId(26227809714182L + i * 2 + j);
                     messageDO.setType("测试类别" + k);

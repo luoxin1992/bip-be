@@ -3,10 +3,7 @@
  */
 package cn.edu.xmu.sy.ext.mapper;
 
-import cn.com.lx1992.lib.util.IDGenerator;
 import cn.edu.xmu.sy.ext.domain.FingerprintDO;
-import cn.edu.xmu.sy.ext.meta.EntityEnum;
-import cn.edu.xmu.sy.ext.meta.WorkerEnum;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +32,6 @@ public class FingerprintMapperTests {
     @Test
     public void testSave() {
         FingerprintDO fingerprintDO = new FingerprintDO();
-        fingerprintDO.setId(IDGenerator.nextId(EntityEnum.FINGERPRINT.getCode(), WorkerEnum.DEFAULT.getCode()));
         fingerprintDO.setUserId(26208150618113L);
         fingerprintDO.setFinger("测试");
         fingerprintDO.setTemplate("");
@@ -52,7 +48,6 @@ public class FingerprintMapperTests {
         for (int i = 0; i < 5; i++) {
             for (int j = 1; j <= 2; j++) {
                 FingerprintDO fingerprintDO = new FingerprintDO();
-                fingerprintDO.setId(IDGenerator.nextId(EntityEnum.FINGERPRINT.getCode(), WorkerEnum.DEFAULT.getCode()));
                 fingerprintDO.setUserId(26208708460552L + i);
                 fingerprintDO.setFinger("测试手指" + j);
                 fingerprintDO.setTemplate("");

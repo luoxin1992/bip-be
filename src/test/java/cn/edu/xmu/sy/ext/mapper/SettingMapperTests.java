@@ -3,10 +3,7 @@
  */
 package cn.edu.xmu.sy.ext.mapper;
 
-import cn.com.lx1992.lib.util.IDGenerator;
 import cn.edu.xmu.sy.ext.domain.SettingDO;
-import cn.edu.xmu.sy.ext.meta.EntityEnum;
-import cn.edu.xmu.sy.ext.meta.WorkerEnum;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +32,6 @@ public class SettingMapperTests {
     @Test
     public void testSave() {
         SettingDO settingDO = new SettingDO();
-        settingDO.setId(IDGenerator.nextId(EntityEnum.SETTING.getCode(), WorkerEnum.DEFAULT.getCode()));
         settingDO.setCategory("测试");
         settingDO.setPropName("测试");
         settingDO.setPropValue("测试");
@@ -49,7 +45,6 @@ public class SettingMapperTests {
         List<SettingDO> settingDOs = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             SettingDO settingDO = new SettingDO();
-            settingDO.setId(IDGenerator.nextId(EntityEnum.SETTING.getCode(), WorkerEnum.DEFAULT.getCode()));
             settingDO.setCategory("测试类别" + i);
             settingDO.setPropName("测试属性名" + i);
             settingDO.setPropValue("测试属性值" + i);

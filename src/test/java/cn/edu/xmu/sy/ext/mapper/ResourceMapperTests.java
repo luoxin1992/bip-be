@@ -3,10 +3,7 @@
  */
 package cn.edu.xmu.sy.ext.mapper;
 
-import cn.com.lx1992.lib.util.IDGenerator;
 import cn.edu.xmu.sy.ext.domain.ResourceDO;
-import cn.edu.xmu.sy.ext.meta.EntityEnum;
-import cn.edu.xmu.sy.ext.meta.WorkerEnum;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +32,6 @@ public class ResourceMapperTests {
     @Test
     public void testSave() {
         ResourceDO resourceDO = new ResourceDO();
-        resourceDO.setId(IDGenerator.nextId(EntityEnum.RESOURCE.getCode(), WorkerEnum.DEFAULT.getCode()));
         resourceDO.setType("测试");
         resourceDO.setName("测试");
         resourceDO.setPath("测试");
@@ -50,7 +46,6 @@ public class ResourceMapperTests {
         List<ResourceDO> resourceDOs = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             ResourceDO resourceDO = new ResourceDO();
-            resourceDO.setId(IDGenerator.nextId(EntityEnum.RESOURCE.getCode(), WorkerEnum.DEFAULT.getCode()));
             resourceDO.setType("测试类型" + i);
             resourceDO.setName("测试名称" + i);
             resourceDO.setPath("测试路径" + i);

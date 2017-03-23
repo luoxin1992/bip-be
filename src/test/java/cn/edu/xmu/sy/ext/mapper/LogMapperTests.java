@@ -3,10 +3,7 @@
  */
 package cn.edu.xmu.sy.ext.mapper;
 
-import cn.com.lx1992.lib.util.IDGenerator;
 import cn.edu.xmu.sy.ext.domain.LogDO;
-import cn.edu.xmu.sy.ext.meta.EntityEnum;
-import cn.edu.xmu.sy.ext.meta.WorkerEnum;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +32,6 @@ public class LogMapperTests {
     @Test
     public void testSave() {
         LogDO logDO = new LogDO();
-        logDO.setId(IDGenerator.nextId(EntityEnum.RESOURCE.getCode(), WorkerEnum.DEFAULT.getCode()));
         logDO.setPlatform("测试");
         logDO.setVersion("测试");
         logDO.setPrimaryCategory("测试");
@@ -51,7 +47,6 @@ public class LogMapperTests {
         List<LogDO> logDOs = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             LogDO logDO = new LogDO();
-            logDO.setId(IDGenerator.nextId(EntityEnum.LOG.getCode(), WorkerEnum.DEFAULT.getCode()));
             logDO.setPlatform("测试平台" + i);
             logDO.setVersion("测试版本" + i);
             logDO.setPrimaryCategory("测试一级类别" + i);

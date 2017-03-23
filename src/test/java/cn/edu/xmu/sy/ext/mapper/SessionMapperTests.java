@@ -3,10 +3,7 @@
  */
 package cn.edu.xmu.sy.ext.mapper;
 
-import cn.com.lx1992.lib.util.IDGenerator;
 import cn.edu.xmu.sy.ext.domain.SessionDO;
-import cn.edu.xmu.sy.ext.meta.EntityEnum;
-import cn.edu.xmu.sy.ext.meta.WorkerEnum;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.junit.Assert;
 import org.junit.Test;
@@ -37,7 +34,6 @@ public class SessionMapperTests {
     public void testSave() {
         SessionDO sessionDO = new SessionDO();
         sessionDO.setCounterId(26223598501888L);
-        sessionDO.setId(IDGenerator.nextId(EntityEnum.SESSION.getCode(), WorkerEnum.DEFAULT.getCode()));
         sessionDO.setToken("");
         sessionDO.setStatus(1);
         sessionDO.setOnlineTime(LocalDateTime.now());
@@ -52,7 +48,6 @@ public class SessionMapperTests {
         for (int i = 0; i < 5; i++) {
             for (int j = 1; j <= 2; j++) {
                 SessionDO sessionDO = new SessionDO();
-                sessionDO.setId(IDGenerator.nextId(EntityEnum.SESSION.getCode(), WorkerEnum.DEFAULT.getCode()));
                 sessionDO.setCounterId(26224043098119L + i);
                 sessionDO.setToken("");
                 sessionDO.setStatus(1);

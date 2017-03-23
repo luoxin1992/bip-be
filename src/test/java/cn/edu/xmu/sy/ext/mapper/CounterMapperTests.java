@@ -3,10 +3,7 @@
  */
 package cn.edu.xmu.sy.ext.mapper;
 
-import cn.com.lx1992.lib.util.IDGenerator;
 import cn.edu.xmu.sy.ext.domain.CounterDO;
-import cn.edu.xmu.sy.ext.meta.EntityEnum;
-import cn.edu.xmu.sy.ext.meta.WorkerEnum;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +32,6 @@ public class CounterMapperTests {
     @Test
     public void testSave() {
         CounterDO counterDO = new CounterDO();
-        counterDO.setId(IDGenerator.nextId(EntityEnum.COUNTER.getCode(), WorkerEnum.DEFAULT.getCode()));
         counterDO.setNumber("00");
         counterDO.setName("测试");
         counterDO.setMac("000000000000");
@@ -50,7 +46,6 @@ public class CounterMapperTests {
         List<CounterDO> counterDOs = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             CounterDO counterDO = new CounterDO();
-            counterDO.setId(IDGenerator.nextId(EntityEnum.COUNTER.getCode(), WorkerEnum.DEFAULT.getCode()));
             counterDO.setNumber("0" + i);
             counterDO.setName("测试柜台" + i);
             counterDO.setMac("00000000000" + i);
