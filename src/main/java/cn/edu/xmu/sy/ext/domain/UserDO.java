@@ -3,7 +3,8 @@
  */
 package cn.edu.xmu.sy.ext.domain;
 
-import cn.com.lx1992.lib.domain.BaseDO;
+import cn.com.lx1992.lib.annotation.FieldComment;
+import cn.com.lx1992.lib.base.domain.BaseDO;
 
 /**
  * 用户Domain
@@ -15,14 +16,17 @@ public class UserDO extends BaseDO {
     /**
      * 编号
      */
+    @FieldComment("编号")
     private String number;
     /**
      * 姓名
      */
+    @FieldComment("姓名")
     private String name;
     /**
      * 照片
      */
+    @FieldComment("照片")
     private String photo;
 
     public String getNumber() {

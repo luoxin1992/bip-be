@@ -3,7 +3,9 @@
  */
 package cn.edu.xmu.sy.ext.domain;
 
-import cn.com.lx1992.lib.domain.BaseDO;
+import cn.com.lx1992.lib.annotation.CompareIgnore;
+import cn.com.lx1992.lib.annotation.FieldComment;
+import cn.com.lx1992.lib.base.domain.BaseDO;
 
 import java.time.LocalDateTime;
 
@@ -17,22 +19,29 @@ public class SessionDO extends BaseDO {
     /**
      * 柜台ID
      */
+    @FieldComment("柜台ID")
     private Long counterId;
     /**
      * 标识
      */
+    @FieldComment("标识")
     private String token;
     /**
      * 状态
      */
+    @FieldComment("状态")
     private Integer status;
     /**
      * 上线时间
      */
+    @FieldComment("上线时间")
+    @CompareIgnore
     private LocalDateTime onlineTime;
     /**
      * 下线时间
      */
+    @FieldComment("下线时间")
+    @CompareIgnore
     private LocalDateTime offlineTime;
 
     public Long getCounterId() {

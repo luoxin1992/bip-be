@@ -3,7 +3,8 @@
  */
 package cn.edu.xmu.sy.ext.domain;
 
-import cn.com.lx1992.lib.domain.BaseDO;
+import cn.com.lx1992.lib.annotation.FieldComment;
+import cn.com.lx1992.lib.base.domain.BaseDO;
 
 /**
  * 日志Domain
@@ -15,22 +16,27 @@ public class LogDO extends BaseDO {
     /**
      * 客户端平台
      */
+    @FieldComment("客户端平台")
     private String platform;
     /**
      * 客户端版本
      */
+    @FieldComment("客户端版本")
     private String version;
     /**
      * 一级类别
      */
+    @FieldComment("一级类别")
     private String primaryCategory;
     /**
      * 二级类别
      */
+    @FieldComment("二级类别")
     private String secondaryCategory;
     /**
      * 内容
      */
+    @FieldComment("内容")
     private String content;
 
     public String getPlatform() {

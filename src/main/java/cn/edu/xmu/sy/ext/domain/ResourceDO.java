@@ -3,7 +3,8 @@
  */
 package cn.edu.xmu.sy.ext.domain;
 
-import cn.com.lx1992.lib.domain.BaseDO;
+import cn.com.lx1992.lib.annotation.FieldComment;
+import cn.com.lx1992.lib.base.domain.BaseDO;
 
 /**
  * 资源Domain
@@ -15,18 +16,22 @@ public class ResourceDO extends BaseDO {
     /**
      * 类型
      */
+    @FieldComment("类型")
     private String type;
     /**
      * 名称
      */
+    @FieldComment("名称")
     private String name;
     /**
      * 路径
      */
+    @FieldComment("路径")
     private String path;
     /**
      * MD5
      */
+    @FieldComment("MD5")
     private String md5;
 
     public String getType() {

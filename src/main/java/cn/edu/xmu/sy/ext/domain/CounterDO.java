@@ -3,7 +3,8 @@
  */
 package cn.edu.xmu.sy.ext.domain;
 
-import cn.com.lx1992.lib.domain.BaseDO;
+import cn.com.lx1992.lib.annotation.FieldComment;
+import cn.com.lx1992.lib.base.domain.BaseDO;
 
 /**
  * 柜台Domain
@@ -15,18 +16,22 @@ public class CounterDO extends BaseDO {
     /**
      * 编号
      */
+    @FieldComment("编号")
     private String number;
     /**
      * 名称
      */
+    @FieldComment("名称")
     private String name;
     /**
      * MAC地址
      */
+    @FieldComment("MAC地址")
     private String mac;
     /**
      * IP地址
      */
+    @FieldComment("IP地址")
     private String ip;
 
     public String getNumber() {

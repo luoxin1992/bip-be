@@ -3,7 +3,9 @@
  */
 package cn.edu.xmu.sy.ext.domain;
 
-import cn.com.lx1992.lib.domain.BaseDO;
+import cn.com.lx1992.lib.annotation.CompareIgnore;
+import cn.com.lx1992.lib.annotation.FieldComment;
+import cn.com.lx1992.lib.base.domain.BaseDO;
 
 import java.time.LocalDateTime;
 
@@ -17,22 +19,29 @@ public class FingerprintDO extends BaseDO {
     /**
      * 用户ID
      */
+    @FieldComment("用户ID")
     private Long userId;
     /**
      * 手指名称
      */
+    @FieldComment("手指名称")
     private String finger;
     /**
      * 指纹模板
      */
+    @FieldComment("指纹模板")
     private String template;
     /**
      * 登记时间
      */
+    @FieldComment("登记时间")
+    @CompareIgnore
     private LocalDateTime enrollTime;
     /**
      * (最后)辨识时间
      */
+    @FieldComment("(最后)辨识时间")
+    @CompareIgnore
     private LocalDateTime identifyTime;
 
     public Long getUserId() {

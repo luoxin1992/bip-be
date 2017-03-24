@@ -3,7 +3,8 @@
  */
 package cn.edu.xmu.sy.ext.domain;
 
-import cn.com.lx1992.lib.domain.BaseDO;
+import cn.com.lx1992.lib.annotation.FieldComment;
+import cn.com.lx1992.lib.base.domain.BaseDO;
 
 /**
  * 设置Domain
@@ -15,14 +16,17 @@ public class SettingDO extends BaseDO {
     /**
      * 类别
      */
+    @FieldComment("类别")
     private String category;
     /**
      * 属性名
      */
+    @FieldComment("属性名")
     private String propName;
     /**
      * 属性值
      */
+    @FieldComment("属性值")
     private String propValue;
 
     public String getCategory() {
