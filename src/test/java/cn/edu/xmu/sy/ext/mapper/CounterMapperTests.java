@@ -3,7 +3,10 @@
  */
 package cn.edu.xmu.sy.ext.mapper;
 
+import cn.com.lx1992.lib.base.param.BasePagingParam;
+import cn.com.lx1992.lib.base.param.BaseSearchParam;
 import cn.edu.xmu.sy.ext.domain.CounterDO;
+import cn.edu.xmu.sy.ext.param.CounterQueryParam;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -77,5 +80,37 @@ public class CounterMapperTests {
     @Test
     public void testGetById() {
         logger.info("{}", counterMapper.getById(26223598501888L));
+    }
+
+    @Test
+    public void testListByParam() {
+        BaseSearchParam search = new BaseSearchParam();
+        //search.setKeyword("0");
+        BasePagingParam paging = new BasePagingParam();
+        paging.setSize(5);
+        paging.setStart(26224043098126L);
+        CounterQueryParam param = new CounterQueryParam();
+        param.setSearch(search);
+        param.setPaging(paging);
+        logger.info("{}", counterMapper.listByParam(param));
+    }
+
+    @Test
+    public void testCountByParam() {
+        BaseSearchParam search = new BaseSearchParam();
+        search.setKeyword("测试");
+        CounterQueryParam param = new CounterQueryParam();
+        param.setSearch(search);
+        logger.info("{}", counterMapper.countByParam(param));
+    }
+
+    @Test
+    public void testGetIdByNumber() {
+        logger.info("{}", counterMapper.getIdByNumber("09", 26224043098128L));
+    }
+
+    @Test
+    public void testGetIdByMacAndIp() {
+        logger.info("{}", counterMapper.getIdByMacAndIp("000000000001", "192.168.1.101", 26224043098120L));
     }
 }

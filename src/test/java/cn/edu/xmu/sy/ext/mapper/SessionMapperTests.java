@@ -3,7 +3,12 @@
  */
 package cn.edu.xmu.sy.ext.mapper;
 
+import cn.com.lx1992.lib.base.param.BasePeriodParam;
+import cn.com.lx1992.lib.constant.DateTimeConstant;
+import cn.com.lx1992.lib.util.DateTimeUtil;
 import cn.edu.xmu.sy.ext.domain.SessionDO;
+import cn.edu.xmu.sy.ext.param.SessionBatchQueryParam;
+import cn.edu.xmu.sy.ext.param.SessionQueryParam;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.junit.Assert;
 import org.junit.Test;
@@ -96,7 +101,7 @@ public class SessionMapperTests {
     }
 
     @Test
-    public void testListByUserId() {
+    public void testListByCounterId() {
         List<Long> counterIds = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             counterIds.add(26224043098120L + i);
@@ -105,5 +110,31 @@ public class SessionMapperTests {
         for (SessionDO result : results) {
             logger.info("{}", result);
         }
+    }
+
+    @Test
+    public void testGetByParam() {
+        SessionQueryParam param = new SessionQueryParam();
+        param.setCounterId(26224043098121L);
+        param.setStatus(1);
+        param.setPeriod(new BasePeriodParam(DateTimeUtil.getTodayStr(DateTimeConstant.DATE_PATTERN)));
+        logger.info("{}", sessionMapper.getByParam(param));
+    }
+
+    @Test
+    public void testListByParam() {
+        List<Long> counterIds = new ArrayList<>();
+        counterIds.add(26224043098122L);
+        counterIds.add(26224043098123L);
+        SessionBatchQueryParam param = new SessionBatchQueryParam();
+        param.setCounterIds(counterIds);
+        param.setStatus(2);
+        param.setPeriod(new BasePeriodParam(DateTimeUtil.getTodayStr(DateTimeConstant.DATE_PATTERN)));
+        logger.info("{}", sessionMapper.listByParam(param));
+    }
+
+    @Test
+    public void testGetOnlineSessionId() {
+        logger.info("{}", sessionMapper.getOnlineSessionId(26224043098121L));
     }
 }

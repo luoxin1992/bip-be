@@ -63,4 +63,62 @@
         from tbl_counter
         where id = #{id} and is_delete = 0
     </select>
+
+    <select id="listByParam" parameterType="cn.edu.xmu.sy.ext.param.CounterQueryParam" resultMap="counterMap">
+        select
+        <include refid="generalSelectColumns"/>
+        from tbl_counter
+        where is_delete = 0
+        <if test="search.keyword != null">
+            and match(number, name, ip) against(#{search.keyword} in boolean mode)
+            <if test="paging.start != null">
+                limit ${paging.start}, ${paging.size}
+            </if>
+            <if test="paging.start == null">
+                limit ${paging.size}
+            </if>
+        </if>
+        <if test="search.keyword == null">
+            <if test="paging.start != null">
+                and #{paging.start} > id
+            </if>
+            order by id desc
+            limit ${paging.size}
+        </if>
+    </select>
+
+    <select id="countByParam" parameterType="cn.edu.xmu.sy.ext.param.CounterQueryParam" resultType="java.lang.Long">
+        select count(1)
+        from tbl_counter
+        where is_delete = 0
+        <if test="search.keyword != null">
+            and match(number, name, ip) against(#{search.keyword} in boolean mode)
+        </if>
+    </select>
+
+    <select id="getIdByNumber" resultType="java.lang.Long">
+        select id
+        from tbl_counter
+        where number = #{number} and is_delete = 0
+        <if test="exclude != null">
+            and id != #{exclude}
+        </if>
+        limit 1
+    </select>
+
+    <select id="getIdByMacAndIp" resultType="java.lang.Long">
+        select id
+        from tbl_counter
+        where is_delete = 0
+        <if test="mac != null">
+            and mac = #{mac}
+        </if>
+        <if test="ip != null">
+            and ip = #{ip}
+        </if>
+        <if test="exclude != null">
+            and id != #{exclude}
+        </if>
+        limit 1
+    </select>
 </mapper>

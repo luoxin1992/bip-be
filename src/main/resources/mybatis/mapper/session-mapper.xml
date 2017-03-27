@@ -91,4 +91,62 @@
         </foreach>
         and is_delete = 0
     </select>
+
+    <select id="getByParam" parameterType="cn.edu.xmu.sy.ext.param.SessionQueryParam" resultMap="sessionMap">
+        select
+        <include refid="generalSelectColumns"/>
+        from tbl_session
+        where is_delete = 0
+        <if test="counterId != null">
+            and counter_id = #{counterId}
+        </if>
+        <if test="status != null">
+            and status = #{status}
+        </if>
+        <if test="period != null">
+            and(
+            <!--在线-->
+            (status = 1 and #{period.end} >= online_time)
+            or
+            <!--离线-->
+            (status = 2 and #{period.end} >= online_time and offline_time >= #{period.start})
+            or
+            <!--失联-->
+            (status = 3 and #{period.end} >= online_time and online_time >= #{period.start})
+            )
+        </if>
+    </select>
+
+    <select id="listByParam" parameterType="cn.edu.xmu.sy.ext.param.SessionBatchQueryParam" resultMap="sessionMap">
+        select
+        <include refid="generalSelectColumns"/>
+        from tbl_session
+        where is_delete = 0
+        <if test="counterIds != null">
+            and counter_id in
+            <foreach collection="counterIds" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="status != null">
+            and status = #{status}
+        </if>
+        <if test="period != null">
+            and(
+            <!--在线-->
+            (status = 1 and #{period.end} >= online_time)
+            or
+            <!--离线-->
+            (status = 2 and #{period.end} >= online_time and offline_time >= #{period.start})
+            or
+            <!--失联-->
+            (status = 3 and #{period.end} >= online_time and online_time >= #{period.start})
+            )
+        </if>
+    </select>
+
+    <select id="getOnlineSessionId" parameterType="java.lang.Long" resultType="java.lang.Long">
+        select id from tbl_session
+        where counter_id = #{id} and status = 1 and is_delete = 0 limit 1
+    </select>
 </mapper>

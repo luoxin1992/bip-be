@@ -4,6 +4,8 @@
 package cn.edu.xmu.sy.ext.mapper;
 
 import cn.edu.xmu.sy.ext.domain.SessionDO;
+import cn.edu.xmu.sy.ext.param.SessionBatchQueryParam;
+import cn.edu.xmu.sy.ext.param.SessionQueryParam;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -31,4 +33,10 @@ public interface SessionMapper {
     List<SessionDO> getByCounterId(Long counterId);
 
     List<SessionDO> listByCounterId(List<Long> counterIds);
+
+    List<SessionDO> getByParam(SessionQueryParam param);
+
+    List<SessionDO> listByParam(SessionBatchQueryParam param);
+
+    Long getOnlineSessionId(Long counterId);
 }
