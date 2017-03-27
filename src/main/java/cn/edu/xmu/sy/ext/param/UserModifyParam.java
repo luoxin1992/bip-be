@@ -1,24 +1,26 @@
 /*
  * Copyright © 2017 Xiamen University. All Rights Reserved.
  */
-package cn.edu.xmu.sy.ext.result;
+package cn.edu.xmu.sy.ext.param;
 
-import cn.com.lx1992.lib.base.result.BaseResult;
-
-import java.util.List;
+import cn.com.lx1992.lib.annotation.ValidateRule;
+import cn.com.lx1992.lib.base.param.BaseParam;
 
 /**
- * 查询用户Result
+ * 编辑用户Param
  *
  * @author luoxin
- * @version 2017-3-11
+ * @version 2017-3-17
  */
-public class UserQueryResult extends BaseResult {
+public class UserModifyParam extends BaseParam {
+    @ValidateRule(comment = "ID", minVal = 0)
     private Long id;
+    @ValidateRule(comment = "编号", nullable = true, maxLen = 16)
     private String number;
+    @ValidateRule(comment = "姓名", nullable = true, maxLen = 32)
     private String name;
+    @ValidateRule(comment = "照片", nullable = true, maxLen = 128)
     private String photo;
-    private List<FingerprintQueryResult> fingerprints;
 
     public Long getId() {
         return id;
@@ -50,13 +52,5 @@ public class UserQueryResult extends BaseResult {
 
     public void setPhoto(String photo) {
         this.photo = photo;
-    }
-
-    public List<FingerprintQueryResult> getFingerprints() {
-        return fingerprints;
-    }
-
-    public void setFingerprints(List<FingerprintQueryResult> fingerprints) {
-        this.fingerprints = fingerprints;
     }
 }

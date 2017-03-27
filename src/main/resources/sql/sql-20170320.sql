@@ -1,0 +1,1 @@
+ALTER TABLE `tbl_user` ADD INDEX `idx_number` (`number`);

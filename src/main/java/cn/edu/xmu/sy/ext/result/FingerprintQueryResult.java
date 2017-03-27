@@ -3,16 +3,18 @@
  */
 package cn.edu.xmu.sy.ext.result;
 
+import cn.com.lx1992.lib.base.result.BaseResult;
+
 /**
- * 指纹查询结果
+ * 指纹查询Result
  *
  * @author luoxin
  * @version 2017-3-11
  */
-public class FingerprintQueryResult {
+public class FingerprintQueryResult extends BaseResult {
     private Long id;
+    private Long userId;
     private String finger;
-    private String template;
     private String enrollTime;
     private String identifyTime;
 
@@ -24,20 +26,20 @@ public class FingerprintQueryResult {
         this.id = id;
     }
 
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
     public String getFinger() {
         return finger;
     }
 
     public void setFinger(String finger) {
         this.finger = finger;
-    }
-
-    public String getTemplate() {
-        return template;
-    }
-
-    public void setTemplate(String template) {
-        this.template = template;
     }
 
     public String getEnrollTime() {

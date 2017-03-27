@@ -4,6 +4,8 @@
 package cn.edu.xmu.sy.ext.mapper;
 
 import cn.edu.xmu.sy.ext.domain.FingerprintDO;
+import cn.edu.xmu.sy.ext.param.FingerprintBatchQueryParam;
+import cn.edu.xmu.sy.ext.param.FingerprintQueryParam;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -31,4 +33,8 @@ public interface FingerprintMapper {
     List<FingerprintDO> getByUserId(Long userId);
 
     List<FingerprintDO> listByUserId(List<Long> userIds);
+
+    List<FingerprintDO> getByParam(FingerprintQueryParam param);
+
+    List<FingerprintDO> listByParam(FingerprintBatchQueryParam param);
 }

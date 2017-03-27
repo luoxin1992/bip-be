@@ -61,35 +61,41 @@
         where id = #{id} and is_delete = 0
     </select>
 
-    <!--<select id="listByKeyword" parameterType="cn.edu.xmu.sy.ext.param.UserQueryParam" resultMap="userMap">-->
-        <!--select-->
-        <!--<include refid="generalSelectColumns"/>-->
-        <!--from tbl_user-->
-        <!--where is_delete = 0-->
-        <!--<if test="keyword != null">-->
-            <!--&lt;!&ndash;and (number like concat(#{keyword}, '%') or name like concat(#{keyword}, '%'))&ndash;&gt;-->
-            <!--&lt;!&ndash;MySQL 5.7以后fulltext索引支持ngram中文分词&ndash;&gt;-->
-            <!--and match(number, name) against(#{keyword} in boolean mode)-->
-            <!--<if test="minId != null">-->
-                <!--and id > #{minId}-->
-            <!--</if>-->
-        <!--</if>-->
-        <!--<if test="keyword == null">-->
-            <!--<if test="minId != null">-->
-                <!--and #{minId} > id-->
-            <!--</if>-->
-            <!--order by id desc-->
-        <!--</if>-->
-        <!--limit ${pageSize}-->
-    <!--</select>-->
+    <select id="listByParam" parameterType="cn.edu.xmu.sy.ext.param.UserQueryParam" resultMap="userMap">
+        select
+        <include refid="generalSelectColumns"/>
+        from tbl_user
+        where is_delete = 0
+        <if test="search.keyword != null">
+            <!--and (number like concat(#{search.keyword}, '%') or name like concat(#{search.keyword}, '%'))-->
+            <!--MySQL 5.7以后fulltext索引支持ngram中文分词-->
+            and match(number, name) against(#{search.keyword} in boolean mode)
+            <if test="paging.start != null">
+                limit ${paging.start}, ${paging.size}
+            </if>
+            <if test="paging.start == null">
+                limit ${paging.size}
+            </if>
+        </if>
+        <if test="search.keyword == null">
+            <if test="paging.start != null">
+                and #{paging.start} > id
+            </if>
+            order by id desc
+            limit ${paging.size}
+        </if>
+    </select>
 
-    <!--<select id="countByKeyword" parameterType="cn.edu.xmu.sy.ext.param.UserQueryParam" resultType="java.lang.Long">-->
-        <!--select count(1)-->
-        <!--from tbl_user-->
-        <!--where is_delete = 0-->
-        <!--<if test="keyword != null">-->
-            <!--&lt;!&ndash;and (number like concat(#{keyword}, '%') or name like concat(#{keyword}, '%'))&ndash;&gt;-->
-            <!--and match(number, name) against(#{keyword} in boolean mode)-->
-        <!--</if>-->
-    <!--</select>-->
+    <select id="countByParam" parameterType="cn.edu.xmu.sy.ext.param.UserQueryParam" resultType="java.lang.Long">
+        select count(1) from tbl_user
+        where is_delete = 0
+        <if test="search.keyword != null">
+            and match(number, name) against(#{search.keyword} in boolean mode)
+        </if>
+    </select>
+
+    <select id="getIdByNumber" parameterType="java.lang.String" resultType="java.lang.Long">
+        select id from tbl_user
+        where number = #{number} and is_delete = 0
+    </select>
 </mapper>
