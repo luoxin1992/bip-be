@@ -64,4 +64,17 @@
         from tbl_resource
         where id = #{id} and is_delete = 0
     </select>
+
+    <select id="getIdByTypeAndName" resultType="java.lang.Long">
+        select id
+        from tbl_resource
+        where type = #{type} and name = #{name} and is_delete = 0
+    </select>
+
+    <select id="listAll" resultMap="resourceMap">
+        select
+        <include refid="generalSelectColumns"/>
+        from tbl_resource
+        where is_delete = 0
+    </select>
 </mapper>

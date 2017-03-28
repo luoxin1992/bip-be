@@ -14,10 +14,10 @@ import cn.com.lx1992.lib.base.domain.BaseDO;
  */
 public class SettingDO extends BaseDO {
     /**
-     * 类别
+     * 父类ID
      */
-    @FieldComment("类别")
-    private String category;
+    @FieldComment("父类ID")
+    private Long parent;
     /**
      * 属性名
      */
@@ -28,13 +28,18 @@ public class SettingDO extends BaseDO {
      */
     @FieldComment("属性值")
     private String propValue;
+    /**
+     * 描述
+     */
+    @FieldComment("描述")
+    private String description;
 
-    public String getCategory() {
-        return category;
+    public Long getParent() {
+        return parent;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setParent(Long parent) {
+        this.parent = parent;
     }
 
     public String getPropName() {
@@ -51,5 +56,13 @@ public class SettingDO extends BaseDO {
 
     public void setPropValue(String propValue) {
         this.propValue = propValue;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

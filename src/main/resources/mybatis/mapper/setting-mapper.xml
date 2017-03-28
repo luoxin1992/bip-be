@@ -5,45 +5,49 @@
 <mapper namespace="cn.edu.xmu.sy.ext.mapper.SettingMapper">
     <resultMap id="settingMap" type="cn.edu.xmu.sy.ext.domain.SettingDO">
         <result column="id" jdbcType="BIGINT" property="id"/>
-        <result column="category" jdbcType="VARCHAR" property="category"/>
+        <result column="parent" jdbcType="BIGINT" property="parent"/>
         <result column="prop_name" jdbcType="VARCHAR" property="propName"/>
         <result column="prop_value" jdbcType="VARCHAR" property="propValue"/>
+        <result column="description" jdbcType="VARCHAR" property="description"/>
         <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
         <result column="gmt_modify" jdbcType="TIMESTAMP" property="gmtModify"/>
     </resultMap>
 
     <sql id="generalInsertColumns">
-        id, category, prop_name, prop_value, gmt_create, gmt_modify
+        id, parent, prop_name, prop_value, description, gmt_create, gmt_modify
     </sql>
 
     <sql id="generalSelectColumns">
-        id, category, prop_name, prop_value
+        id, parent, prop_name, prop_value, description
     </sql>
 
     <insert id="save" parameterType="cn.edu.xmu.sy.ext.domain.SettingDO">
         insert into tbl_setting(<include refid="generalInsertColumns"/>)
-        values(#{id}, #{category}, #{propName}, #{propValue}, #{gmtCreate}, #{gmtModify})
+        values(#{id}, #{parent}, #{propName}, #{propValue}, #{description}, #{gmtCreate}, #{gmtModify})
     </insert>
 
     <insert id="saveBatch" parameterType="cn.edu.xmu.sy.ext.domain.SettingDO">
         insert into tbl_setting(<include refid="generalInsertColumns"/>)
         values
         <foreach collection="list" item="item" separator=",">
-            (#{item.id}, #{item.category}, #{item.propName}, #{item.propValue}, #{item.gmtCreate}, #{item.gmtModify})
+            (#{item.id}, #{item.parent}, #{item.propName}, #{item.propValue}, #{item.description}, #{item.gmtCreate}, #{item.gmtModify})
         </foreach>
     </insert>
 
     <update id="updateById" parameterType="cn.edu.xmu.sy.ext.domain.SettingDO">
         update tbl_setting
         set gmt_modify = #{gmtModify}
-        <if test="category != null">
-            , category = #{category}
+        <if test="parent != null">
+            , parent = #{parent}
         </if>
         <if test="propName != null">
             , prop_name = #{propName}
         </if>
         <if test="propValue != null">
             , prop_value = #{propValue}
+        </if>
+        <if test="description != null">
+            , description = #{description}
         </if>
         where id = #{id} and is_delete = 0
     </update>
@@ -58,5 +62,25 @@
         <include refid="generalSelectColumns"/>
         from tbl_setting
         where id = #{id} and is_delete = 0
+    </select>
+
+    <select id="getValueByKey" parameterType="java.lang.String" resultMap="java.lang.String">
+        select prop_value
+        from tbl_setting
+        where prop_key = #{propKey} and is_delete = 0
+    </select>
+
+    <select id="listGroup" resultMap="settingMap">
+        select
+        <include refid="generalSelectColumns"/>
+        from tbl_setting
+        where parent = 0 and id_delete = 0
+    </select>
+
+    <select id="listItem" resultMap="settingMap">
+        select
+        <include refid="generalSelectColumns"/>
+        from tbl_setting
+        where parent != 0 and id_delete = 0
     </select>
 </mapper>

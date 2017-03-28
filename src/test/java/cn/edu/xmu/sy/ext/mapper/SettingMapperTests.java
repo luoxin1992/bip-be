@@ -32,11 +32,10 @@ public class SettingMapperTests {
     @Test
     public void testSave() {
         SettingDO settingDO = new SettingDO();
-        settingDO.setCategory("测试");
-        settingDO.setPropName("测试");
-        settingDO.setPropValue("测试");
-        settingDO.setGmtCreate(LocalDateTime.now());
-        settingDO.setGmtModify(LocalDateTime.now());
+        settingDO.setParent(30976122028038L);
+        settingDO.setPropName("speech-path");
+        settingDO.setPropValue("/tmp/voice");
+        settingDO.setDescription("输出路径");
         Assert.assertTrue(settingMapper.save(settingDO) == 1);
     }
 
@@ -45,9 +44,9 @@ public class SettingMapperTests {
         List<SettingDO> settingDOs = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             SettingDO settingDO = new SettingDO();
-            settingDO.setCategory("测试类别" + i);
-            settingDO.setPropName("测试属性名" + i);
-            settingDO.setPropValue("测试属性值" + i);
+            //settingDO.setCategory("测试类别" + i);
+            //settingDO.setPropName("测试属性名" + i);
+            //settingDO.setPropValue("测试属性值" + i);
             settingDO.setGmtCreate(LocalDateTime.now());
             settingDO.setGmtModify(LocalDateTime.now());
             settingDOs.add(settingDO);
@@ -59,9 +58,9 @@ public class SettingMapperTests {
     public void testUpdateById() {
         SettingDO settingDO = new SettingDO();
         settingDO.setId(26296130994177L);
-        settingDO.setCategory("测试_修改");
-        settingDO.setPropName("测试_修改");
-        settingDO.setPropValue("测试_修改");
+        //settingDO.setCategory("测试_修改");
+        //settingDO.setPropName("测试_修改");
+        //settingDO.setPropValue("测试_修改");
         settingDO.setGmtModify(LocalDateTime.now());
         Assert.assertTrue(settingMapper.updateById(settingDO) == 1);
     }
