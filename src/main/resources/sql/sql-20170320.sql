@@ -1,1 +1,1 @@
-ALTER TABLE `tbl_user` ADD INDEX `idx_number` (`number`);
+ALTER TABLE `tbl_user` ADD UNIQUE INDEX `idx_number` (`number`);

@@ -39,7 +39,7 @@ CREATE TABLE `tbl_counter` (
 CREATE TABLE `tbl_session` (
   `id` bigint(20) NOT NULL COMMENT '唯一ID',
   `counter_id` bigint(20) NOT NULL COMMENT '柜台ID',
-  `token` varchar(32) NOT NULL COMMENT '标识',
+  `queue` varchar(32) NOT NULL COMMENT '消息队列(名称)',
   `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '状态',
   `online_time` datetime DEFAULT NULL COMMENT '上线时间',
   `offline_time` datetime DEFAULT NULL COMMENT '下线时间',
@@ -65,9 +65,12 @@ CREATE TABLE `tbl_message` (
 
 CREATE TABLE `tbl_setting` (
   `id` bigint(20) NOT NULL COMMENT '唯一ID',
-  `category` varchar(16) NOT NULL COMMENT '类别',
-  `prop_key` varchar(64) NOT NULL COMMENT '属性名',
-  `prop_value` varchar(64) NOT NULL COMMENT '属性值',
+  `parent` bigint(20) NOT NULL COMMENT '父ID',
+  `key` varchar(32) NOT NULL COMMENT '配置键',
+  `value` varchar(32) DEFAULT NULL COMMENT '配置值',
+  `reg_exp` varchar(64) DEFAULT NULL COMMENT '校验正则',
+  `description` varchar(32) NOT NULL COMMENT '描述',
+  `remark` varchar(64) DEFAULT NULL COMMENT '备注',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modify` datetime NOT NULL COMMENT '修改时间',
   `is_delete` tinyint(4) NOT NULL DEFAULT '0' COMMENT '删除标记',
