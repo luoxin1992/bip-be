@@ -3,19 +3,26 @@
  */
 package cn.edu.xmu.sy.ext.result;
 
+import cn.com.lx1992.lib.base.result.BaseResult;
+import cn.com.lx1992.lib.constant.DateTimeConstant;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.time.LocalDateTime;
+
 /**
  * 会话查询Result
  *
  * @author luoxin
  * @version 2017-3-24
  */
-public class SessionQueryResult {
+public class SessionQueryResult extends BaseResult {
     private Long id;
     private Long counterId;
     private String status;
-    private String onlineTime;
-    private String heartbeatTime;
-    private String offlineTime;
+    @JsonFormat(pattern = DateTimeConstant.DATETIME_PATTERN_WITH_BAR)
+    private LocalDateTime onlineTime;
+    @JsonFormat(pattern = DateTimeConstant.DATETIME_PATTERN_WITH_BAR)
+    private LocalDateTime offlineTime;
 
     public Long getId() {
         return id;
@@ -41,27 +48,19 @@ public class SessionQueryResult {
         this.status = status;
     }
 
-    public String getOnlineTime() {
+    public LocalDateTime getOnlineTime() {
         return onlineTime;
     }
 
-    public void setOnlineTime(String onlineTime) {
+    public void setOnlineTime(LocalDateTime onlineTime) {
         this.onlineTime = onlineTime;
     }
 
-    public String getHeartbeatTime() {
-        return heartbeatTime;
-    }
-
-    public void setHeartbeatTime(String heartbeatTime) {
-        this.heartbeatTime = heartbeatTime;
-    }
-
-    public String getOfflineTime() {
+    public LocalDateTime getOfflineTime() {
         return offlineTime;
     }
 
-    public void setOfflineTime(String offlineTime) {
+    public void setOfflineTime(LocalDateTime offlineTime) {
         this.offlineTime = offlineTime;
     }
 }

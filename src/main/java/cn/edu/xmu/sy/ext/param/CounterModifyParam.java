@@ -3,8 +3,13 @@
  */
 package cn.edu.xmu.sy.ext.param;
 
-import cn.com.lx1992.lib.annotation.ValidateRule;
-import cn.com.lx1992.lib.constant.RegularExpression;
+import cn.com.lx1992.lib.base.param.BaseParam;
+import cn.com.lx1992.lib.constant.RegExpConstant;
+
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 /**
  * 修改柜台Param
@@ -12,16 +17,24 @@ import cn.com.lx1992.lib.constant.RegularExpression;
  * @author luoxin
  * @version 2017-3-23
  */
-public class CounterModifyParam {
-    @ValidateRule(comment = "ID", minVal = 1)
+public class CounterModifyParam extends BaseParam {
+    @NotNull
+    @Min(1)
     private Long id;
-    @ValidateRule(comment = "编号", regExp = RegularExpression.NUMBER, maxLen = 16)
+    @NotNull
+    @Max(16)
+    @Pattern(regexp = RegExpConstant.NUMBER)
     private String number;
-    @ValidateRule(comment = "名称", maxLen = 32)
+    @NotNull
+    @Max(32)
     private String name;
-    @ValidateRule(comment = "MAC地址", regExp = RegularExpression.MAC_ADDRESS, maxLen = 16)
+    @NotNull
+    @Max(16)
+    @Pattern(regexp = RegExpConstant.MAC_ADDRESS)
     private String mac;
-    @ValidateRule(comment = "IP地址", regExp = RegularExpression.IP_ADDRESS, maxLen = 16)
+    @NotNull
+    @Max(16)
+    @Pattern(regexp = RegExpConstant.IP_ADDRESS)
     private String ip;
 
     public Long getId() {

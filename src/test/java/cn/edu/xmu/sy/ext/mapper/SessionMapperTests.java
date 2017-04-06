@@ -3,9 +3,6 @@
  */
 package cn.edu.xmu.sy.ext.mapper;
 
-import cn.com.lx1992.lib.base.param.BasePeriodParam;
-import cn.com.lx1992.lib.constant.DateTimeConstant;
-import cn.com.lx1992.lib.util.DateTimeUtil;
 import cn.edu.xmu.sy.ext.domain.SessionDO;
 import cn.edu.xmu.sy.ext.param.SessionBatchQueryParam;
 import cn.edu.xmu.sy.ext.param.SessionQueryParam;
@@ -39,7 +36,7 @@ public class SessionMapperTests {
     public void testSave() {
         SessionDO sessionDO = new SessionDO();
         sessionDO.setCounterId(26223598501888L);
-        sessionDO.setToken("");
+        sessionDO.setQueue("");
         sessionDO.setStatus(1);
         sessionDO.setOnlineTime(LocalDateTime.now());
         sessionDO.setGmtCreate(LocalDateTime.now());
@@ -54,7 +51,7 @@ public class SessionMapperTests {
             for (int j = 1; j <= 2; j++) {
                 SessionDO sessionDO = new SessionDO();
                 sessionDO.setCounterId(26224043098119L + i);
-                sessionDO.setToken("");
+                sessionDO.setQueue("");
                 sessionDO.setStatus(1);
                 sessionDO.setOnlineTime(LocalDateTime.now());
                 sessionDO.setGmtCreate(LocalDateTime.now());
@@ -70,7 +67,7 @@ public class SessionMapperTests {
         SessionDO sessionDO = new SessionDO();
         sessionDO.setId(26226647891969L);
         sessionDO.setCounterId(0L);
-        sessionDO.setToken("1234567890ABCDEF");
+        sessionDO.setQueue("1234567890ABCDEF");
         sessionDO.setStatus(2);
         sessionDO.setOfflineTime(LocalDateTime.now());
         sessionDO.setGmtModify(LocalDateTime.now());
@@ -89,7 +86,7 @@ public class SessionMapperTests {
 
     @Test
     public void testGetById() {
-        logger.info("{}", ToStringBuilder.reflectionToString(sessionMapper.getById(26227809714182L)));
+        logger.info("{}", ToStringBuilder.reflectionToString(sessionMapper.getById(34523110703106L)));
     }
 
     @Test
@@ -117,7 +114,7 @@ public class SessionMapperTests {
         SessionQueryParam param = new SessionQueryParam();
         param.setCounterId(26224043098121L);
         param.setStatus(1);
-        param.setPeriod(new BasePeriodParam(DateTimeUtil.getTodayStr(DateTimeConstant.DATE_PATTERN)));
+        //param.setPeriod(new BasePeriodParam(DateTimeUtil.getTodayStr(DateTimeConstant.DATE_PATTERN)));
         logger.info("{}", sessionMapper.getByParam(param));
     }
 
@@ -129,12 +126,12 @@ public class SessionMapperTests {
         SessionBatchQueryParam param = new SessionBatchQueryParam();
         param.setCounterIds(counterIds);
         param.setStatus(2);
-        param.setPeriod(new BasePeriodParam(DateTimeUtil.getTodayStr(DateTimeConstant.DATE_PATTERN)));
+        //param.setPeriod(new BasePeriodParam(DateTimeUtil.getTodayStr(DateTimeConstant.DATE_PATTERN)));
         logger.info("{}", sessionMapper.listByParam(param));
     }
 
     @Test
     public void testGetOnlineSessionId() {
-        logger.info("{}", sessionMapper.getOnlineSessionId(26224043098121L));
+        logger.info("{}", sessionMapper.getOnlineIdByCounterId(26224043098121L));
     }
 }

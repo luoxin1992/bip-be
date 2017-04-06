@@ -83,7 +83,7 @@
                 and #{paging.start} > id
             </if>
             order by id desc
-            limit ${paging.size}
+            limit #{paging.size}
         </if>
     </select>
 
@@ -110,11 +110,8 @@
         select id
         from tbl_counter
         where is_delete = 0
-        <if test="mac != null">
-            and mac = #{mac}
-        </if>
-        <if test="ip != null">
-            and ip = #{ip}
+        <if test="mac != null and ip != null">
+            and (mac = #{mac} or ip = #{ip})
         </if>
         <if test="exclude != null">
             and id != #{exclude}

@@ -5,14 +5,15 @@ package cn.edu.xmu.sy.ext.service.impl;
 
 import cn.com.lx1992.lib.base.param.BasePeriodParam;
 import cn.com.lx1992.lib.base.result.BasePagingResult;
-import cn.com.lx1992.lib.constant.DateTimeConstant;
+import cn.com.lx1992.lib.constant.CommonConstant;
+import cn.com.lx1992.lib.dto.DiffFieldDTO;
 import cn.com.lx1992.lib.util.DateTimeUtil;
+import cn.com.lx1992.lib.util.POJOCompareUtil;
 import cn.com.lx1992.lib.util.POJOConvertUtil;
 import cn.edu.xmu.sy.ext.domain.CounterDO;
 import cn.edu.xmu.sy.ext.exception.BizException;
 import cn.edu.xmu.sy.ext.mapper.CounterMapper;
 import cn.edu.xmu.sy.ext.meta.BizResultEnum;
-import cn.edu.xmu.sy.ext.param.CounterAutoCreateParam;
 import cn.edu.xmu.sy.ext.param.CounterCreateParam;
 import cn.edu.xmu.sy.ext.param.CounterModifyParam;
 import cn.edu.xmu.sy.ext.param.CounterQueryParam;
@@ -22,7 +23,7 @@ import cn.edu.xmu.sy.ext.result.SessionQueryResult;
 import cn.edu.xmu.sy.ext.service.CounterService;
 import cn.edu.xmu.sy.ext.service.LogService;
 import cn.edu.xmu.sy.ext.service.SessionService;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,9 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * @author luoxin
@@ -60,27 +64,13 @@ public class CounterServiceImpl implements CounterService {
         checkMacOrIpDuplicate(param.getMac(), param.getIp(), null);
 
         CounterDO domain = POJOConvertUtil.convert(param, CounterDO.class);
-        if (counterMapper.save(domain) != 1) {
+        if (counterMapper.save(domain) != CommonConstant.SAVE_DOMAIN_SUCCESSFUL) {
             logger.error("create counter {} failed", domain.getId());
             throw new BizException(BizResultEnum.COUNTER_CREATE_ERROR);
         }
 
         logService.logCounterCreate(domain);
         logger.info("create counter {} successfully", domain.getId());
-    }
-
-    @Override
-    @Transactional
-    public void autoCreate(CounterAutoCreateParam param) {
-        //自动创建柜台的入口为第一次上线的新柜台，入参已校验过
-        CounterDO domain = POJOConvertUtil.convert(param, CounterDO.class);
-        if (counterMapper.save(domain) != 1) {
-            logger.error("create counter {} failed", domain.getId());
-            throw new BizException(BizResultEnum.COUNTER_AUTO_CREATE_ERROR);
-        }
-
-        logService.logCounterAutoCreate(domain);
-        logger.info("auto create counter {} successfully", domain.getId());
     }
 
     @Override
@@ -92,16 +82,21 @@ public class CounterServiceImpl implements CounterService {
             logger.error("counter {} not exist", param.getId());
             throw new BizException(BizResultEnum.COUNTER_NOT_EXIST, param.getId());
         }
+
         //编号不能与除自身外的重复
         checkNumberDuplicate(param.getNumber(), param.getId());
         //MAC+IP不能与除自身外的重复
         checkMacOrIpDuplicate(param.getMac(), param.getIp(), param.getId());
 
         CounterDO domain = POJOConvertUtil.convert(param, CounterDO.class);
-        if (counterMapper.updateById(domain) != 1) {
+        if (counterMapper.updateById(domain) != CommonConstant.UPDATE_DOMAIN_SUCCESSFUL) {
             logger.error("modify counter {} failed", domain.getId());
             throw new BizException(BizResultEnum.COUNTER_MODIFY_ERROR);
         }
+
+        //修改后处理过程
+        List<DiffFieldDTO> diffFields = POJOCompareUtil.compare(CounterDO.class, before, domain);
+        modifyPostProcess(param.getId(), diffFields);
 
         logService.logCounterModify(before, domain);
         logger.info("modify counter {} successfully", domain.getId());
@@ -113,7 +108,7 @@ public class CounterServiceImpl implements CounterService {
         //仅能删除没有在线会话的柜台
         checkOnlineSessionExist(id);
 
-        if (counterMapper.removeById(id) != 1) {
+        if (counterMapper.removeById(id) != CommonConstant.REMOVE_DOMAIN_SUCCESSFUL) {
             logger.error("delete counter {} failed", id);
             throw new BizException(BizResultEnum.COUNTER_DELETE_ERROR);
         }
@@ -127,35 +122,25 @@ public class CounterServiceImpl implements CounterService {
         long count = counterMapper.countByParam(param);
         Map<Long, CounterQueryResult> counters = queryCounter(param);
         Map<Long, List<SessionQueryResult>> sessions = querySession(new ArrayList<>(counters.keySet()));
-        for (CounterQueryResult result : counters.values()) {
-            result.setSessions(sessions.get(result.getId()));
-        }
+
+        counters.values().forEach(counter -> counter.setSessions(sessions.get(counter.getId())));
 
         BasePagingResult<CounterQueryResult> result = new BasePagingResult<>();
         result.setTotal(count);
         result.setPage(new ArrayList<>(counters.values()));
+
+        logger.info("query {} counter(s) with {} session(s)", counters.size(), sessions.size());
         return result;
     }
 
     @Override
-    public Long getIdByMacAndIp(String mac, String ip) {
-        return counterMapper.getIdByMacAndIp(mac, ip, null);
+    public Optional<Long> getIdByMacAndIpOptional(String mac, String ip) {
+        return Optional.ofNullable(counterMapper.getIdByMacAndIp(mac, ip, null));
     }
 
-    /**
-     * 根据ID查询柜台
-     * 若不存在则抛出异常
-     *
-     * @param id 柜台ID
-     * @return 柜台信息
-     */
-    private CounterDO getById(Long id) {
-        CounterDO domain = counterMapper.getById(id);
-        if (domain == null) {
-            logger.error("counter {} not exist", id);
-            throw new BizException(BizResultEnum.COUNTER_NOT_EXIST, id);
-        }
-        return domain;
+    @Override
+    public Optional<Long> getIdByNumberOptional(String number) {
+        return Optional.ofNullable(counterMapper.getIdByNumber(number, null));
     }
 
     /**
@@ -168,7 +153,7 @@ public class CounterServiceImpl implements CounterService {
         Long id = counterMapper.getIdByNumber(number, exclude);
         if (id != null) {
             logger.error("counter number {} duplicate", number);
-            throw new BizException(BizResultEnum.COUNTER_NUMBER_DUPLICATE);
+            throw new BizException(BizResultEnum.COUNTER_NUMBER_DUPLICATE, number);
         }
     }
 
@@ -183,7 +168,7 @@ public class CounterServiceImpl implements CounterService {
         Long id = counterMapper.getIdByMacAndIp(mac, ip, exclude);
         if (id != null) {
             logger.error("counter mac {} or ip {} duplicate", mac, ip);
-            throw new BizException(BizResultEnum.COUNTER_MAC_OR_IP_DUPLICATE);
+            throw new BizException(BizResultEnum.COUNTER_MAC_OR_IP_DUPLICATE, mac, ip);
         }
     }
 
@@ -193,50 +178,76 @@ public class CounterServiceImpl implements CounterService {
      * @param id 柜台ID
      */
     private void checkOnlineSessionExist(Long id) {
-        Long sessionId = sessionService.getOnlineSessionId(id);
-        if (sessionId != null) {
+        Optional<Long> sessionId = sessionService.getOnlineSessionIdOptional(id);
+        if (sessionId.isPresent()) {
             logger.error("online session for counter {} exist", id);
             throw new BizException(BizResultEnum.COUNTER_ONLINE_SESSION_EXIST);
         }
     }
 
     /**
-     * 查询柜台，返回柜台ID-查询结果的Map
+     * 修改柜台后处理(仅限有在线会话时)
      *
-     * @param param 查询参数
-     * @return 查询结果
+     * @param id         柜台ID
+     * @param diffFields 修改的字段
      */
-    private Map<Long, CounterQueryResult> queryCounter(CounterQueryParam param) {
-        Map<Long, CounterQueryResult> retMap = new LinkedHashMap<>();
-        List<CounterDO> domains = counterMapper.listByParam(param);
-        for (CounterDO domain : domains) {
-            retMap.put(domain.getId(), POJOConvertUtil.convert(domain, CounterQueryResult.class));
+    private void modifyPostProcess(Long id, List<DiffFieldDTO> diffFields) {
+        Optional<Long> sessionId = sessionService.getOnlineSessionIdOptional(id);
+        if (sessionId.isPresent()) {
+            diffFields.stream()
+                    .map(DiffFieldDTO::getFieldName)
+                    .forEach((fieldName) -> {
+                        //TODO
+                        //如果修改了MAC地址或IP地址：强制离线
+                        if (fieldName.equals("mac") || fieldName.equals("ip")) {
+                            logger.info("force offline session because of mac or ip modified");
+                            return;
+                        }
+                        //如果修改了编号或名称：发送更新消息
+                        if (fieldName.equals("number") || fieldName.equals("name")) {
+                            logger.info("update session info because of number or name modified");
+                        }
+                    });
         }
-        return retMap;
     }
 
     /**
-     * 查询会话，返回柜台ID-查询结果的Map
+     * 查询柜台
+     *
+     * @param param 查询参数
+     * @return 柜台ID-查询结果的Map
+     */
+    private Map<Long, CounterQueryResult> queryCounter(CounterQueryParam param) {
+        List<CounterDO> domains = counterMapper.listByParam(param);
+        if (CollectionUtils.isEmpty(domains)) {
+            return Collections.emptyMap();
+        }
+        return domains.stream()
+                .map(domain -> POJOConvertUtil.convert(domain, CounterQueryResult.class))
+                .collect(Collectors.toMap(CounterQueryResult::getId, result -> result, (newKey, ExistKey) -> newKey,
+                        LinkedHashMap::new));
+    }
+
+    /**
+     * 查询会话
      *
      * @param counterIds 柜台ID
-     * @return 查询结果
+     * @return 柜台ID-查询结果的Map
      */
     private Map<Long, List<SessionQueryResult>> querySession(List<Long> counterIds) {
+        //只查询与“今天”相关联的Session
+        BasePeriodParam period = new BasePeriodParam();
+        period.setStart(DateTimeUtil.getTodayAtStart());
+        period.setEnd(DateTimeUtil.getTodayAtEnd());
         SessionBatchQueryParam param = new SessionBatchQueryParam();
         param.setCounterIds(counterIds);
-        param.setPeriod(new BasePeriodParam(DateTimeUtil.getTodayStr(DateTimeConstant.DATE_PATTERN)));
-        List<SessionQueryResult> sessions = sessionService.queryBatch(param);
+        param.setPeriod(period);
 
+        List<SessionQueryResult> sessions = sessionService.queryBatch(param);
         if (CollectionUtils.isEmpty(sessions)) {
             return Collections.emptyMap();
         }
-        Map<Long, List<SessionQueryResult>> retMap = new LinkedHashMap<>();
-        for (SessionQueryResult session : sessions) {
-            if (!retMap.containsKey(session.getCounterId())) {
-                retMap.put(session.getCounterId(), new ArrayList<>());
-            }
-            retMap.get(session.getCounterId()).add(session);
-        }
-        return retMap;
+        return sessions.stream()
+                .collect(Collectors.groupingBy(SessionQueryResult::getCounterId, TreeMap::new, Collectors.toList()));
     }
 }

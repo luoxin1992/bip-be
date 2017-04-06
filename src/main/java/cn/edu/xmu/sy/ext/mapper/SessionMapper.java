@@ -38,5 +38,7 @@ public interface SessionMapper {
 
     List<SessionDO> listByParam(SessionBatchQueryParam param);
 
-    Long getOnlineSessionId(Long counterId);
+    Long getOnlineIdByCounterId(Long counterId);
+
+    Long getOnlineIdByQueue(String queue);
 }

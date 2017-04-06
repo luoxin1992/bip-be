@@ -6,7 +6,7 @@
     <resultMap id="sessionMap" type="cn.edu.xmu.sy.ext.domain.SessionDO">
         <result column="id" jdbcType="BIGINT" property="id"/>
         <result column="counter_id" jdbcType="BIGINT" property="counterId"/>
-        <result column="token" jdbcType="VARCHAR" property="token"/>
+        <result column="queue" jdbcType="VARCHAR" property="queue"/>
         <result column="status" jdbcType="INTEGER" property="status"/>
         <result column="online_time" jdbcType="TIMESTAMP" property="onlineTime"/>
         <result column="offline_time" jdbcType="TIMESTAMP" property="offlineTime"/>
@@ -15,23 +15,23 @@
     </resultMap>
 
     <sql id="generalInsertColumns">
-        id, counter_id, token, status, online_time, offline_time, gmt_create, gmt_modify
+        id, counter_id, queue, status, online_time, offline_time, gmt_create, gmt_modify
     </sql>
 
     <sql id="generalSelectColumns">
-        id, counter_id, token, status, online_time, offline_time
+        id, counter_id, queue, status, online_time, offline_time
     </sql>
 
     <insert id="save" parameterType="cn.edu.xmu.sy.ext.domain.SessionDO">
         insert into tbl_session(<include refid="generalInsertColumns"/>)
-        values(#{id}, #{counterId}, #{token}, #{status}, #{onlineTime}, #{offlineTime}, #{gmtCreate}, #{gmtModify})
+        values(#{id}, #{counterId}, #{queue}, #{status}, #{onlineTime}, #{offlineTime}, #{gmtCreate}, #{gmtModify})
     </insert>
 
     <insert id="saveBatch" parameterType="cn.edu.xmu.sy.ext.domain.SessionDO">
         insert into tbl_session(<include refid="generalInsertColumns"/>)
         values
         <foreach collection="list" item="item" separator=",">
-            (#{item.id}, #{item.counterId}, #{item.token}, #{item.status}, #{item.onlineTime}, #{item.offlineTime},
+            (#{item.id}, #{item.counterId}, #{item.queue}, #{item.status}, #{item.onlineTime}, #{item.offlineTime},
             #{item.gmtCreate}, #{item.gmtModify})
         </foreach>
     </insert>
@@ -42,8 +42,8 @@
         <if test="counterId != null">
             , counter_id = #{counterId}
         </if>
-        <if test="token != null">
-            , token = #{token}
+        <if test="queue != null">
+            , queue = #{queue}
         </if>
         <if test="status != null">
             , status = #{status}
@@ -145,8 +145,13 @@
         </if>
     </select>
 
-    <select id="getOnlineSessionId" parameterType="java.lang.Long" resultType="java.lang.Long">
+    <select id="getOnlineIdByCounterId" parameterType="java.lang.Long" resultType="java.lang.Long">
         select id from tbl_session
         where counter_id = #{id} and status = 1 and is_delete = 0 limit 1
+    </select>
+
+    <select id="getOnlineIdByQueue" parameterType="java.lang.String" resultType="java.lang.Long">
+        select id from tbl_session
+        where queue = #{queue} and status = 1 and is_delete = 0 limit 1
     </select>
 </mapper>

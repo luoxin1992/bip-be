@@ -3,8 +3,10 @@
  */
 package cn.edu.xmu.sy.ext.param;
 
-import cn.com.lx1992.lib.annotation.FieldComment;
+import cn.com.lx1992.lib.base.param.BaseParam;
 import cn.com.lx1992.lib.base.param.BasePeriodParam;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * 查询会话Param
@@ -12,12 +14,20 @@ import cn.com.lx1992.lib.base.param.BasePeriodParam;
  * @author luoxin
  * @version 2017-3-24
  */
-public class SessionQueryParam {
-    @FieldComment("柜台ID")
+public class SessionQueryParam extends BaseParam {
+    /**
+     * 柜台ID
+     */
+    @NotNull
     private Long counterId;
-    @FieldComment("会话状态")
+    /**
+     * 会话状态
+     */
     private Integer status;
-    @FieldComment("时间区间")
+    /**
+     * 时间区间
+     */
+    @NotNull
     private BasePeriodParam period;
 
     public Long getCounterId() {

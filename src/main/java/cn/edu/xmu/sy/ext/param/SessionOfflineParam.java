@@ -3,38 +3,24 @@
  */
 package cn.edu.xmu.sy.ext.param;
 
-import cn.com.lx1992.lib.annotation.ValidateRule;
-import cn.com.lx1992.lib.constant.RegularExpression;
+import cn.com.lx1992.lib.base.param.BaseParam;
+
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotNull;
 
 /**
- * (客户端)会话下线Param
+ * (客户端)会话离线Param
  *
  * @author luoxin
  * @version 2017-3-24
  */
-public class SessionOfflineParam {
-    @ValidateRule(comment = "MAC地址", regExp = RegularExpression.MAC_ADDRESS, maxLen = 16)
-    private String mac;
-    @ValidateRule(comment = "IP地址", regExp = RegularExpression.IP_ADDRESS, maxLen = 16)
-    private String ip;
-    @ValidateRule(comment = "队列名称", maxLen = 32)
+public class SessionOfflineParam extends BaseParam {
+    /**
+     * 消息队列名称
+     */
+    @NotNull
+    @Max(32)
     private String queue;
-
-    public String getMac() {
-        return mac;
-    }
-
-    public void setMac(String mac) {
-        this.mac = mac;
-    }
-
-    public String getIp() {
-        return ip;
-    }
-
-    public void setIp(String ip) {
-        this.ip = ip;
-    }
 
     public String getQueue() {
         return queue;

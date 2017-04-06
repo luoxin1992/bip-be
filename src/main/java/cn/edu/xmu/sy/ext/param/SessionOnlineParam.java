@@ -3,8 +3,12 @@
  */
 package cn.edu.xmu.sy.ext.param;
 
-import cn.com.lx1992.lib.annotation.ValidateRule;
-import cn.com.lx1992.lib.constant.RegularExpression;
+import cn.com.lx1992.lib.base.param.BaseParam;
+import cn.com.lx1992.lib.constant.RegExpConstant;
+
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 /**
  * (客户端)会话上线Param
@@ -12,12 +16,26 @@ import cn.com.lx1992.lib.constant.RegularExpression;
  * @author luoxin
  * @version 2017-3-24
  */
-public class SessionOnlineParam {
-    @ValidateRule(comment = "MAC地址", regExp = RegularExpression.MAC_ADDRESS, maxLen = 16)
+public class SessionOnlineParam extends BaseParam {
+    /**
+     * MAC地址
+     */
+    @NotNull
+    @Max(16)
+    @Pattern(regexp = RegExpConstant.MAC_ADDRESS)
     private String mac;
-    @ValidateRule(comment = "IP地址", regExp = RegularExpression.IP_ADDRESS, maxLen = 16)
+    /**
+     * IP地址
+     */
+    @NotNull
+    @Max(16)
+    @Pattern(regexp = RegExpConstant.IP_ADDRESS)
     private String ip;
-    @ValidateRule(comment = "队列名称", maxLen = 32)
+    /**
+     * 消息队列名称
+     */
+    @NotNull
+    @Max(32)
     private String queue;
 
     public String getMac() {

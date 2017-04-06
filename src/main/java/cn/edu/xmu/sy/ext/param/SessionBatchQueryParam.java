@@ -3,9 +3,10 @@
  */
 package cn.edu.xmu.sy.ext.param;
 
-import cn.com.lx1992.lib.annotation.FieldComment;
+import cn.com.lx1992.lib.base.param.BaseParam;
 import cn.com.lx1992.lib.base.param.BasePeriodParam;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -14,12 +15,20 @@ import java.util.List;
  * @author luoxin
  * @version 2017-3-24
  */
-public class SessionBatchQueryParam {
-    @FieldComment("柜台ID")
+public class SessionBatchQueryParam extends BaseParam {
+    /**
+     * 柜台ID
+     */
+    @NotNull
     private List<Long> counterIds;
-    @FieldComment("会话状态")
+    /**
+     * 会话状态
+     */
     private Integer status;
-    @FieldComment("时间区间")
+    /**
+     * 时间区间
+     */
+    @NotNull
     private BasePeriodParam period;
 
     public List<Long> getCounterIds() {

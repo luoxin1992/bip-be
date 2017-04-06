@@ -3,6 +3,9 @@
  */
 package cn.edu.xmu.sy.ext.param;
 
+import cn.com.lx1992.lib.base.param.BaseParam;
+
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -11,10 +14,11 @@ import java.util.List;
  * @author luoxin
  * @version 2017-3-27
  */
-public class SettingModifyParam {
+public class SettingModifyParam extends BaseParam {
     /**
      * 设置项
      */
+    @NotNull
     private List<SettingItemModifyParam> settings;
 
     public List<SettingItemModifyParam> getSettings() {

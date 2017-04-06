@@ -4,11 +4,12 @@
 package cn.edu.xmu.sy.ext.service;
 
 import cn.com.lx1992.lib.base.result.BasePagingResult;
-import cn.edu.xmu.sy.ext.param.CounterAutoCreateParam;
 import cn.edu.xmu.sy.ext.param.CounterCreateParam;
 import cn.edu.xmu.sy.ext.param.CounterModifyParam;
 import cn.edu.xmu.sy.ext.param.CounterQueryParam;
 import cn.edu.xmu.sy.ext.result.CounterQueryResult;
+
+import java.util.Optional;
 
 /**
  * 柜台Service
@@ -20,37 +21,29 @@ public interface CounterService {
     /**
      * 创建柜台
      *
-     * @param param 柜台信息
+     * @param param 创建参数
      */
     void create(CounterCreateParam param);
 
     /**
-     * 自动创建柜台
-     * 自动创建的柜台只有mac地址和ip地址
-     *
-     * @param param 柜台信息
-     */
-    void autoCreate(CounterAutoCreateParam param);
-
-    /**
      * 编辑柜台
      *
-     * @param param 柜台信息
+     * @param param 编辑参数
      */
     void modify(CounterModifyParam param);
 
     /**
      * 删除柜台
      *
-     * @param id 柜台ID
+     * @param id 删除参数
      */
     void delete(Long id);
 
     /**
      * 查询柜台信息
      *
-     * @param param
-     * @return
+     * @param param 查询参数
+     * @return 查询结果
      */
     BasePagingResult<CounterQueryResult> query(CounterQueryParam param);
 
@@ -59,7 +52,15 @@ public interface CounterService {
      *
      * @param mac MAC地址
      * @param ip  IP地址
-     * @return 柜台ID
+     * @return 柜台ID(可选值)
      */
-    Long getIdByMacAndIp(String mac, String ip);
+    Optional<Long> getIdByMacAndIpOptional(String mac, String ip);
+
+    /**
+     * 根据编号查询柜台ID
+     *
+     * @param number 编号
+     * @return 柜台ID(可选值)
+     */
+    Optional<Long> getIdByNumberOptional(String number);
 }

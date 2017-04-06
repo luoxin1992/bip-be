@@ -39,7 +39,7 @@ CREATE TABLE `tbl_counter` (
 CREATE TABLE `tbl_session` (
   `id` bigint(20) NOT NULL COMMENT '唯一ID',
   `counter_id` bigint(20) NOT NULL COMMENT '柜台ID',
-  `queue` varchar(32) NOT NULL COMMENT '消息队列(名称)',
+  `queue` varchar(32) NOT NULL COMMENT '消息队列名称',
   `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '状态',
   `online_time` datetime DEFAULT NULL COMMENT '上线时间',
   `offline_time` datetime DEFAULT NULL COMMENT '下线时间',
