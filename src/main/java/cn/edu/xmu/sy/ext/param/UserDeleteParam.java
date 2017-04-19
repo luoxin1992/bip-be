@@ -10,23 +10,17 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 /**
- * 编辑用户Param
+ * 删除用户Param
  *
  * @author luoxin
  * @version 2017-3-17
  */
-public class UserModifyParam extends BaseParam {
+public class UserDeleteParam extends BaseParam {
     @NotNull
     @Min(1)
     private Long id;
-    @NotNull
     @Size(min = 1, max = 16)
     private String number;
-    @NotNull
-    @Size(min = 1, max = 32)
-    private String name;
-    @Size(min = 1, max = 128)
-    private String photo;
 
     public Long getId() {
         return id;
@@ -42,21 +36,5 @@ public class UserModifyParam extends BaseParam {
 
     public void setNumber(String number) {
         this.number = number;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPhoto() {
-        return photo;
-    }
-
-    public void setPhoto(String photo) {
-        this.photo = photo;
     }
 }

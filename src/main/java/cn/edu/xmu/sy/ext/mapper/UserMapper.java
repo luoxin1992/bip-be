@@ -6,6 +6,7 @@ package cn.edu.xmu.sy.ext.mapper;
 import cn.edu.xmu.sy.ext.domain.UserDO;
 import cn.edu.xmu.sy.ext.param.UserQueryParam;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -27,9 +28,9 @@ public interface UserMapper {
 
     UserDO getById(Long id);
 
-    List<UserDO> listByParam(UserQueryParam param);
+    List<UserDO> queryByParam(UserQueryParam param);
 
     Long countByParam(UserQueryParam param);
 
-    Long getIdByNumber(String number);
+    Long getIdByNumber(@Param("number") String number, @Param("exclude") Long exclude);
 }

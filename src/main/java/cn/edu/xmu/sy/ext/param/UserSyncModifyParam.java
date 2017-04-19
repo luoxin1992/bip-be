@@ -3,22 +3,35 @@
  */
 package cn.edu.xmu.sy.ext.param;
 
-import cn.com.lx1992.lib.annotation.ValidateRule;
 import cn.com.lx1992.lib.base.param.BaseParam;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 /**
- * 同步(push)用户Param
+ * 编辑(同步)用户Param
  *
  * @author luoxin
  * @version 2017-3-17
  */
-public class UserSyncParam extends BaseParam {
-    @ValidateRule(comment = "编号", maxLen = 16)
+public class UserSyncModifyParam extends BaseParam {
+    private Long id;
+    @NotNull
+    @Size(min = 1, max = 16)
     private String number;
-    @ValidateRule(comment = "姓名", nullable = true, maxLen = 32)
+    @NotNull
+    @Size(min = 1, max = 32)
     private String name;
-    @ValidateRule(comment = "照片", nullable = true, maxLen = 128)
+    @Size(min = 1, max = 128)
     private String photo;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getNumber() {
         return number;

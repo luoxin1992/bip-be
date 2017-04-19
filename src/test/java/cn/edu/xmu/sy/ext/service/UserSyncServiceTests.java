@@ -3,7 +3,6 @@
  */
 package cn.edu.xmu.sy.ext.service;
 
-import cn.edu.xmu.sy.ext.param.UserSyncParam;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -36,8 +35,8 @@ public class UserSyncServiceTests {
 
     @Test
     public void testDelete() {
-        UserSyncParam param = new UserSyncParam();
-        param.setNumber("10002");
-        userSyncService.delete(param);
+        //UserSyncParam param = new UserSyncParam();
+        //param.setNumber("10002");
+        //userSyncService.delete(param);
     }
 }

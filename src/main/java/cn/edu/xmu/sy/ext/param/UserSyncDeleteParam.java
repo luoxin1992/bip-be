@@ -5,28 +5,20 @@ package cn.edu.xmu.sy.ext.param;
 
 import cn.com.lx1992.lib.base.param.BaseParam;
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 /**
- * 编辑用户Param
+ * 删除(同步)用户Param
  *
  * @author luoxin
  * @version 2017-3-17
  */
-public class UserModifyParam extends BaseParam {
-    @NotNull
-    @Min(1)
+public class UserSyncDeleteParam extends BaseParam {
     private Long id;
     @NotNull
     @Size(min = 1, max = 16)
     private String number;
-    @NotNull
-    @Size(min = 1, max = 32)
-    private String name;
-    @Size(min = 1, max = 128)
-    private String photo;
 
     public Long getId() {
         return id;
@@ -42,21 +34,5 @@ public class UserModifyParam extends BaseParam {
 
     public void setNumber(String number) {
         this.number = number;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPhoto() {
-        return photo;
-    }
-
-    public void setPhoto(String photo) {
-        this.photo = photo;
     }
 }

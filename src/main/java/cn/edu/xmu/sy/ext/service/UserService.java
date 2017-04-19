@@ -5,6 +5,7 @@ package cn.edu.xmu.sy.ext.service;
 
 import cn.com.lx1992.lib.base.result.BasePagingResult;
 import cn.edu.xmu.sy.ext.param.UserCreateParam;
+import cn.edu.xmu.sy.ext.param.UserDeleteParam;
 import cn.edu.xmu.sy.ext.param.UserModifyParam;
 import cn.edu.xmu.sy.ext.param.UserQueryParam;
 import cn.edu.xmu.sy.ext.result.UserQueryResult;
@@ -22,26 +23,29 @@ public interface UserService {
      * @param param 查询参数
      * @return 查询结果
      */
-    BasePagingResult<UserQueryResult> list(UserQueryParam param);
+    BasePagingResult<UserQueryResult> query(UserQueryParam param);
 
     /**
      * 创建用户
      *
-     * @param param 用户信息
+     * @param param    创建参数
+     * @param fromSync 同步标记
      */
-    void create(UserCreateParam param);
+    void create(UserCreateParam param, boolean fromSync);
 
     /**
      * 修改用户
      *
-     * @param param 用户信息
+     * @param param    修改参数
+     * @param fromSync 同步标记
      */
-    void modify(UserModifyParam param);
+    void modify(UserModifyParam param, boolean fromSync);
 
     /**
      * 删除用户
      *
-     * @param id 用户id
+     * @param param    删除参数
+     * @param fromSync 同步标记
      */
-    void delete(Long id);
+    void delete(UserDeleteParam param, boolean fromSync);
 }

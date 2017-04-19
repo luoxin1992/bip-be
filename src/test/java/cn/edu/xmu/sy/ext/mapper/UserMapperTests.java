@@ -82,7 +82,7 @@ public class UserMapperTests {
         param.getSearch().setKeyword("测试用户9");
         //param.getPaging().setStart(26208708460557L);
         param.getPaging().setSize(5);
-        List<UserDO> results = userMapper.listByParam(param);
+        List<UserDO> results = userMapper.queryByParam(param);
         for (UserDO result : results) {
             logger.info("{}", result);
         }

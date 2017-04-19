@@ -3,10 +3,12 @@
  */
 package cn.edu.xmu.sy.ext.param;
 
-import cn.com.lx1992.lib.annotation.ValidateRule;
 import cn.com.lx1992.lib.base.param.BasePagingParam;
 import cn.com.lx1992.lib.base.param.BaseParam;
 import cn.com.lx1992.lib.base.param.BaseSearchParam;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 /**
  * 查询用户Param
@@ -15,15 +17,12 @@ import cn.com.lx1992.lib.base.param.BaseSearchParam;
  * @version 2017-3-11
  */
 public class UserQueryParam extends BaseParam {
-    @ValidateRule(comment = "搜索参数")
+    @NotNull
+    @Valid
     private BaseSearchParam search;
-    @ValidateRule(comment = "分页参数")
+    @NotNull
+    @Valid
     private BasePagingParam paging;
-
-    public UserQueryParam() {
-        search = new BaseSearchParam();
-        paging = new BasePagingParam();
-    }
 
     public BaseSearchParam getSearch() {
         return search;

@@ -4,11 +4,16 @@
 package cn.edu.xmu.sy.ext.service.impl;
 
 import cn.com.lx1992.lib.util.POJOConvertUtil;
-import cn.edu.xmu.sy.ext.domain.UserDO;
 import cn.edu.xmu.sy.ext.exception.BizException;
 import cn.edu.xmu.sy.ext.mapper.UserMapper;
 import cn.edu.xmu.sy.ext.meta.BizResultEnum;
-import cn.edu.xmu.sy.ext.param.UserSyncParam;
+import cn.edu.xmu.sy.ext.param.UserCreateParam;
+import cn.edu.xmu.sy.ext.param.UserDeleteParam;
+import cn.edu.xmu.sy.ext.param.UserModifyParam;
+import cn.edu.xmu.sy.ext.param.UserSyncCreateParam;
+import cn.edu.xmu.sy.ext.param.UserSyncDeleteParam;
+import cn.edu.xmu.sy.ext.param.UserSyncModifyParam;
+import cn.edu.xmu.sy.ext.service.UserService;
 import cn.edu.xmu.sy.ext.service.UserSyncService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,42 +29,45 @@ public class UserSyncServiceImpl implements UserSyncService {
     private final Logger logger = LoggerFactory.getLogger(UserSyncServiceImpl.class);
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private UserMapper userMapper;
 
     @Override
-    public void create(UserSyncParam param) {
-        Long id = userMapper.getIdByNumber(param.getNumber());
-        if (id != null) {
-            //创建的用户编号重复
-            throw new BizException(BizResultEnum.USER_NUMBER_DUPLICATE_ERROR, param.getNumber());
-        }
-        UserDO domain = POJOConvertUtil.convert(param, UserDO.class);
-        userMapper.save(domain);
+    public void create(UserSyncCreateParam param) {
+        userService.create(POJOConvertUtil.convert(param, UserCreateParam.class), true);
+        logger.info("sync create user with number {}", param.getNumber());
     }
 
     @Override
-    public void modify(UserSyncParam param) {
-        Long id = userMapper.getIdByNumber(param.getNumber());
-        if (id == null) {
-            //修改的用户不存在
-            throw new BizException(BizResultEnum.USER_NUMBER_NOT_EXIST_ERROR, param.getNumber());
-        }
-        //同步数据的逻辑不能修改编号，也不需要校验编号是否重复
-        UserDO domain = POJOConvertUtil.convert(param, UserDO.class);
-        domain.setId(id);
-        domain.setNumber(null);
-        userMapper.updateById(domain);
+    public void modify(UserSyncModifyParam param) {
+        //同步修改时用编号(而非ID)区别用户，因此编号不能修改
+        param.setId(getIdByNumber(param.getNumber()));
+        userService.modify(POJOConvertUtil.convert(param, UserModifyParam.class), true);
+        logger.info("sync modify user with number {}", param.getNumber());
     }
 
     @Override
-    public void delete(UserSyncParam param) {
-        Long id = userMapper.getIdByNumber(param.getNumber());
+    public void delete(UserSyncDeleteParam param) {
+        param.setId(getIdByNumber(param.getNumber()));
+        userService.delete(POJOConvertUtil.convert(param, UserDeleteParam.class), true);
+        logger.info("sync delete user with number {}", param.getNumber());
+    }
+
+    /**
+     * 根据用户编号查询ID
+     * 用于无本系统内实体ID的第三方系统同步数据
+     *
+     * @param number 用户编号
+     * @return 用户ID
+     */
+    private Long getIdByNumber(String number) {
+        Long id = userMapper.getIdByNumber(number, null);
         if (id == null) {
-            //删除的用户不存在
-            logger.warn("fail to delete a not existed user");
-            throw new BizException(BizResultEnum.USER_NUMBER_NOT_EXIST_ERROR, param.getNumber());
+            logger.error("user with number {} not exist", number);
+            throw new BizException(BizResultEnum.USER_NUMBER_NOT_EXIST, number);
         }
-        userMapper.removeById(id);
-        logger.info("delete user with number {} by synchronize", param.getNumber());
+        return id;
     }
 }

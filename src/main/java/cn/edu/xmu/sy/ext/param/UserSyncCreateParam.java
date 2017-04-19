@@ -9,12 +9,12 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 /**
- * 创建用户Param
+ * 创建(同步)用户Param
  *
  * @author luoxin
  * @version 2017-3-17
  */
-public class UserCreateParam extends BaseParam {
+public class UserSyncCreateParam extends BaseParam {
     @NotNull
     @Size(min = 1, max = 16)
     private String number;
