@@ -24,17 +24,11 @@ public interface SettingMapper {
 
     Integer removeById(Long id);
 
+    Integer removeByParent(Long parent);
+
     SettingDO getById(Long id);
 
     String getValueByKey(String key);
 
-    /**
-     * 列出设置组(parent==0)
-     */
-    List<SettingDO> listGroup();
-
-    /**
-     * 列出设置项(parent!=0)
-     */
-    List<SettingDO> listItem();
+    List<SettingDO> list();
 }

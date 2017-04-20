@@ -13,17 +13,17 @@ import java.util.List;
  * @author luoxin
  * @version 2017-3-27
  */
-public class SettingQueryResult extends BaseResult {
+public class SettingListResult extends BaseResult {
     /**
      * 设置组
      */
-    private List<SettingGroupQueryResult> settings;
+    private List<SettingGroupListResult> groups;
 
-    public List<SettingGroupQueryResult> getSettings() {
-        return settings;
+    public List<SettingGroupListResult> getGroups() {
+        return groups;
     }
 
-    public void setSettings(List<SettingGroupQueryResult> settings) {
-        this.settings = settings;
+    public void setGroups(List<SettingGroupListResult> groups) {
+        this.groups = groups;
     }
 }

@@ -1,55 +1,49 @@
 /*
  * Copyright © 2017 Xiamen University. All Rights Reserved.
  */
-package cn.edu.xmu.sy.ext.domain;
+package cn.edu.xmu.sy.ext.result;
 
-import cn.com.lx1992.lib.annotation.FieldComment;
-import cn.com.lx1992.lib.base.domain.BaseDO;
+import cn.com.lx1992.lib.base.result.BaseResult;
 
 /**
- * 设置Domain
+ * 查询设置项Result
  *
  * @author luoxin
- * @version 2017-3-9
+ * @version 2017-3-27
  */
-public class SettingDO extends BaseDO {
+public class SettingItemListResult extends BaseResult {
     /**
-     * 父类ID
+     * ID
      */
-    @FieldComment("父类ID")
-    private Long parent;
+    private Long id;
+
     /**
-     * 属性名
+     * 键
      */
-    @FieldComment("键")
     private String key;
     /**
-     * 属性值
+     * 值
      */
-    @FieldComment("值")
     private String value;
     /**
      * 校验正则
      */
-    @FieldComment("校验正则")
     private String regExp;
     /**
      * 描述
      */
-    @FieldComment("描述")
     private String description;
     /**
      * 备注
      */
-    @FieldComment("备注")
     private String remark;
 
-    public Long getParent() {
-        return parent;
+    public Long getId() {
+        return id;
     }
 
-    public void setParent(Long parent) {
-        this.parent = parent;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getKey() {

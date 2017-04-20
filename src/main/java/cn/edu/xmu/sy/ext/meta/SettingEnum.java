@@ -10,27 +10,38 @@ package cn.edu.xmu.sy.ext.meta;
  * @version 2017-3-27
  */
 public enum SettingEnum {
-    SPEECH("speech", "语音合成设置"),
-    SPEECH_VOICE_NAME("speech-voice-name", "发音人"),
-    SPEECH_SPEED("speech-speed", "合成语速"),
-    SPEECH_VOLUME("speech-volume", "合成音量"),
-    SPEECH_PITCH("speech-pitch", "合成语调"),
-    SPEECH_OUTPUT_DIR("speech-output-dir", "输出目录"),
+    SPEECH("speech", null),
+    SPEECH_VOICE_NAME("speech-voice-name", "xiaoyan"),
+    SPEECH_SPEED("speech-speed", "50"),
+    SPEECH_VOLUME("speech-volume", "80"),
+    SPEECH_PITCH("speech-pitch", "50"),
+    SPEECH_OUTPUT_DIR("speech-output-dir", "./files/voice"),
+    FINGERPRINT("fingerprint", null),
+    FINGERPRINT_MAX_ENROLL_COUNT("fingerprint-max-enroll-count", "1"),
+    FINGERPRINT_ENROLL_TIMES("fingerprint-enroll-times", "3"),
+    MISC("misc", null),
+    MISC_USER_MGR_ENABLE("misc-user-mgr-enable", "false"),
     ;
 
+    /**
+     * 键
+     */
     private String key;
-    private String description;
+    /**
+     * 默认值
+     */
+    private String defaultValue;
 
-    SettingEnum(String key, String description) {
+    SettingEnum(String key, String value) {
         this.key = key;
-        this.description = description;
+        this.defaultValue = value;
     }
 
     public String getKey() {
         return key;
     }
 
-    public String getDescription() {
-        return description;
+    public String getDefaultValue() {
+        return defaultValue;
     }
 }

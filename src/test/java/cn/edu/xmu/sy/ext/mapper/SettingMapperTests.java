@@ -32,10 +32,10 @@ public class SettingMapperTests {
     @Test
     public void testSave() {
         SettingDO settingDO = new SettingDO();
-        settingDO.setParent(30976122028038L);
-        settingDO.setPropName("speech-path");
-        settingDO.setPropValue("/tmp/voice");
-        settingDO.setDescription("输出路径");
+        settingDO.setParent(32762111197193L);
+        settingDO.setKey("misc-user-mgr-enable");
+        settingDO.setValue("true");
+        settingDO.setDescription("启用用户管理功能");
         Assert.assertTrue(settingMapper.save(settingDO) == 1);
     }
 

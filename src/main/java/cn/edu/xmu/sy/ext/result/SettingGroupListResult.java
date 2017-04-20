@@ -13,7 +13,7 @@ import java.util.List;
  * @author luoxin
  * @version 2017-3-27
  */
-public class SettingGroupQueryResult extends BaseResult {
+public class SettingGroupListResult extends BaseResult {
     /**
      * ID
      */
@@ -23,9 +23,13 @@ public class SettingGroupQueryResult extends BaseResult {
      */
     private String description;
     /**
+     * 备注
+     */
+    private String remark;
+    /**
      * 设置项
      */
-    private List<SettingItemQueryResult> items;
+    private List<SettingItemListResult> items;
 
     public Long getId() {
         return id;
@@ -43,11 +47,19 @@ public class SettingGroupQueryResult extends BaseResult {
         this.description = description;
     }
 
-    public List<SettingItemQueryResult> getItems() {
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
+    public List<SettingItemListResult> getItems() {
         return items;
     }
 
-    public void setItems(List<SettingItemQueryResult> items) {
+    public void setItems(List<SettingItemListResult> items) {
         this.items = items;
     }
 }

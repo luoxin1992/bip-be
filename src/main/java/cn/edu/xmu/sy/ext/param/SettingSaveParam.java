@@ -9,23 +9,23 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
- * 修改设置Param
+ * 保存设置Param
  *
  * @author luoxin
  * @version 2017-3-27
  */
-public class SettingModifyParam extends BaseParam {
+public class SettingSaveParam extends BaseParam {
     /**
      * 设置项
      */
     @NotNull
-    private List<SettingItemModifyParam> settings;
+    private List<SettingItemSaveParam> items;
 
-    public List<SettingItemModifyParam> getSettings() {
-        return settings;
+    public List<SettingItemSaveParam> getItems() {
+        return items;
     }
 
-    public void setSettings(List<SettingItemModifyParam> settings) {
-        this.settings = settings;
+    public void setItems(List<SettingItemSaveParam> items) {
+        this.items = items;
     }
 }

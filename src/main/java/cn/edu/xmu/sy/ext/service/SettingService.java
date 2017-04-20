@@ -3,8 +3,10 @@
  */
 package cn.edu.xmu.sy.ext.service;
 
-import cn.edu.xmu.sy.ext.param.SettingModifyParam;
-import cn.edu.xmu.sy.ext.result.SettingQueryResult;
+import cn.edu.xmu.sy.ext.param.SettingSaveParam;
+import cn.edu.xmu.sy.ext.result.SettingListResult;
+
+import java.util.Optional;
 
 /**
  * 设置Service
@@ -18,20 +20,20 @@ public interface SettingService {
      *
      * @param param 设置参数
      */
-    void modify(SettingModifyParam param);
+    void save(SettingSaveParam param);
 
     /**
-     * 查询设置
+     * 查询全部设置
      *
      * @return 查询结果
      */
-    SettingQueryResult query();
+    SettingListResult list();
 
     /**
-     * 查询设置项
+     * 查询设置参数项
      *
-     * @param key 配置键
+     * @param key 键
      * @return 查询结果
      */
-    String getValueByKey(String key);
+    Optional<String> getValueByKeyOptional(String key);
 }
