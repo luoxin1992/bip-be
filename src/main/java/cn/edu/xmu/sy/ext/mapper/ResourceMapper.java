@@ -4,6 +4,7 @@
 package cn.edu.xmu.sy.ext.mapper;
 
 import cn.edu.xmu.sy.ext.domain.ResourceDO;
+import cn.edu.xmu.sy.ext.param.ResourceQueryParam;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -25,9 +26,15 @@ public interface ResourceMapper {
 
     Integer removeById(Long id);
 
+    Integer removeByType(String type);
+
     ResourceDO getById(Long id);
 
-    Long getIdByTypeAndName(@Param("type") String type, @Param("name") String name);
-
     List<ResourceDO> listAll();
+
+    List<ResourceDO> listByParam(ResourceQueryParam param);
+
+    Long countByParam(ResourceQueryParam param);
+
+    Long getIdByTypeAndName(@Param("type") String type, @Param("name") String name);
 }

@@ -6,12 +6,12 @@ package cn.edu.xmu.sy.ext.result;
 import cn.com.lx1992.lib.base.result.BaseResult;
 
 /**
- * 资源项查询结果
+ * 查询全部资源项Result
  *
  * @author luoxin
  * @version 2017-3-27
  */
-public class ResourceItemQueryResult extends BaseResult {
+public class ResourceListResult extends BaseResult {
     /**
      * ID
      */
@@ -21,13 +21,9 @@ public class ResourceItemQueryResult extends BaseResult {
      */
     private String type;
     /**
-     * 名称
+     * URL
      */
-    private String name;
-    /**
-     * 路径
-     */
-    private String path;
+    private String url;
     /**
      * MD5
      */
@@ -49,20 +45,12 @@ public class ResourceItemQueryResult extends BaseResult {
         this.type = type;
     }
 
-    public String getName() {
-        return name;
+    public String getUrl() {
+        return url;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public String getMd5() {

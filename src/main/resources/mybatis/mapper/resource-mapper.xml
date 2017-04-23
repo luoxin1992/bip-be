@@ -21,6 +21,10 @@
         id, type, name, path, md5
     </sql>
 
+    <sql id="selectWithUpdateTimeColumns">
+        id, type, name, path, md5, gmt_modify
+    </sql>
+
     <insert id="save" parameterType="cn.edu.xmu.sy.ext.domain.ResourceDO">
         insert into tbl_resource(<include refid="generalInsertColumns"/>)
         values(#{id}, #{type}, #{name}, #{path}, #{md5}, #{gmtCreate}, #{gmtModify})
@@ -58,6 +62,11 @@
         where id = #{id} and is_delete = 0
     </update>
 
+    <update id="removeByType" parameterType="java.lang.String">
+        update tbl_resource set is_delete = 1
+        where type = #{type} and is_delete = 0
+    </update>
+
     <select id="getById" parameterType="java.lang.Long" resultMap="resourceMap">
         select
         <include refid="generalSelectColumns"/>
@@ -65,16 +74,41 @@
         where id = #{id} and is_delete = 0
     </select>
 
-    <select id="getIdByTypeAndName" resultType="java.lang.Long">
-        select id
-        from tbl_resource
-        where type = #{type} and name = #{name} and is_delete = 0
-    </select>
-
     <select id="listAll" resultMap="resourceMap">
         select
         <include refid="generalSelectColumns"/>
         from tbl_resource
         where is_delete = 0
+    </select>
+
+    <select id="listByParam" parameterType="cn.edu.xmu.sy.ext.param.ResourceQueryParam" resultMap="resourceMap">
+        select
+        <include refid="selectWithUpdateTimeColumns"/>
+        from tbl_resource
+        where is_delete = 0
+        <if test="period != null">
+            and gmt_modify >= #{period.start} and #{period.end} >= gmt_modify
+        </if>
+        <if test="paging.start != null">
+            and #{paging.start} > id
+        </if>
+        order by id desc
+        limit ${paging.size}
+    </select>
+
+    <select id="countByParam" parameterType="cn.edu.xmu.sy.ext.param.ResourceQueryParam" resultType="java.lang.Long">
+        select count(1)
+        from tbl_resource
+        where is_delete = 0
+        <if test="period != null">
+            and gmt_modify >= #{period.start} and #{period.end} >= gmt_modify
+        </if>
+    </select>
+
+    <select id="getIdByTypeAndName" resultType="java.lang.Long">
+        select id
+        from tbl_resource
+        where type = #{type} and name = #{name} and is_delete = 0
+        limit 1
     </select>
 </mapper>

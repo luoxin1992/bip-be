@@ -3,25 +3,46 @@
  */
 package cn.edu.xmu.sy.ext.param;
 
-import cn.com.lx1992.lib.annotation.ValidateRule;
+import cn.com.lx1992.lib.base.param.BasePagingParam;
 import cn.com.lx1992.lib.base.param.BaseParam;
+import cn.com.lx1992.lib.base.param.BasePeriodParam;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 /**
+ * 资源查询Param
+ *
  * @author luoxin
  * @version 2017-3-27
  */
 public class ResourceQueryParam extends BaseParam {
     /**
-     * 类型
+     * 时间区间
      */
-    @ValidateRule(comment = "类型", nullable = true)
-    private String type;
+    @NotNull
+    @Valid
+    private BasePeriodParam period;
+    /**
+     * 分页参数
+     */
+    @NotNull
+    @Valid
+    private BasePagingParam paging;
 
-    public String getType() {
-        return type;
+    public BasePeriodParam getPeriod() {
+        return period;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setPeriod(BasePeriodParam period) {
+        this.period = period;
+    }
+
+    public BasePagingParam getPaging() {
+        return paging;
+    }
+
+    public void setPaging(BasePagingParam paging) {
+        this.paging = paging;
     }
 }

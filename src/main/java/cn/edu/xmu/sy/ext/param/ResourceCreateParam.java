@@ -1,39 +1,44 @@
 /*
  * Copyright © 2017 Xiamen University. All Rights Reserved.
  */
-package cn.edu.xmu.sy.ext.domain;
+package cn.edu.xmu.sy.ext.param;
 
-import cn.com.lx1992.lib.annotation.CompareIgnore;
-import cn.com.lx1992.lib.annotation.FieldComment;
-import cn.com.lx1992.lib.base.domain.BaseDO;
+import cn.com.lx1992.lib.base.param.BaseParam;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 /**
- * 资源Domain
+ * 资源创建Param
  *
  * @author luoxin
- * @version 2017-3-9
+ * @version 2017-4-7
  */
-public class ResourceDO extends BaseDO {
+public class ResourceCreateParam extends BaseParam {
     /**
      * 类型
      */
-    @FieldComment("类型")
+    @NotNull
+    @Pattern(regexp = "image|voice")
     private String type;
     /**
      * 名称
      */
-    @FieldComment("名称")
+    @NotNull
+    @Size(min = 1, max = 64)
     private String name;
     /**
-     * 文件名
+     * 路径
      */
-    @FieldComment("文件名")
+    @NotNull
+    @Size(min = 1, max = 128)
     private String path;
     /**
      * MD5
      */
-    @FieldComment("MD5")
-    @CompareIgnore
+    @NotNull
+    @Size(min = 32, max = 32)
     private String md5;
 
     public String getType() {
