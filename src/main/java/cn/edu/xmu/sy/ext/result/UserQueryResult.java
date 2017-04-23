@@ -14,10 +14,25 @@ import java.util.List;
  * @version 2017-3-11
  */
 public class UserQueryResult extends BaseResult {
+    /**
+     * 用户ID
+     */
     private Long id;
+    /**
+     * 编号
+     */
     private String number;
+    /**
+     * 姓名
+     */
     private String name;
+    /**
+     * 照片(URL)
+     */
     private String photo;
+    /**
+     * 指纹
+     */
     private List<FingerprintQueryResult> fingerprints;
 
     public Long getId() {

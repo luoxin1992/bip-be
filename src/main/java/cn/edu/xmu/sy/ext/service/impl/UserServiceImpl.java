@@ -57,6 +57,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public BasePagingResult<UserQueryResult> query(UserQueryParam param) {
         long count = userMapper.countByParam(param);
+        if (count == 0) {
+            logger.warn("user query result is empty");
+            throw new BizException(BizResultEnum.USER_EMPTY_QUERY_RESULT);
+        }
+
         Map<Long, UserQueryResult> users = queryUser(param);
         if (!MapUtils.isEmpty(users)) {
             Map<Long, List<FingerprintQueryResult>> fingerprints = queryFingerprint(new ArrayList<>(users.keySet()));
@@ -132,7 +137,6 @@ public class UserServiceImpl implements UserService {
     private Map<Long, UserQueryResult> queryUser(UserQueryParam param) {
         List<UserDO> domains = userMapper.queryByParam(param);
         if (CollectionUtils.isEmpty(domains)) {
-            logger.warn("user query result is empty");
             return Collections.emptyMap();
         }
         return domains.stream()
