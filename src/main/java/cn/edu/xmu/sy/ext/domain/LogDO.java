@@ -14,61 +14,22 @@ import cn.com.lx1992.lib.base.domain.BaseDO;
  */
 public class LogDO extends BaseDO {
     /**
-     * 客户端平台
+     * 类别
      */
-    @FieldComment("客户端平台")
-    private String platform;
-    /**
-     * 客户端版本
-     */
-    @FieldComment("客户端版本")
-    private String version;
-    /**
-     * 一级类别
-     */
-    @FieldComment("一级类别")
-    private String primaryCategory;
-    /**
-     * 二级类别
-     */
-    @FieldComment("二级类别")
-    private String secondaryCategory;
+    @FieldComment("类别")
+    private String category;
     /**
      * 内容
      */
     @FieldComment("内容")
     private String content;
 
-    public String getPlatform() {
-        return platform;
+    public String getCategory() {
+        return category;
     }
 
-    public void setPlatform(String platform) {
-        this.platform = platform;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public String getPrimaryCategory() {
-        return primaryCategory;
-    }
-
-    public void setPrimaryCategory(String primaryCategory) {
-        this.primaryCategory = primaryCategory;
-    }
-
-    public String getSecondaryCategory() {
-        return secondaryCategory;
-    }
-
-    public void setSecondaryCategory(String secondaryCategory) {
-        this.secondaryCategory = secondaryCategory;
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public String getContent() {

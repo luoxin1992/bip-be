@@ -32,10 +32,7 @@ public class LogMapperTests {
     @Test
     public void testSave() {
         LogDO logDO = new LogDO();
-        logDO.setPlatform("测试");
-        logDO.setVersion("测试");
-        logDO.setPrimaryCategory("测试");
-        logDO.setSecondaryCategory("测试");
+        logDO.setCategory("测试");
         logDO.setContent("测试");
         logDO.setGmtCreate(LocalDateTime.now());
         logDO.setGmtModify(LocalDateTime.now());
@@ -47,10 +44,7 @@ public class LogMapperTests {
         List<LogDO> logDOs = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             LogDO logDO = new LogDO();
-            logDO.setPlatform("测试平台" + i);
-            logDO.setVersion("测试版本" + i);
-            logDO.setPrimaryCategory("测试一级类别" + i);
-            logDO.setSecondaryCategory("测试二级类别" + i);
+            logDO.setCategory("测试一级类别" + i);
             logDO.setContent("测试内容" + i);
             logDO.setGmtCreate(LocalDateTime.now());
             logDO.setGmtModify(LocalDateTime.now());
@@ -63,10 +57,7 @@ public class LogMapperTests {
     public void testUpdateById() {
         LogDO logDO = new LogDO();
         logDO.setId(26284131221509L);
-        logDO.setPlatform("测试_修改");
-        logDO.setVersion("测试_修改");
-        logDO.setPrimaryCategory("测试_修改");
-        logDO.setSecondaryCategory("测试_修改");
+        logDO.setCategory("测试_修改");
         logDO.setContent("测试_修改");
         logDO.setGmtModify(LocalDateTime.now());
         Assert.assertTrue(logMapper.updateById(logDO) == 1);

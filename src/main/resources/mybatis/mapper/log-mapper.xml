@@ -5,52 +5,42 @@
 <mapper namespace="cn.edu.xmu.sy.ext.mapper.LogMapper">
     <resultMap id="logMap" type="cn.edu.xmu.sy.ext.domain.LogDO">
         <result column="id" jdbcType="BIGINT" property="id"/>
-        <result column="platform" jdbcType="VARCHAR" property="platform"/>
-        <result column="version" jdbcType="VARCHAR" property="version"/>
-        <result column="primary_category" jdbcType="VARCHAR" property="primaryCategory"/>
-        <result column="secondary_category" jdbcType="VARCHAR" property="secondaryCategory"/>
+        <result column="category" jdbcType="VARCHAR" property="category"/>
         <result column="content" jdbcType="VARCHAR" property="content"/>
         <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
         <result column="gmt_modify" jdbcType="TIMESTAMP" property="gmtModify"/>
     </resultMap>
 
     <sql id="generalInsertColumns">
-        id, platform, version, primary_category, secondary_category, content, gmt_create, gmt_modify
+        id, category, content, gmt_create, gmt_modify
     </sql>
 
     <sql id="generalSelectColumns">
-        id, platform, version, primary_category, secondary_category, content
+        id, category, content
+    </sql>
+
+    <sql id="selectWithCreateTimeColumns">
+        id, category, content, gmt_create
     </sql>
 
     <insert id="save" parameterType="cn.edu.xmu.sy.ext.domain.LogDO">
         insert into tbl_log(<include refid="generalInsertColumns"/>)
-        values(#{id}, #{platform}, #{version}, #{primaryCategory}, #{secondaryCategory}, #{content}, #{gmtCreate},
-        #{gmtModify})
+        values(#{id}, #{category}, #{content}, #{gmtCreate}, #{gmtModify})
     </insert>
 
     <insert id="saveBatch" parameterType="cn.edu.xmu.sy.ext.domain.LogDO">
         insert into tbl_log(<include refid="generalInsertColumns"/>)
         values
         <foreach collection="list" item="item" separator=",">
-            (#{item.id}, #{item.platform}, #{item.version}, #{item.primaryCategory}, #{item.secondaryCategory},
-            #{item.content}, #{item.gmtCreate}, #{item.gmtModify})
+            (#{item.id}, #{item.category}, #{item.content}, #{item.gmtCreate}, #{item.gmtModify})
         </foreach>
     </insert>
 
     <update id="updateById" parameterType="cn.edu.xmu.sy.ext.domain.LogDO">
         update tbl_log
         set gmt_modify = #{gmtModify}
-        <if test="platform != null">
-            , platform = #{platform}
-        </if>
-        <if test="version != null">
-            , version = #{version}
-        </if>
-        <if test="primaryCategory != null">
-            , primary_category = #{primaryCategory}
-        </if>
-        <if test="secondaryCategory != null">
-            , secondary_category = #{secondaryCategory}
+        <if test="category != null">
+            , category = #{category}
         </if>
         <if test="content != null">
             , content = #{content}
@@ -68,5 +58,46 @@
         <include refid="generalSelectColumns"/>
         from tbl_log
         where id = #{id} and is_delete = 0
+    </select>
+
+    <select id="listByParam" parameterType="cn.edu.xmu.sy.ext.param.LogQueryParam" resultMap="logMap">
+        select
+        <include refid="selectWithCreateTimeColumns"/>
+        from tbl_log
+        where is_delete = 0
+        <if test="category != null">
+            and category = #{category}
+        </if>
+        <if test="period != null">
+            and gmt_create >= #{period.start} and #{period.end} >= gmt_create
+        </if>
+        <if test="search.keyword != null">
+            and match(content) against(#{search.keyword} in boolean mode)
+            <if test="paging.start != null">
+                limit ${paging.start}, ${paging.size}
+            </if>
+            <if test="paging.start == null">
+                limit ${paging.size}
+            </if>
+        </if>
+        <if test="search.keyword == null">
+            <if test="paging.start != null">
+                and #{paging.start} > id
+            </if>
+            order by id desc
+            limit ${paging.size}
+        </if>
+    </select>
+
+    <select id="countByParam" parameterType="cn.edu.xmu.sy.ext.param.LogQueryParam" resultType="java.lang.Long">
+        select count(1)
+        from tbl_log
+        where is_delete = 0
+        <if test="category != null">
+            and category = #{category}
+        </if>
+        <if test="search.keyword != null">
+            and match(content) against(#{search.keyword} in boolean mode)
+        </if>
     </select>
 </mapper>
