@@ -6,10 +6,10 @@ package cn.edu.xmu.sy.ext.param;
 import cn.com.lx1992.lib.base.param.BaseParam;
 import cn.com.lx1992.lib.constant.RegExpConstant;
 
-import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 /**
  * 修改柜台Param
@@ -18,22 +18,37 @@ import javax.validation.constraints.Pattern;
  * @version 2017-3-23
  */
 public class CounterModifyParam extends BaseParam {
+    /**
+     * ID
+     */
     @NotNull
     @Min(1)
     private Long id;
+    /**
+     * 编号
+     */
     @NotNull
-    @Max(16)
+    @Size(min = 1, max = 16)
     @Pattern(regexp = RegExpConstant.NUMBER)
     private String number;
+    /**
+     * 名称
+     */
     @NotNull
-    @Max(32)
+    @Size(min = 1, max = 32)
     private String name;
+    /**
+     * MAC地址
+     */
     @NotNull
-    @Max(16)
+    @Size(min = 1, max = 16)
     @Pattern(regexp = RegExpConstant.MAC_ADDRESS)
     private String mac;
+    /**
+     * IP地址
+     */
     @NotNull
-    @Max(16)
+    @Size(min = 1, max = 16)
     @Pattern(regexp = RegExpConstant.IP_ADDRESS)
     private String ip;
 

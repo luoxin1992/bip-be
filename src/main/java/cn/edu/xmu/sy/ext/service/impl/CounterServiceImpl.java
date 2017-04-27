@@ -15,6 +15,7 @@ import cn.edu.xmu.sy.ext.exception.BizException;
 import cn.edu.xmu.sy.ext.mapper.CounterMapper;
 import cn.edu.xmu.sy.ext.meta.BizResultEnum;
 import cn.edu.xmu.sy.ext.param.CounterCreateParam;
+import cn.edu.xmu.sy.ext.param.CounterDeleteParam;
 import cn.edu.xmu.sy.ext.param.CounterModifyParam;
 import cn.edu.xmu.sy.ext.param.CounterQueryParam;
 import cn.edu.xmu.sy.ext.param.SessionBatchQueryParam;
@@ -24,6 +25,7 @@ import cn.edu.xmu.sy.ext.service.CounterService;
 import cn.edu.xmu.sy.ext.service.LogService;
 import cn.edu.xmu.sy.ext.service.SessionService;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +38,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 /**
@@ -95,52 +96,52 @@ public class CounterServiceImpl implements CounterService {
         }
 
         //修改后处理过程
-        List<DiffFieldDTO> diffFields = POJOCompareUtil.compare(CounterDO.class, before, domain);
-        modifyPostProcess(param.getId(), diffFields);
+        modifyPostProcess(param.getId(), before, domain);
 
         logService.logCounterModify(before, domain);
         logger.info("modify counter {} successfully", domain.getId());
     }
 
     @Override
-    @Transactional
-    public void delete(Long id) {
+    public void delete(CounterDeleteParam param) {
         //仅能删除没有在线会话的柜台
-        checkOnlineSessionExist(id);
+        checkOnlineSessionExist(param.getId());
 
-        if (counterMapper.removeById(id) != CommonConstant.REMOVE_DOMAIN_SUCCESSFUL) {
-            logger.error("delete counter {} failed", id);
+        if (counterMapper.removeById(param.getId()) != CommonConstant.REMOVE_DOMAIN_SUCCESSFUL) {
+            logger.error("delete counter {} failed", param.getId());
             throw new BizException(BizResultEnum.COUNTER_DELETE_ERROR);
         }
 
-        logService.logCounterDelete(id);
-        logger.info("delete counter {} successfully", id);
+        logService.logCounterDelete(param.getId());
+        logger.info("delete counter {} successfully", param.getId());
     }
 
     @Override
     public BasePagingResult<CounterQueryResult> query(CounterQueryParam param) {
         long count = counterMapper.countByParam(param);
-        Map<Long, CounterQueryResult> counters = queryCounter(param);
-        Map<Long, List<SessionQueryResult>> sessions = querySession(new ArrayList<>(counters.keySet()));
+        if (count == 0) {
+            logger.warn("counter query result is empty");
+            throw new BizException(BizResultEnum.COUNTER_EMPTY_QUERY_RESULT);
+        }
 
-        counters.values().forEach(counter -> counter.setSessions(sessions.get(counter.getId())));
+        Map<Long, CounterQueryResult> counters = queryAndMap(param);
+        if (!MapUtils.isEmpty(counters)) {
+            Map<Long, List<SessionQueryResult>> sessions = queryTodaySession(new ArrayList<>(counters.keySet()));
+            counters.values()
+                    .forEach(counter -> counter.setSessions(sessions.get(counter.getId())));
+            logger.info("query {} counter(s) with {} session(s)", counters.size(), sessions.size());
+        }
+        logger.info("query {}/{} counter(s)", counters.size(), count);
 
         BasePagingResult<CounterQueryResult> result = new BasePagingResult<>();
         result.setTotal(count);
         result.setPage(new ArrayList<>(counters.values()));
-
-        logger.info("query {} counter(s) with {} session(s)", counters.size(), sessions.size());
         return result;
     }
 
     @Override
     public Optional<Long> getIdByMacAndIpOptional(String mac, String ip) {
         return Optional.ofNullable(counterMapper.getIdByMacAndIp(mac, ip, null));
-    }
-
-    @Override
-    public Optional<Long> getIdByNumberOptional(String number) {
-        return Optional.ofNullable(counterMapper.getIdByNumber(number, null));
     }
 
     /**
@@ -188,36 +189,41 @@ public class CounterServiceImpl implements CounterService {
     /**
      * 修改柜台后处理(仅限有在线会话时)
      *
-     * @param id         柜台ID
-     * @param diffFields 修改的字段
+     * @param id     柜台ID
+     * @param before 修改前的柜台信息
+     * @param after  修改后的柜台信息
      */
-    private void modifyPostProcess(Long id, List<DiffFieldDTO> diffFields) {
+    private void modifyPostProcess(Long id, CounterDO before, CounterDO after) {
         Optional<Long> sessionId = sessionService.getOnlineSessionIdOptional(id);
         if (sessionId.isPresent()) {
-            diffFields.stream()
+            List<String> diffFieldNames = POJOCompareUtil.compare(CounterDO.class, before, after).stream()
                     .map(DiffFieldDTO::getFieldName)
-                    .forEach((fieldName) -> {
-                        //TODO
-                        //如果修改了MAC地址或IP地址：强制离线
-                        if (fieldName.equals("mac") || fieldName.equals("ip")) {
-                            logger.info("force offline session because of mac or ip modified");
-                            return;
-                        }
-                        //如果修改了编号或名称：发送更新消息
-                        if (fieldName.equals("number") || fieldName.equals("name")) {
-                            logger.info("update session info because of number or name modified");
-                        }
-                    });
+                    .collect(Collectors.toList());
+
+            boolean modifyMacOrIp = diffFieldNames.stream()
+                    .anyMatch((fieldName) -> fieldName.equals("mac") || fieldName.equals("ip"));
+            if (modifyMacOrIp) {
+                //TODO 如果修改了MAC地址或IP地址：强制离线
+                logger.info("force offline session because of mac or ip modified");
+                return;
+            }
+
+            boolean modifyNumberOrName = diffFieldNames.stream()
+                    .anyMatch((fieldName) -> fieldName.equals("number") || fieldName.equals("name"));
+            if (modifyNumberOrName) {
+                //TODO 如果修改了编号或名称：发送更新消息
+                logger.info("update session info because of number or name modified");
+            }
         }
     }
 
     /**
-     * 查询柜台
+     * 查询柜台，Map出柜台ID
      *
      * @param param 查询参数
-     * @return 柜台ID-查询结果的Map
+     * @return 查询结果
      */
-    private Map<Long, CounterQueryResult> queryCounter(CounterQueryParam param) {
+    private Map<Long, CounterQueryResult> queryAndMap(CounterQueryParam param) {
         List<CounterDO> domains = counterMapper.listByParam(param);
         if (CollectionUtils.isEmpty(domains)) {
             return Collections.emptyMap();
@@ -229,25 +235,20 @@ public class CounterServiceImpl implements CounterService {
     }
 
     /**
-     * 查询会话
+     * 批量查询给定柜台“今天”的会话
      *
      * @param counterIds 柜台ID
-     * @return 柜台ID-查询结果的Map
+     * @return 查询结果
      */
-    private Map<Long, List<SessionQueryResult>> querySession(List<Long> counterIds) {
-        //只查询与“今天”相关联的Session
+    private Map<Long, List<SessionQueryResult>> queryTodaySession(List<Long> counterIds) {
         BasePeriodParam period = new BasePeriodParam();
         period.setStart(DateTimeUtil.getTodayAtStart());
         period.setEnd(DateTimeUtil.getTodayAtEnd());
+
         SessionBatchQueryParam param = new SessionBatchQueryParam();
         param.setCounterIds(counterIds);
         param.setPeriod(period);
 
-        List<SessionQueryResult> sessions = sessionService.queryBatch(param);
-        if (CollectionUtils.isEmpty(sessions)) {
-            return Collections.emptyMap();
-        }
-        return sessions.stream()
-                .collect(Collectors.groupingBy(SessionQueryResult::getCounterId, TreeMap::new, Collectors.toList()));
+        return sessionService.queryBatchAndGroup(param);
     }
 }

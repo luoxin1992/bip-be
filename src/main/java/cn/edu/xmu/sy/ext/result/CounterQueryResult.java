@@ -8,17 +8,35 @@ import cn.com.lx1992.lib.base.result.BaseResult;
 import java.util.List;
 
 /**
- * 柜台查询Result
+ * 查询柜台Result
  *
  * @author luoxin
  * @version 2017-3-24
  */
 public class CounterQueryResult extends BaseResult {
+    /**
+     * ID
+     */
     private Long id;
+    /**
+     * 编号
+     */
     private String number;
+    /**
+     * 名称
+     */
     private String name;
+    /**
+     * MAC地址
+     */
     private String mac;
+    /**
+     * IP地址
+     */
     private String ip;
+    /**
+     * 会话
+     */
     private List<SessionQueryResult> sessions;
 
     public Long getId() {

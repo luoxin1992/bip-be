@@ -5,6 +5,7 @@ package cn.edu.xmu.sy.ext.service;
 
 import cn.com.lx1992.lib.base.result.BasePagingResult;
 import cn.edu.xmu.sy.ext.param.CounterCreateParam;
+import cn.edu.xmu.sy.ext.param.CounterDeleteParam;
 import cn.edu.xmu.sy.ext.param.CounterModifyParam;
 import cn.edu.xmu.sy.ext.param.CounterQueryParam;
 import cn.edu.xmu.sy.ext.result.CounterQueryResult;
@@ -35,9 +36,9 @@ public interface CounterService {
     /**
      * 删除柜台
      *
-     * @param id 删除参数
+     * @param param 删除参数
      */
-    void delete(Long id);
+    void delete(CounterDeleteParam param);
 
     /**
      * 查询柜台信息
@@ -55,12 +56,4 @@ public interface CounterService {
      * @return 柜台ID(可选值)
      */
     Optional<Long> getIdByMacAndIpOptional(String mac, String ip);
-
-    /**
-     * 根据编号查询柜台ID
-     *
-     * @param number 编号
-     * @return 柜台ID(可选值)
-     */
-    Optional<Long> getIdByNumberOptional(String number);
 }
