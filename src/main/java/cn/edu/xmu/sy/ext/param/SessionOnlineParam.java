@@ -6,9 +6,9 @@ package cn.edu.xmu.sy.ext.param;
 import cn.com.lx1992.lib.base.param.BaseParam;
 import cn.com.lx1992.lib.constant.RegExpConstant;
 
-import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 /**
  * (客户端)会话上线Param
@@ -21,22 +21,16 @@ public class SessionOnlineParam extends BaseParam {
      * MAC地址
      */
     @NotNull
-    @Max(16)
+    @Size(min = 1,max = 16)
     @Pattern(regexp = RegExpConstant.MAC_ADDRESS)
     private String mac;
     /**
      * IP地址
      */
     @NotNull
-    @Max(16)
+    @Size(min = 1,max = 16)
     @Pattern(regexp = RegExpConstant.IP_ADDRESS)
     private String ip;
-    /**
-     * 消息队列名称
-     */
-    @NotNull
-    @Max(32)
-    private String queue;
 
     public String getMac() {
         return mac;
@@ -52,13 +46,5 @@ public class SessionOnlineParam extends BaseParam {
 
     public void setIp(String ip) {
         this.ip = ip;
-    }
-
-    public String getQueue() {
-        return queue;
-    }
-
-    public void setQueue(String queue) {
-        this.queue = queue;
     }
 }

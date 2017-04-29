@@ -6,16 +6,18 @@ package cn.edu.xmu.sy.ext.service.impl;
 import cn.com.lx1992.lib.constant.CommonConstant;
 import cn.com.lx1992.lib.util.DateTimeUtil;
 import cn.com.lx1992.lib.util.POJOConvertUtil;
+import cn.com.lx1992.lib.util.UUIDUtil;
 import cn.edu.xmu.sy.ext.domain.SessionDO;
 import cn.edu.xmu.sy.ext.exception.BizException;
 import cn.edu.xmu.sy.ext.mapper.SessionMapper;
 import cn.edu.xmu.sy.ext.meta.BizResultEnum;
 import cn.edu.xmu.sy.ext.meta.SessionStatusEnum;
 import cn.edu.xmu.sy.ext.param.SessionBatchQueryParam;
-import cn.edu.xmu.sy.ext.param.SessionForceOfflineParam;
+import cn.edu.xmu.sy.ext.param.SessionLostParam;
 import cn.edu.xmu.sy.ext.param.SessionOfflineParam;
 import cn.edu.xmu.sy.ext.param.SessionOnlineParam;
 import cn.edu.xmu.sy.ext.param.SessionQueryParam;
+import cn.edu.xmu.sy.ext.result.SessionOnlineResult;
 import cn.edu.xmu.sy.ext.result.SessionQueryResult;
 import cn.edu.xmu.sy.ext.service.CounterService;
 import cn.edu.xmu.sy.ext.service.LogService;
@@ -29,7 +31,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 /**
@@ -50,21 +54,24 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     @Transactional
-    public void online(SessionOnlineParam param) {
+    public SessionOnlineResult online(SessionOnlineParam param) {
         Optional<Long> counterId = counterService.getIdByMacAndIpOptional(param.getMac(), param.getIp());
         if (!counterId.isPresent()) {
             logger.error("counter with mac {} and ip {} not exist", param.getMac(), param.getIp());
-            throw new BizException(BizResultEnum.SESSION_COUNTER_NOT_EXIST);
+            throw new BizException(BizResultEnum.SESSION_COUNTER_UNBOUNDED);
         }
 
-        //TODO 并发错误
         //不允许同一柜台多个客户端同时上线
         checkOnlineSessionExist(counterId.get());
-        checkMqQueueExist(param.getQueue());
+        //生成Token，注册到消息服务
+        //TODO 未考虑UUID重复
+        //TODO 注册到消息服务
+        String token = UUIDUtil.randomShortUUID();
 
         //记录会话信息
         SessionDO domain = POJOConvertUtil.convert(param, SessionDO.class);
         domain.setCounterId(counterId.get());
+        domain.setToken(token);
         domain.setStatus(SessionStatusEnum.ONLINE.getStatus());
         domain.setOnlineTime(DateTimeUtil.getNow());
         if (sessionMapper.save(domain) != CommonConstant.SAVE_DOMAIN_SUCCESSFUL) {
@@ -72,18 +79,24 @@ public class SessionServiceImpl implements SessionService {
             throw new BizException(BizResultEnum.SESSION_ONLINE_ERROR);
         }
 
-        logService.logSessionOnline();
+        logService.logSessionOnline(domain);
         logger.info("session {} for counter {} online successfully", domain.getId(), counterId.get());
+
+        SessionOnlineResult result = new SessionOnlineResult();
+        result.setToken(token);
+        return result;
     }
 
     @Override
     @Transactional
     public void offline(SessionOfflineParam param) {
-        Long sessionId = sessionMapper.getOnlineIdByQueue(param.getQueue());
+        Long sessionId = sessionMapper.getOnlineIdByToken(param.getToken());
         if (sessionId == null) {
-            logger.error("online session with queue {} not exist", param.getQueue());
-            throw new BizException(BizResultEnum.SESSION_ONLINE_SESSION_NOT_EXIST, param.getQueue());
+            logger.error("online session with token {} not exist", param.getToken());
+            throw new BizException(BizResultEnum.SESSION_ONLINE_SESSION_NOT_EXIST, param.getToken());
         }
+
+        //TODO 从消息服务解除注册
 
         SessionDO domain = new SessionDO();
         domain.setId(sessionId);
@@ -94,33 +107,28 @@ public class SessionServiceImpl implements SessionService {
             throw new BizException(BizResultEnum.SESSION_OFFLINE_ERROR);
         }
 
-        logService.logSessionOffline();
+        logService.logSessionOffline(domain);
         logger.info("session {} offline successfully", sessionId);
     }
 
     @Override
-    public void forceOffline(SessionForceOfflineParam param) {
-        SessionDO session = sessionMapper.getById(param.getId());
-        if (session == null) {
-            logger.error("online session {} not exist", param.getId());
-            throw new BizException(BizResultEnum.SESSION_NOT_EXIST, param.getId());
-        }
-        if (session.getStatus() != SessionStatusEnum.ONLINE.getStatus()) {
-            logger.warn("session {} status not online", param.getId());
-            return;
+    public void lost(SessionLostParam param) {
+        Long sessionId = sessionMapper.getOnlineIdByToken(param.getToken());
+        if (sessionId == null) {
+            logger.error("online session with token {} not exist", param.getToken());
+            throw new BizException(BizResultEnum.SESSION_ONLINE_SESSION_NOT_EXIST, param.getToken());
         }
 
         SessionDO domain = new SessionDO();
-        domain.setId(param.getId());
-        domain.setStatus(SessionStatusEnum.FORCE.getStatus());
-        domain.setOfflineTime(DateTimeUtil.getNow());
+        domain.setId(sessionId);
+        domain.setStatus(SessionStatusEnum.LOST.getStatus());
         if (sessionMapper.updateById(domain) != CommonConstant.UPDATE_DOMAIN_SUCCESSFUL) {
-            logger.info("session {} force offline failed", param.getId());
-            throw new BizException(BizResultEnum.SESSION_FORCE_OFFLINE_ERROR);
+            logger.info("mark session {} status as lost failed", sessionId);
+            throw new BizException(BizResultEnum.SESSION_LOST_ERROR);
         }
 
-        logService.logSessionOffline();
-        logger.info("session {} force offline successfully", param.getId());
+        logService.logSessionLost(domain);
+        logger.info("mark session {} status as lost successfully", sessionId);
     }
 
     @Override
@@ -130,6 +138,7 @@ public class SessionServiceImpl implements SessionService {
             logger.warn("session query result is empty");
             return Collections.emptyList();
         }
+
         logger.info("query {} session(s) for counter {}", domains.size(), param.getCounterId());
         return domains.stream()
                 .map(domain -> {
@@ -144,9 +153,10 @@ public class SessionServiceImpl implements SessionService {
     public List<SessionQueryResult> queryBatch(SessionBatchQueryParam param) {
         List<SessionDO> domains = sessionMapper.listByParam(param);
         if (CollectionUtils.isEmpty(domains)) {
-            logger.warn("session query result is empty");
+            logger.warn("session batch query result is empty");
             return Collections.emptyList();
         }
+
         logger.info("batch query {} sessions for {} counters", domains.size(), param.getCounterIds().size());
         return domains.stream()
                 .map(domain -> {
@@ -155,6 +165,16 @@ public class SessionServiceImpl implements SessionService {
                     return result;
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<Long, List<SessionQueryResult>> queryBatchAndGroup(SessionBatchQueryParam param) {
+        List<SessionQueryResult> sessions = queryBatch(param);
+        if (CollectionUtils.isEmpty(sessions)) {
+            return Collections.emptyMap();
+        }
+        return sessions.stream()
+                .collect(Collectors.groupingBy(SessionQueryResult::getCounterId, TreeMap::new, Collectors.toList()));
     }
 
     @Override
@@ -173,14 +193,5 @@ public class SessionServiceImpl implements SessionService {
             logger.error("another session {} is online for counter {}", id, counterId);
             throw new BizException(BizResultEnum.SESSION_ONLINE_SESSION_EXIST);
         }
-    }
-
-    /**
-     * 检查队列是否已在MQ中注册
-     *
-     * @param queue 消息队列名称
-     */
-    private void checkMqQueueExist(String queue) {
-        //TODO
     }
 }

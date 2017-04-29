@@ -40,5 +40,5 @@ public interface SessionMapper {
 
     Long getOnlineIdByCounterId(Long counterId);
 
-    Long getOnlineIdByQueue(String queue);
+    Long getOnlineIdByToken(String token);
 }

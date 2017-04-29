@@ -36,7 +36,7 @@ public class SessionMapperTests {
     public void testSave() {
         SessionDO sessionDO = new SessionDO();
         sessionDO.setCounterId(26223598501888L);
-        sessionDO.setQueue("");
+        sessionDO.setToken("");
         sessionDO.setStatus(1);
         sessionDO.setOnlineTime(LocalDateTime.now());
         sessionDO.setGmtCreate(LocalDateTime.now());
@@ -51,7 +51,7 @@ public class SessionMapperTests {
             for (int j = 1; j <= 2; j++) {
                 SessionDO sessionDO = new SessionDO();
                 sessionDO.setCounterId(26224043098119L + i);
-                sessionDO.setQueue("");
+                sessionDO.setToken("");
                 sessionDO.setStatus(1);
                 sessionDO.setOnlineTime(LocalDateTime.now());
                 sessionDO.setGmtCreate(LocalDateTime.now());
@@ -67,7 +67,7 @@ public class SessionMapperTests {
         SessionDO sessionDO = new SessionDO();
         sessionDO.setId(26226647891969L);
         sessionDO.setCounterId(0L);
-        sessionDO.setQueue("1234567890ABCDEF");
+        sessionDO.setToken("1234567890ABCDEF");
         sessionDO.setStatus(2);
         sessionDO.setOfflineTime(LocalDateTime.now());
         sessionDO.setGmtModify(LocalDateTime.now());

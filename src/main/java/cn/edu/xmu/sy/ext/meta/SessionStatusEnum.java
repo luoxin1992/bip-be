@@ -3,6 +3,9 @@
  */
 package cn.edu.xmu.sy.ext.meta;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 /**
  * 会话状态枚举
  *
@@ -13,7 +16,6 @@ public enum SessionStatusEnum {
     ONLINE(1, "在线"),
     OFFLINE(2, "离线"),
     LOST(3, "失联"),
-    FORCE(4, "强制离线"),
     UNKNOWN(999, "未知");
 
     private int status;
@@ -33,11 +35,10 @@ public enum SessionStatusEnum {
     }
 
     public static String getDescriptionByStatus(int status) {
-        for (SessionStatusEnum value : values()) {
-            if (value.status == status) {
-                return value.getDescription();
-            }
-        }
-        return UNKNOWN.getDescription();
+        Optional<String> result = Arrays.stream(values())
+                .filter((value) -> value.status == status)
+                .map(SessionStatusEnum::getDescription)
+                .findFirst();
+        return result.orElse(UNKNOWN.getDescription());
     }
 }

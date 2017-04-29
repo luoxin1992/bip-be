@@ -22,10 +22,10 @@ public class SessionDO extends BaseDO {
     @FieldComment("柜台ID")
     private Long counterId;
     /**
-     * 消息队列名称
+     * Token
      */
-    @FieldComment("消息队列名称")
-    private String queue;
+    @FieldComment("Token")
+    private String token;
     /**
      * 状态
      */
@@ -52,12 +52,12 @@ public class SessionDO extends BaseDO {
         this.counterId = counterId;
     }
 
-    public String getQueue() {
-        return queue;
+    public String getToken() {
+        return token;
     }
 
-    public void setQueue(String queue) {
-        this.queue = queue;
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public Integer getStatus() {

@@ -4,13 +4,15 @@
 package cn.edu.xmu.sy.ext.service;
 
 import cn.edu.xmu.sy.ext.param.SessionBatchQueryParam;
-import cn.edu.xmu.sy.ext.param.SessionForceOfflineParam;
+import cn.edu.xmu.sy.ext.param.SessionLostParam;
 import cn.edu.xmu.sy.ext.param.SessionOfflineParam;
 import cn.edu.xmu.sy.ext.param.SessionOnlineParam;
 import cn.edu.xmu.sy.ext.param.SessionQueryParam;
+import cn.edu.xmu.sy.ext.result.SessionOnlineResult;
 import cn.edu.xmu.sy.ext.result.SessionQueryResult;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -24,8 +26,9 @@ public interface SessionService {
      * 会话上线
      *
      * @param param 上线参数
+     * @return 上线结果
      */
-    void online(SessionOnlineParam param);
+    SessionOnlineResult online(SessionOnlineParam param);
 
     /**
      * 会话离线
@@ -35,11 +38,11 @@ public interface SessionService {
     void offline(SessionOfflineParam param);
 
     /**
-     * 会话强制离线
+     * 标记会话失联
      *
-     * @param param 强制离线参数
+     * @param param 失联参数
      */
-    void forceOffline(SessionForceOfflineParam param);
+    void lost(SessionLostParam param);
 
     /**
      * 查询会话
@@ -53,9 +56,17 @@ public interface SessionService {
      * 批量查询会话
      *
      * @param param 查询参数
-     * @return 会话信息
+     * @return 查询结果
      */
     List<SessionQueryResult> queryBatch(SessionBatchQueryParam param);
+
+    /**
+     * 批量查询会话(按柜台ID分组)
+     *
+     * @param param 查询参数
+     * @return 查询结果
+     */
+    Map<Long, List<SessionQueryResult>> queryBatchAndGroup(SessionBatchQueryParam param);
 
     /**
      * 查询在线会话ID
