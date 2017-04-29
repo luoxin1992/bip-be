@@ -49,6 +49,14 @@ public interface CounterService {
     BasePagingResult<CounterQueryResult> query(CounterQueryParam param);
 
     /**
+     * 根据编号查询柜台ID
+     *
+     * @param number 编号
+     * @return 柜台ID(可选值)
+     */
+    Optional<Long> getIdByNumber(String number);
+
+    /**
      * 根据MAC地址和IP地址查询柜台ID
      *
      * @param mac MAC地址

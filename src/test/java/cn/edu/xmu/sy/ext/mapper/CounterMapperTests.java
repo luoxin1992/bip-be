@@ -111,6 +111,6 @@ public class CounterMapperTests {
 
     @Test
     public void testGetIdByMacAndIp() {
-        logger.info("{}", counterMapper.getIdByMacAndIp("000000000001", "192.168.1.101", 26224043098120L));
+        logger.info("{}", counterMapper.getIdByMacAndIp("000000000001", "192.168.1.101"));
     }
 }

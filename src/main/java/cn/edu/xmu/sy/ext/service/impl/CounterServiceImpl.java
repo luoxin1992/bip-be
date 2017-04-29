@@ -105,7 +105,7 @@ public class CounterServiceImpl implements CounterService {
     @Override
     public void delete(CounterDeleteParam param) {
         //仅能删除没有在线会话的柜台
-        checkOnlineSessionExist(param.getId());
+        checkOnlineSessionNotExist(param.getId());
 
         if (counterMapper.removeById(param.getId()) != CommonConstant.REMOVE_DOMAIN_SUCCESSFUL) {
             logger.error("delete counter {} failed", param.getId());
@@ -140,8 +140,13 @@ public class CounterServiceImpl implements CounterService {
     }
 
     @Override
+    public Optional<Long> getIdByNumber(String number) {
+        return Optional.ofNullable(counterMapper.getIdByNumber(number, null));
+    }
+
+    @Override
     public Optional<Long> getIdByMacAndIpOptional(String mac, String ip) {
-        return Optional.ofNullable(counterMapper.getIdByMacAndIp(mac, ip, null));
+        return Optional.ofNullable(counterMapper.getIdByMacAndIp(mac, ip));
     }
 
     /**
@@ -166,7 +171,7 @@ public class CounterServiceImpl implements CounterService {
      * @param exclude 排除ID
      */
     private void checkMacOrIpDuplicate(String mac, String ip, Long exclude) {
-        Long id = counterMapper.getIdByMacAndIp(mac, ip, exclude);
+        Long id = counterMapper.getIdByMacOrIp(mac, ip, exclude);
         if (id != null) {
             logger.error("counter mac {} or ip {} duplicate", mac, ip);
             throw new BizException(BizResultEnum.COUNTER_MAC_OR_IP_DUPLICATE, mac, ip);
@@ -178,7 +183,7 @@ public class CounterServiceImpl implements CounterService {
      *
      * @param id 柜台ID
      */
-    private void checkOnlineSessionExist(Long id) {
+    private void checkOnlineSessionNotExist(Long id) {
         Optional<Long> sessionId = sessionService.getOnlineSessionIdOptional(id);
         if (sessionId.isPresent()) {
             logger.error("online session for counter {} exist", id);

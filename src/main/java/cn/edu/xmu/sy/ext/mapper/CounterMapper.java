@@ -34,5 +34,7 @@ public interface CounterMapper {
 
     Long getIdByNumber(@Param("number") String number, @Param("exclude") Long exclude);
 
-    Long getIdByMacAndIp(@Param("mac") String mac, @Param("ip") String ip, @Param("exclude") Long exclude);
+    Long getIdByMacOrIp(@Param("mac") String mac, @Param("ip") String ip, @Param("exclude") Long exclude);
+
+    Long getIdByMacAndIp(@Param("mac") String mac, @Param("ip") String ip);
 }

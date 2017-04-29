@@ -106,15 +106,26 @@
         limit 1
     </select>
 
-    <select id="getIdByMacAndIp" resultType="java.lang.Long">
+    <select id="getIdByMacOrIp" resultType="java.lang.Long">
         select id
         from tbl_counter
         where is_delete = 0
+        <!--查询条件是MAC或IP匹配其一，但两者均不能为空-->
         <if test="mac != null and ip != null">
             and (mac = #{mac} or ip = #{ip})
         </if>
         <if test="exclude != null">
             and id != #{exclude}
+        </if>
+        limit 1
+    </select>
+
+    <select id="getIdByMacAndIp" resultType="java.lang.Long">
+        select id
+        from tbl_counter
+        where is_delete = 0
+        <if test="mac != null and ip != null">
+            and (mac = #{mac} and ip = #{ip})
         </if>
         limit 1
     </select>
