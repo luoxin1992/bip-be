@@ -3,6 +3,9 @@
  */
 package cn.edu.xmu.sy.ext.message;
 
+import cn.com.lx1992.lib.util.UUIDUtil;
+import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
+
 /**
  * Message基类
  *
@@ -11,24 +14,25 @@ package cn.edu.xmu.sy.ext.message;
  */
 public class BaseMessage {
     /**
-     * ID
+     * UUID
      */
-    private Long id;
+    private String uuid;
     /**
      * 类型
      */
     private String type;
 
-    public BaseMessage(String type) {
-        this.type = type;
+    public BaseMessage(MessageTypeEnum type) {
+        this.uuid = UUIDUtil.randomUUID();
+        this.type = type.getType();
     }
 
-    public Long getId() {
-        return id;
+    public String getUuid() {
+        return uuid;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public String getType() {

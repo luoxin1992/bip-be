@@ -8,12 +8,12 @@ import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
 import java.util.List;
 
 /**
- * 第三方业务开始受理Message
+ * 业务受理失败Message
  *
  * @author luoxin
  * @version 2017-4-25
  */
-public class ThirdPartyBizStartMessage extends BaseMessage {
+public class BizFailureMessage extends BaseMessage {
     /**
      * 附加内容
      */
@@ -27,8 +27,8 @@ public class ThirdPartyBizStartMessage extends BaseMessage {
      */
     private List<String> voices;
 
-    public ThirdPartyBizStartMessage() {
-        super(MessageTypeEnum.THIRD_PARTY_BIZ_START.getType());
+    public BizFailureMessage() {
+        super(MessageTypeEnum.BIZ_FAILURE);
     }
 
     public String getExtra() {

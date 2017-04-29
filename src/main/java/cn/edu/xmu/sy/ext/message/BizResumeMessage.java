@@ -6,13 +6,13 @@ package cn.edu.xmu.sy.ext.message;
 import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
 
 /**
- * 柜台恢复服务Message
+ * 业务恢复受理Message
  *
  * @author luoxin
  * @version 2017-4-25
  */
-public class CounterServiceResumeMessage extends BaseMessage {
-    public CounterServiceResumeMessage() {
-        super(MessageTypeEnum.COUNTER_SERVICE_RESUME.getType());
+public class BizResumeMessage extends BaseMessage {
+    public BizResumeMessage() {
+        super(MessageTypeEnum.BIZ_RESUME);
     }
 }

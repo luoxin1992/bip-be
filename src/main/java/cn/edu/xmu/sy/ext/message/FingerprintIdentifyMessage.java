@@ -13,6 +13,6 @@ import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
  */
 public class FingerprintIdentifyMessage extends BaseMessage {
     public FingerprintIdentifyMessage() {
-        super(MessageTypeEnum.FINGERPRINT_IDENTIFY.getType());
+        super(MessageTypeEnum.FINGERPRINT_IDENTIFY);
     }
 }

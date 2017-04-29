@@ -6,27 +6,27 @@ package cn.edu.xmu.sy.ext.message;
 import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
 
 /**
- * 用户登录消息
+ * 更新用户信息Message
  *
  * @author luoxin
  * @version 2017-4-25
  */
-public class UserLoginMessage extends BaseMessage {
+public class UserInfoMessage extends BaseMessage {
     /**
-     * 编号
+     * 用户编号
      */
     private String number;
     /**
-     * 姓名
+     * 用户姓名
      */
     private String name;
     /**
-     * 照片URL
+     * 用户照片(URL)
      */
     private String photo;
 
-    public UserLoginMessage() {
-        super(MessageTypeEnum.USER_LOGIN.getType());
+    public UserInfoMessage() {
+        super(MessageTypeEnum.USER_INFO);
     }
 
     public String getNumber() {

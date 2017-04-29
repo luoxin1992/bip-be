@@ -8,12 +8,12 @@ import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
 import java.util.List;
 
 /**
- * 第三方业务受理成功Message
+ * 业务受理成功Message
  *
  * @author luoxin
  * @version 2017-4-25
  */
-public class ThirdPartyBizSuccessfulMessage extends BaseMessage {
+public class BizSuccessMessage extends BaseMessage {
     /**
      * 附加内容
      */
@@ -27,8 +27,8 @@ public class ThirdPartyBizSuccessfulMessage extends BaseMessage {
      */
     private List<String> voices;
 
-    public ThirdPartyBizSuccessfulMessage() {
-        super(MessageTypeEnum.THIRD_PARTY_BIZ_SUCCESSFUL.getType());
+    public BizSuccessMessage() {
+        super(MessageTypeEnum.BIZ_SUCCESS);
     }
 
     public String getExtra() {

@@ -6,13 +6,13 @@ package cn.edu.xmu.sy.ext.message;
 import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
 
 /**
- * 心跳Message
+ * 关闭客户端Message
  *
  * @author luoxin
- * @version 2017-4-25
+ * @version 2017-4-29
  */
-public class HeartbeatMessage extends BaseMessage {
-    public HeartbeatMessage() {
-        super(MessageTypeEnum.HEARTBEAT);
+public class CloseMessage extends BaseMessage {
+    public CloseMessage() {
+        super(MessageTypeEnum.CLOSE);
     }
 }

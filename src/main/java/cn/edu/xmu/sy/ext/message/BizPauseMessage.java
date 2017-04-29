@@ -6,13 +6,13 @@ package cn.edu.xmu.sy.ext.message;
 import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
 
 /**
- * 柜台暂停服务Message
+ * 业务暂停受理Message
  *
  * @author luoxin
  * @version 2017-4-25
  */
-public class CounterServicePauseMessage extends BaseMessage {
-    public CounterServicePauseMessage() {
-        super(MessageTypeEnum.COUNTER_SERVICE_PAUSE.getType());
+public class BizPauseMessage extends BaseMessage {
+    public BizPauseMessage() {
+        super(MessageTypeEnum.BIZ_PAUSE);
     }
 }

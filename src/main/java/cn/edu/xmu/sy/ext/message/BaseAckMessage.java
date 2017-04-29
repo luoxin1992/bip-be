@@ -11,20 +11,20 @@ package cn.edu.xmu.sy.ext.message;
  */
 public class BaseAckMessage {
     /**
-     * 被确认消息ID
+     * 被确认消息UUID
      */
-    private Long id;
+    private Long uuid;
     /**
      * 成功标记
      */
     private Boolean success;
 
-    public Long getId() {
-        return id;
+    public Long getUuid() {
+        return uuid;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setUuid(Long uuid) {
+        this.uuid = uuid;
     }
 
     public Boolean getSuccess() {

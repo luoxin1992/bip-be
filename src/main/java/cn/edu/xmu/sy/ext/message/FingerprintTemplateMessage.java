@@ -6,7 +6,7 @@ package cn.edu.xmu.sy.ext.message;
 import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
 
 /**
- * 指纹模型Message(上行)
+ * 指纹模型Message(返回)
  *
  * @author luoxin
  * @version 2017-4-25
@@ -22,7 +22,7 @@ public class FingerprintTemplateMessage extends BaseMessage {
     private String template;
 
     public FingerprintTemplateMessage() {
-        super(MessageTypeEnum.FINGERPRINT_TEMPLATE.getType());
+        super(MessageTypeEnum.FINGERPRINT_TEMPLATE);
     }
 
     public Long getParent() {

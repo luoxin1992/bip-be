@@ -22,7 +22,7 @@ public class FingerprintEnrollMessage extends BaseMessage {
     private int captureTimes;
 
     public FingerprintEnrollMessage() {
-        super(MessageTypeEnum.FINGERPRINT_ENROLL.getType());
+        super(MessageTypeEnum.FINGERPRINT_ENROLL);
     }
 
     public String getFinger() {
