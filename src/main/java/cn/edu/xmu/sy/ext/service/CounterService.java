@@ -49,19 +49,19 @@ public interface CounterService {
     BasePagingResult<CounterQueryResult> query(CounterQueryParam param);
 
     /**
+     * 根据MAC地址和IP地址查询柜台信息
+     *
+     * @param mac MAC地址
+     * @param ip  IP地址
+     * @return 查询结果(可选值)
+     */
+    Optional<CounterQueryResult> getByMacAndIpOptional(String mac, String ip);
+
+    /**
      * 根据编号查询柜台ID
      *
      * @param number 编号
      * @return 柜台ID(可选值)
      */
-    Optional<Long> getIdByNumber(String number);
-
-    /**
-     * 根据MAC地址和IP地址查询柜台ID
-     *
-     * @param mac MAC地址
-     * @param ip  IP地址
-     * @return 柜台ID(可选值)
-     */
-    Optional<Long> getIdByMacAndIpOptional(String mac, String ip);
+    Optional<Long> getIdByNumberOptional(String number);
 }

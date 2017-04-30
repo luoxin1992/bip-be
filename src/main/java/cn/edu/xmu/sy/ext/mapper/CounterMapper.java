@@ -32,9 +32,9 @@ public interface CounterMapper {
 
     Long countByParam(CounterQueryParam param);
 
-    Long getIdByNumber(@Param("number") String number, @Param("exclude") Long exclude);
+    CounterDO getByMacAndIp(@Param("mac") String mac, @Param("ip") String ip);
 
     Long getIdByMacOrIp(@Param("mac") String mac, @Param("ip") String ip, @Param("exclude") Long exclude);
 
-    Long getIdByMacAndIp(@Param("mac") String mac, @Param("ip") String ip);
+    Long getIdByNumber(@Param("number") String number, @Param("exclude") Long exclude);
 }

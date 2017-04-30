@@ -96,12 +96,13 @@
         </if>
     </select>
 
-    <select id="getIdByNumber" resultType="java.lang.Long">
-        select id
+    <select id="getByMacAndIp" resultMap="counterMap">
+        select
+        <include refid="generalSelectColumns"/>
         from tbl_counter
-        where number = #{number} and is_delete = 0
-        <if test="exclude != null">
-            and id != #{exclude}
+        where is_delete = 0
+        <if test="mac != null and ip != null">
+            and mac = #{mac} and ip = #{ip}
         </if>
         limit 1
     </select>
@@ -120,12 +121,12 @@
         limit 1
     </select>
 
-    <select id="getIdByMacAndIp" resultType="java.lang.Long">
+    <select id="getIdByNumber" resultType="java.lang.Long">
         select id
         from tbl_counter
-        where is_delete = 0
-        <if test="mac != null and ip != null">
-            and (mac = #{mac} and ip = #{ip})
+        where number = #{number} and is_delete = 0
+        <if test="exclude != null">
+            and id != #{exclude}
         </if>
         limit 1
     </select>

@@ -140,13 +140,14 @@ public class CounterServiceImpl implements CounterService {
     }
 
     @Override
-    public Optional<Long> getIdByNumber(String number) {
-        return Optional.ofNullable(counterMapper.getIdByNumber(number, null));
+    public Optional<CounterQueryResult> getByMacAndIpOptional(String mac, String ip) {
+        CounterDO domain = counterMapper.getByMacAndIp(mac, ip);
+        return Optional.ofNullable(domain != null ? POJOConvertUtil.convert(domain, CounterQueryResult.class) : null);
     }
 
     @Override
-    public Optional<Long> getIdByMacAndIpOptional(String mac, String ip) {
-        return Optional.ofNullable(counterMapper.getIdByMacAndIp(mac, ip));
+    public Optional<Long> getIdByNumberOptional(String number) {
+        return Optional.ofNullable(counterMapper.getIdByNumber(number, null));
     }
 
     /**
