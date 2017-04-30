@@ -4,7 +4,6 @@
 package cn.edu.xmu.sy.ext.service;
 
 import cn.edu.xmu.sy.ext.param.SessionBatchQueryParam;
-import cn.edu.xmu.sy.ext.param.SessionLostParam;
 import cn.edu.xmu.sy.ext.param.SessionOfflineParam;
 import cn.edu.xmu.sy.ext.param.SessionOnlineParam;
 import cn.edu.xmu.sy.ext.param.SessionQueryParam;
@@ -38,11 +37,18 @@ public interface SessionService {
     void offline(SessionOfflineParam param);
 
     /**
-     * 标记会话失联
+     * 会话失联
      *
-     * @param param 失联参数
+     * @param id 会话ID
      */
-    void lost(SessionLostParam param);
+    void lost(Long id);
+
+    /**
+     * 会话关闭
+     *
+     * @param id 会话ID
+     */
+    void close(Long id);
 
     /**
      * 查询会话

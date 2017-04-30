@@ -16,6 +16,7 @@ public enum SessionStatusEnum {
     ONLINE(1, "在线"),
     OFFLINE(2, "离线"),
     LOST(3, "失联"),
+    CLOSE(4, "关闭"),
     UNKNOWN(999, "未知");
 
     private int status;

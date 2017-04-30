@@ -13,14 +13,15 @@ import cn.edu.xmu.sy.ext.mapper.SessionMapper;
 import cn.edu.xmu.sy.ext.meta.BizResultEnum;
 import cn.edu.xmu.sy.ext.meta.SessionStatusEnum;
 import cn.edu.xmu.sy.ext.param.SessionBatchQueryParam;
-import cn.edu.xmu.sy.ext.param.SessionLostParam;
 import cn.edu.xmu.sy.ext.param.SessionOfflineParam;
 import cn.edu.xmu.sy.ext.param.SessionOnlineParam;
 import cn.edu.xmu.sy.ext.param.SessionQueryParam;
+import cn.edu.xmu.sy.ext.result.CounterQueryResult;
 import cn.edu.xmu.sy.ext.result.SessionOnlineResult;
 import cn.edu.xmu.sy.ext.result.SessionQueryResult;
 import cn.edu.xmu.sy.ext.service.CounterService;
 import cn.edu.xmu.sy.ext.service.LogService;
+import cn.edu.xmu.sy.ext.service.MessageService;
 import cn.edu.xmu.sy.ext.service.SessionService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
@@ -47,6 +48,8 @@ public class SessionServiceImpl implements SessionService {
     @Autowired
     private CounterService counterService;
     @Autowired
+    private MessageService messageService;
+    @Autowired
     private LogService logService;
 
     @Autowired
@@ -55,80 +58,68 @@ public class SessionServiceImpl implements SessionService {
     @Override
     @Transactional
     public SessionOnlineResult online(SessionOnlineParam param) {
-        Optional<Long> counterId = counterService.getIdByMacAndIpOptional(param.getMac(), param.getIp());
-        if (!counterId.isPresent()) {
-            logger.error("counter with mac {} and ip {} not exist", param.getMac(), param.getIp());
-            throw new BizException(BizResultEnum.SESSION_COUNTER_UNBOUNDED);
-        }
-
+        CounterQueryResult counter = checkCounterBind(param.getMac(), param.getIp());
         //不允许同一柜台多个客户端同时上线
-        checkOnlineSessionExist(counterId.get());
-        //生成Token，注册到消息服务
-        //TODO 未考虑UUID重复
-        //TODO 注册到消息服务
+        checkOnlineSessionNotExist(counter.getId());
+        //生成Token
         String token = UUIDUtil.randomShortUUID();
 
         //记录会话信息
-        SessionDO domain = POJOConvertUtil.convert(param, SessionDO.class);
-        domain.setCounterId(counterId.get());
+        SessionDO domain = new SessionDO();
+        domain.setCounterId(counter.getId());
         domain.setToken(token);
         domain.setStatus(SessionStatusEnum.ONLINE.getStatus());
         domain.setOnlineTime(DateTimeUtil.getNow());
         if (sessionMapper.save(domain) != CommonConstant.SAVE_DOMAIN_SUCCESSFUL) {
-            logger.error("session {} for counter {} online failed", domain.getId(), counterId.get());
+            logger.error("session {} for counter {} online failed", domain.getId(), counter.getId());
             throw new BizException(BizResultEnum.SESSION_ONLINE_ERROR);
         }
 
-        logService.logSessionOnline(domain);
-        logger.info("session {} for counter {} online successfully", domain.getId(), counterId.get());
+        //注册到消息服务
+        messageService.registerSession(domain.getId(), token);
+
+        logService.logSessionOnline(domain.getId(), token);
+        logger.info("session {} for counter {} online successfully", domain.getId(), counter.getId());
 
         SessionOnlineResult result = new SessionOnlineResult();
         result.setToken(token);
+        result.setNumber(counter.getNumber());
+        result.setName(counter.getName());
         return result;
     }
 
     @Override
     @Transactional
     public void offline(SessionOfflineParam param) {
-        Long sessionId = sessionMapper.getOnlineIdByToken(param.getToken());
-        if (sessionId == null) {
-            logger.error("online session with token {} not exist", param.getToken());
-            throw new BizException(BizResultEnum.SESSION_ONLINE_SESSION_NOT_EXIST, param.getToken());
+        Long id = sessionMapper.getIdByToken(param.getToken());
+        if (id == null) {
+            logger.error("session with token {} not exist", param.getToken());
+            throw new BizException(BizResultEnum.SESSION_NOT_EXIST, param.getToken());
         }
 
-        //TODO 从消息服务解除注册
+        checkSessionIsOnline(id);
+        //从消息服务解除注册
+        messageService.unregisterSession(id);
+        updateSessionStatus(id, SessionStatusEnum.OFFLINE);
 
-        SessionDO domain = new SessionDO();
-        domain.setId(sessionId);
-        domain.setStatus(SessionStatusEnum.OFFLINE.getStatus());
-        domain.setOfflineTime(DateTimeUtil.getNow());
-        if (sessionMapper.updateById(domain) != CommonConstant.UPDATE_DOMAIN_SUCCESSFUL) {
-            logger.info("session {} offline failed", sessionId);
-            throw new BizException(BizResultEnum.SESSION_OFFLINE_ERROR);
-        }
-
-        logService.logSessionOffline(domain);
-        logger.info("session {} offline successfully", sessionId);
+        logService.logSessionOffline(id);
+        logger.info("session {} offline successfully", id);
     }
 
     @Override
-    public void lost(SessionLostParam param) {
-        Long sessionId = sessionMapper.getOnlineIdByToken(param.getToken());
-        if (sessionId == null) {
-            logger.error("online session with token {} not exist", param.getToken());
-            throw new BizException(BizResultEnum.SESSION_ONLINE_SESSION_NOT_EXIST, param.getToken());
-        }
+    @Transactional
+    public void lost(Long id) {
+        checkSessionIsOnline(id);
+        updateSessionStatus(id, SessionStatusEnum.LOST);
+        logger.info("mark session {} status as lost successfully", id);
+    }
 
-        SessionDO domain = new SessionDO();
-        domain.setId(sessionId);
-        domain.setStatus(SessionStatusEnum.LOST.getStatus());
-        if (sessionMapper.updateById(domain) != CommonConstant.UPDATE_DOMAIN_SUCCESSFUL) {
-            logger.info("mark session {} status as lost failed", sessionId);
-            throw new BizException(BizResultEnum.SESSION_LOST_ERROR);
-        }
-
-        logService.logSessionLost(domain);
-        logger.info("mark session {} status as lost successfully", sessionId);
+    @Override
+    @Transactional
+    public void close(Long id) {
+        checkSessionIsOnline(id);
+        updateSessionStatus(id, SessionStatusEnum.CLOSE);
+        logger.info("mark session {} status as close successfully", id);
     }
 
     @Override
@@ -183,15 +174,57 @@ public class SessionServiceImpl implements SessionService {
     }
 
     /**
-     * 检查柜台是否已存在在线会话
+     * 根据会话上线参数(MAC+IP)查询是否已绑定(即存在)某个柜台
+     *
+     * @param mac MAC地址
+     * @param ip  IP地址
+     * @return 查询结果
+     */
+    private CounterQueryResult checkCounterBind(String mac, String ip) {
+        Optional<CounterQueryResult> result = counterService.getByMacAndIpOptional(mac, ip);
+        if (!result.isPresent()) {
+            logger.error("counter with mac {} and ip {} unbound", mac, ip);
+            throw new BizException(BizResultEnum.SESSION_COUNTER_UNBOUNDED);
+        }
+        return result.get();
+    }
+
+    /**
+     * 检查柜台是否不存在在线会话
      *
      * @param counterId 柜台ID
      */
-    private void checkOnlineSessionExist(Long counterId) {
+    private void checkOnlineSessionNotExist(Long counterId) {
         Long id = sessionMapper.getOnlineIdByCounterId(counterId);
         if (id != null) {
             logger.error("another session {} is online for counter {}", id, counterId);
             throw new BizException(BizResultEnum.SESSION_ONLINE_SESSION_EXIST);
+        }
+    }
+
+    /**
+     * 检查会话是否不存在在线会话
+     *
+     * @param sessionId 会话ID
+     */
+    private void checkSessionIsOnline(Long sessionId) {
+        SessionDO domain = sessionMapper.getById(sessionId);
+        if (domain.getStatus() != SessionStatusEnum.ONLINE.getStatus()) {
+            logger.error("session {] not online", sessionId);
+            throw new BizException(BizResultEnum.SESSION_NOT_ONLINE, sessionId);
+        }
+    }
+
+    private void updateSessionStatus(Long id, SessionStatusEnum status) {
+        SessionDO domain = new SessionDO();
+        domain.setId(id);
+        domain.setStatus(status.getStatus());
+        if (status == SessionStatusEnum.OFFLINE) {
+            domain.setOfflineTime(DateTimeUtil.getNow());
+        }
+        if (sessionMapper.updateById(domain) != CommonConstant.UPDATE_DOMAIN_SUCCESSFUL) {
+            logger.info("update session {} status failed", id);
+            throw new BizException(BizResultEnum.SESSION_UPDATE_STATUS_ERROR);
         }
     }
 }
