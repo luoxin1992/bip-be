@@ -28,9 +28,13 @@ public interface UserMapper {
 
     UserDO getById(Long id);
 
-    List<UserDO> queryByParam(UserQueryParam param);
+    Long countAll();
+
+    List<UserDO> listByPaging(@Param("offset") Long offset, @Param("rows") Integer rows);
 
     Long countByParam(UserQueryParam param);
+
+    List<UserDO> queryByParam(UserQueryParam param);
 
     Long getIdByNumber(@Param("number") String number, @Param("exclude") Long exclude);
 }

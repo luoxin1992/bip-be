@@ -3,6 +3,7 @@
  */
 package cn.edu.xmu.sy.ext.service.impl;
 
+import cn.com.lx1992.lib.base.result.BaseListResult;
 import cn.com.lx1992.lib.base.result.BasePagingResult;
 import cn.com.lx1992.lib.constant.CommonConstant;
 import cn.com.lx1992.lib.util.POJOConvertUtil;
@@ -16,13 +17,14 @@ import cn.edu.xmu.sy.ext.param.UserDeleteParam;
 import cn.edu.xmu.sy.ext.param.UserModifyParam;
 import cn.edu.xmu.sy.ext.param.UserQueryParam;
 import cn.edu.xmu.sy.ext.result.FingerprintQueryResult;
+import cn.edu.xmu.sy.ext.result.FingerprintTemplateQueryResult;
+import cn.edu.xmu.sy.ext.result.UserListSimpleResult;
 import cn.edu.xmu.sy.ext.result.UserQueryResult;
 import cn.edu.xmu.sy.ext.service.FingerprintService;
 import cn.edu.xmu.sy.ext.service.LogService;
 import cn.edu.xmu.sy.ext.service.SettingService;
 import cn.edu.xmu.sy.ext.service.UserService;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +32,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -55,24 +55,68 @@ public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
 
     @Override
+    public BaseListResult<UserListSimpleResult> listSimple() {
+        Long count = userMapper.countAll();
+        if (count == 0) {
+            logger.warn("user simple list result is empty");
+            return new BaseListResult<>();
+        }
+
+        Integer rows = 100;
+        Integer pages = Math.toIntExact(count % rows == 0 ? count / rows : count / rows + 1);
+        logger.info("user simple list will contain {} result(s) and divide to {} page(s)", count, pages);
+
+        List<UserListSimpleResult> results = new ArrayList<>();
+        for (int i = 0; i < pages; i++) {
+            //分段(页)查询用户
+            List<UserDO> domains = userMapper.listByPaging((long) (i * rows), rows);
+            //取当前段(页)用户ID查询指纹
+            List<Long> userIds = domains.stream()
+                    .map(UserDO::getId)
+                    .collect(Collectors.toList());
+            Map<Long, List<FingerprintTemplateQueryResult>> fingerprints = fingerprintService
+                    .queryTemplateBatchAndGroup(userIds);
+            //转换成Result，加入指纹模型并过滤掉没有登记指纹的用户
+            List<UserListSimpleResult> users = domains.stream()
+                    .map(domain -> POJOConvertUtil.convert(domain, UserListSimpleResult.class))
+                    .peek(result -> result.setFingerprints(fingerprints.get(result.getId())))
+                    .filter(result -> !CollectionUtils.isEmpty(result.getFingerprints()))
+                    .collect(Collectors.toList());
+            //将当前段(页)添加回总的结果集中
+            results.addAll(users);
+        }
+        logger.info("simple list {} user(s)", results.size());
+
+        BaseListResult<UserListSimpleResult> retResult = new BaseListResult<>();
+        retResult.setTotal(results.size());
+        retResult.setList(results);
+        return retResult;
+    }
+
+    @Override
     public BasePagingResult<UserQueryResult> query(UserQueryParam param) {
         long count = userMapper.countByParam(param);
         if (count == 0) {
             logger.warn("user query result is empty");
-            throw new BizException(BizResultEnum.USER_EMPTY_QUERY_RESULT);
+            return new BasePagingResult<>();
         }
 
-        Map<Long, UserQueryResult> users = queryUser(param);
-        if (!MapUtils.isEmpty(users)) {
-            Map<Long, List<FingerprintQueryResult>> fingerprints = queryFingerprint(new ArrayList<>(users.keySet()));
-            users.values()
-                    .forEach((user) -> user.setFingerprints(fingerprints.get(user.getId())));
-        }
+        List<UserDO> domains = userMapper.queryByParam(param);
+
+        List<Long> userIds = domains.stream()
+                .map(UserDO::getId)
+                .collect(Collectors.toList());
+        Map<Long, List<FingerprintQueryResult>> fingerprints = fingerprintService.queryBatchAndGroup(userIds);
+
+        List<UserQueryResult> users = domains.stream()
+                .map(domain -> POJOConvertUtil.convert(domain, UserQueryResult.class))
+                .peek(user -> user.setFingerprints(fingerprints.get(user.getId())))
+                .collect(Collectors.toList());
         logger.info("query {}/{} user(s)", users.size(), count);
 
         BasePagingResult<UserQueryResult> result = new BasePagingResult<>();
         result.setTotal(count);
-        result.setPage(new ArrayList<>(users.values()));
+        result.setPage(users);
         return result;
     }
 
@@ -126,39 +170,6 @@ public class UserServiceImpl implements UserService {
         }
         logService.logUserDelete(param.getId());
         logger.info("delete user with id {} successful", param.getId());
-    }
-
-    /**
-     * 查询用户
-     *
-     * @param param 查询参数
-     * @return 用户ID-查询结果的Map
-     */
-    private Map<Long, UserQueryResult> queryUser(UserQueryParam param) {
-        List<UserDO> domains = userMapper.queryByParam(param);
-        if (CollectionUtils.isEmpty(domains)) {
-            return Collections.emptyMap();
-        }
-        return domains.stream()
-                .map((domain) -> POJOConvertUtil.convert(domain, UserQueryResult.class))
-                .collect(Collectors.toMap(UserQueryResult::getId, result -> result, (existKey, newKey) -> existKey,
-                        LinkedHashMap::new));
-    }
-
-    /**
-     * 查询指纹
-     *
-     * @param userIds 用户ID
-     * @return 用户ID-查询结果的Map
-     */
-    private Map<Long, List<FingerprintQueryResult>> queryFingerprint(List<Long> userIds) {
-        List<FingerprintQueryResult> results = fingerprintService.queryBatch(userIds);
-        if (CollectionUtils.isEmpty(results)) {
-            return Collections.emptyMap();
-        }
-        return results.stream()
-                .collect(Collectors.groupingBy(FingerprintQueryResult::getUserId, LinkedHashMap::new,
-                        Collectors.toList()));
     }
 
     /**

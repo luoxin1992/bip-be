@@ -61,6 +61,35 @@
         where id = #{id} and is_delete = 0
     </select>
 
+    <select id="countAll" resultType="java.lang.Long">
+        select count(1)
+        from tbl_user
+        where is_delete = 0
+    </select>
+
+    <select id="listByPaging" resultMap="userMap">
+        select
+        <include refid="generalSelectColumns"/>
+        from tbl_user
+        where is_delete = 0
+        <if test="rows != null">
+            <if test="offset != null">
+                limit ${offset}, ${rows}
+            </if>
+            <if test="offset == null">
+                limit ${rows}
+            </if>
+        </if>
+    </select>
+
+    <select id="countByParam" parameterType="cn.edu.xmu.sy.ext.param.UserQueryParam" resultType="java.lang.Long">
+        select count(1) from tbl_user
+        where is_delete = 0
+        <if test="search.keyword != null">
+            and match(number, name) against(#{search.keyword} in boolean mode)
+        </if>
+    </select>
+
     <select id="queryByParam" parameterType="cn.edu.xmu.sy.ext.param.UserQueryParam" resultMap="userMap">
         select
         <include refid="generalSelectColumns"/>
@@ -83,14 +112,6 @@
             </if>
             order by id desc
             limit ${paging.size}
-        </if>
-    </select>
-
-    <select id="countByParam" parameterType="cn.edu.xmu.sy.ext.param.UserQueryParam" resultType="java.lang.Long">
-        select count(1) from tbl_user
-        where is_delete = 0
-        <if test="search.keyword != null">
-            and match(number, name) against(#{search.keyword} in boolean mode)
         </if>
     </select>
 

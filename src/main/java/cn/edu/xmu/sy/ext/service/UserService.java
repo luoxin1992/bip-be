@@ -3,11 +3,13 @@
  */
 package cn.edu.xmu.sy.ext.service;
 
+import cn.com.lx1992.lib.base.result.BaseListResult;
 import cn.com.lx1992.lib.base.result.BasePagingResult;
 import cn.edu.xmu.sy.ext.param.UserCreateParam;
 import cn.edu.xmu.sy.ext.param.UserDeleteParam;
 import cn.edu.xmu.sy.ext.param.UserModifyParam;
 import cn.edu.xmu.sy.ext.param.UserQueryParam;
+import cn.edu.xmu.sy.ext.result.UserListSimpleResult;
 import cn.edu.xmu.sy.ext.result.UserQueryResult;
 
 /**
@@ -17,6 +19,14 @@ import cn.edu.xmu.sy.ext.result.UserQueryResult;
  * @version 2017-3-17
  */
 public interface UserService {
+    /**
+     * 查询全部用户
+     * 简版结果，且过滤掉未登记指纹的用户
+     *
+     * @return 查询结果
+     */
+    BaseListResult<UserListSimpleResult> listSimple();
+
     /**
      * 查询用户
      *
