@@ -10,17 +10,23 @@ package cn.edu.xmu.sy.ext.meta;
  * @version 2017-3-27
  */
 public enum SettingEnum {
-    SPEECH("speech", null),
-    SPEECH_VOICE_NAME("speech-voice-name", "xiaoyan"),
-    SPEECH_SPEED("speech-speed", "50"),
-    SPEECH_VOLUME("speech-volume", "80"),
-    SPEECH_PITCH("speech-pitch", "50"),
-    SPEECH_OUTPUT_DIR("speech-output-dir", "./files/voice"),
+    //语音合成设置
+    TTS("tts", null),
+    TTS_NUS("tts-nus", "1"),
+    TTS_SAMPLE_RATE("tts-sample-rate", "16000"),
+    TTS_ENCODE_TYPE("tts-encode-type", "wav"),
+    TTS_VOICE("tts-voice", "xiaoyun"),
+    TTS_VOLUME("tts-volume", "100"),
+    TTS_PITCH_RATE("tts-pitch-rate", "0"),
+    TTS_SPEECH_RATE("tts-speech-rate", "0"),
+    //指纹识别设置
     FINGERPRINT("fingerprint", null),
     FINGERPRINT_MAX_ENROLL_COUNT("fingerprint-max-enroll-count", "1"),
     FINGERPRINT_ENROLL_TIMES("fingerprint-enroll-times", "3"),
+    //其他设置
     MISC("misc", null),
     MISC_USER_MGR_ENABLE("misc-user-mgr-enable", "false"),
+    MISC_DATA_MGR_ENABLE("misc-data-mgr-enable", "false"),
     ;
 
     /**

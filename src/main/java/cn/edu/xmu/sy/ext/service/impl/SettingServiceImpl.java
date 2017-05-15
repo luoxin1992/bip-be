@@ -9,12 +9,14 @@ import cn.edu.xmu.sy.ext.domain.SettingDO;
 import cn.edu.xmu.sy.ext.exception.BizException;
 import cn.edu.xmu.sy.ext.mapper.SettingMapper;
 import cn.edu.xmu.sy.ext.meta.BizResultEnum;
+import cn.edu.xmu.sy.ext.meta.SettingEnum;
 import cn.edu.xmu.sy.ext.param.SettingItemSaveParam;
 import cn.edu.xmu.sy.ext.param.SettingSaveParam;
 import cn.edu.xmu.sy.ext.result.SettingGroupListResult;
 import cn.edu.xmu.sy.ext.result.SettingItemListResult;
 import cn.edu.xmu.sy.ext.result.SettingListResult;
 import cn.edu.xmu.sy.ext.service.LogService;
+import cn.edu.xmu.sy.ext.service.ResourceService;
 import cn.edu.xmu.sy.ext.service.SettingService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -38,6 +40,8 @@ public class SettingServiceImpl implements SettingService {
     private final Logger logger = LoggerFactory.getLogger(SettingServiceImpl.class);
 
     @Autowired
+    private ResourceService resourceService;
+    @Autowired
     private LogService logService;
 
     @Autowired
@@ -47,37 +51,44 @@ public class SettingServiceImpl implements SettingService {
     @Transactional
     public void save(SettingSaveParam param) {
         //找出被修改的设置项，未修改的不需要更新
-        List<SettingItemSaveParam> modifies = buildModifyItems(param.getItems());
+        List<SettingItemSaveParam> modifies = filterModifyItems(param.getItems());
         if (CollectionUtils.isEmpty(modifies)) {
-            logger.warn("no setting has been modified");
+            logger.error("setting not modify");
             throw new BizException(BizResultEnum.SETTING_NOT_MODIFY);
         }
-        modifies.stream()
-                .map((modify) -> POJOConvertUtil.convert(modify, SettingDO.class))
-                .forEach((domain) -> {
-                    SettingDO before = settingMapper.getById(domain.getId());
-                    checkModifyItem(domain.getValue(), before.getRegExp());
-                    if (settingMapper.updateById(domain) != CommonConstant.UPDATE_DOMAIN_SUCCESSFUL) {
-                        logger.error("save setting {} failed", domain.getId());
-                        throw new BizException(BizResultEnum.SETTING_SAVE_ERROR);
-                    }
-                    logService.logSettingSave(before.getDescription(), before.getValue(), domain.getValue());
-                    logger.info("save setting {} successful", domain.getId());
-                });
-        logger.info("{} setting(s) has been modified", modifies.size());
+
+        modifies.forEach((item) -> {
+            SettingDO domain = settingMapper.getById(item.getId());
+            validateItem(item.getValue(), domain.getRegExp());
+            saveItem(domain.getId(), domain.getDescription(), domain.getValue(), item.getValue());
+        });
+        logger.info("{} setting(s) modify", modifies.size());
+
+        //检查是否修改了TTS相关设置，若修改了，需要重新合成所有语音资源
+        checkTtsSettingModify(modifies);
     }
 
     @Override
     public SettingListResult list() {
-        List<SettingDO> settings = querySettings();
-
-        List<SettingGroupListResult> groups = buildGroups(settings);
-        if (!CollectionUtils.isEmpty(groups)) {
-            //组合设置项到设置组中
-            Map<Long, List<SettingItemListResult>> items = buildItems(settings);
-            groups.forEach(group -> group.setItems(items.get(group.getId())));
-            logger.info("list {} setting item(s) in {} group(s)", items.size(), groups.size());
+        List<SettingDO> domains = settingMapper.list();
+        if (CollectionUtils.isEmpty(domains)) {
+            logger.error("setting list result is empty");
+            throw new BizException(BizResultEnum.SETTING_NOT_EXIST);
         }
+
+        //过滤出设置项和设置组，再分组
+        Map<Long, List<SettingItemListResult>> items = domains.stream()
+                .filter(setting -> !setting.getParent().equals(0L))
+                .collect(Collectors.groupingBy(SettingDO::getParent,
+                        Collectors.mapping(setting -> POJOConvertUtil.convert(setting, SettingItemListResult.class),
+                                Collectors.toList())));
+
+        List<SettingGroupListResult> groups = domains.stream()
+                .filter(setting -> setting.getParent().equals(0L))
+                .map(setting -> POJOConvertUtil.convert(setting, SettingGroupListResult.class))
+                .peek(setting -> setting.setItems(items.get(setting.getId())))
+                .collect(Collectors.toList());
+        logger.info("list {} setting item(s) in {} group(s)", domains.size() - groups.size(), groups.size());
 
         SettingListResult result = new SettingListResult();
         result.setGroups(groups);
@@ -91,54 +102,13 @@ public class SettingServiceImpl implements SettingService {
     }
 
     /**
-     * 查询所有设置
+     * 对比旧的配置，找出被修改的配置项
      *
-     * @return 设置组+设置项
-     */
-    private List<SettingDO> querySettings() {
-        List<SettingDO> settings = settingMapper.list();
-        if (CollectionUtils.isEmpty(settings)) {
-            logger.error("setting list result is empty");
-            throw new BizException(BizResultEnum.SETTING_NOT_EXIST);
-        }
-        return settings;
-    }
-
-    /**
-     * 从查询结果中过滤出设置组(parent == 0)
-     *
-     * @param settings 所有设置
-     * @return 设置组
-     */
-    private List<SettingGroupListResult> buildGroups(List<SettingDO> settings) {
-        return settings.stream()
-                .filter(setting -> setting.getParent().equals(0L))
-                .map(setting -> POJOConvertUtil.convert(setting, SettingGroupListResult.class))
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * 从查询结果中过滤出设置项(parent != 0)，并按parent分组
-     *
-     * @param settings 所有设置
-     * @return 设置项
-     */
-    private Map<Long, List<SettingItemListResult>> buildItems(List<SettingDO> settings) {
-        return settings.stream()
-                .filter(setting -> !setting.getParent().equals(0L))
-                .collect(Collectors.groupingBy(SettingDO::getParent,
-                        Collectors.mapping(setting -> POJOConvertUtil.convert(setting, SettingItemListResult.class),
-                                Collectors.toList())));
-    }
-
-    /**
-     * 对比旧的配置找出被修改的配置项
-     *
-     * @param param 新的配置项
+     * @param items 新的配置项
      * @return 被修改的配置项
      */
-    private List<SettingItemSaveParam> buildModifyItems(List<SettingItemSaveParam> param) {
-        return param.stream()
+    private List<SettingItemSaveParam> filterModifyItems(List<SettingItemSaveParam> items) {
+        return items.stream()
                 .filter((item) -> {
                     String value = settingMapper.getValueByKey(item.getKey());
                     return !(StringUtils.isEmpty(value) || value.equals(item.getValue()));
@@ -147,15 +117,51 @@ public class SettingServiceImpl implements SettingService {
     }
 
     /**
-     * 根据校验正则验证被修改的配置项取值是否合法
+     * 根据校验正则验证被修改的设置，取值是否合法
      *
-     * @param value  值
+     * @param value  设置值
      * @param regExp 校验正则
      */
-    private void checkModifyItem(String value, String regExp) {
+    private void validateItem(String value, String regExp) {
         if (!StringUtils.isEmpty(regExp) && !value.matches(regExp)) {
-            logger.error("setting value {} validate failed", value);
-            throw new BizException(BizResultEnum.SETTING_VALIDATE_ERROR);
+            logger.error("setting value {} mismatch regular expression {}", value, regExp);
+            throw new BizException(BizResultEnum.SETTING_VALIDATE_FAIL);
+        }
+    }
+
+    /**
+     * 保存被修改的设置
+     *
+     * @param id          设置ID
+     * @param description 描述
+     * @param from        原值
+     * @param to          新值
+     */
+    private void saveItem(Long id, String description, String from, String to) {
+        SettingDO domain = new SettingDO();
+        domain.setId(id);
+        domain.setValue(to);
+
+        if (settingMapper.updateById(domain) != CommonConstant.UPDATE_DOMAIN_SUCCESSFUL) {
+            logger.error("save setting {} failed", id);
+            throw new BizException(BizResultEnum.SETTING_SAVE_ERROR);
+        }
+
+        logService.logSettingSave(description, from, to);
+        logger.info("save setting {} successful", id);
+    }
+
+    /**
+     * 检查是否修改了TTS相关的设置
+     *
+     * @param items 被修改的设置
+     */
+    private void checkTtsSettingModify(List<SettingItemSaveParam> items) {
+        boolean modify = items.stream()
+                .anyMatch(item -> item.getKey().startsWith(SettingEnum.TTS.getKey()));
+        if (modify) {
+            logger.info("rebuild all voice resource because of tts setting(s) modify");
+            resourceService.rebuildAllVoice();
         }
     }
 }

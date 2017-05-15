@@ -64,4 +64,10 @@ public interface ResourceService {
      * @return 资源ID(可选值)
      */
     Optional<Long> getIdByTypeAndName(String type, String name);
+
+    /**
+     * 重建所有语音资源
+     * 当修改了语音合成参数时调用
+     */
+    void rebuildAllVoice();
 }

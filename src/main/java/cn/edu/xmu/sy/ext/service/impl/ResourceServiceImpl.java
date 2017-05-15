@@ -21,6 +21,7 @@ import cn.edu.xmu.sy.ext.result.ResourceListSimpleResult;
 import cn.edu.xmu.sy.ext.result.ResourceQueryResult;
 import cn.edu.xmu.sy.ext.service.LogService;
 import cn.edu.xmu.sy.ext.service.ResourceService;
+import cn.edu.xmu.sy.ext.service.TtsService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,8 @@ public class ResourceServiceImpl implements ResourceService {
 
     @Autowired
     private LogService logService;
+    @Autowired
+    private TtsService ttsService;
 
     @Autowired
     private ResourceMapper resourceMapper;
@@ -149,5 +152,17 @@ public class ResourceServiceImpl implements ResourceService {
     @Override
     public Optional<Long> getIdByTypeAndName(String type, String name) {
         return Optional.ofNullable(resourceMapper.getIdByTypeAndName(type, name));
+    }
+
+    @Override
+    public void rebuildAllVoice() {
+        List<ResourceDO> domains = resourceMapper.listAll();
+        List<String> names = domains.stream()
+                .filter(domain -> domain.getType().equals(ResourceTypeEnum.VOICE.getType()))
+                .map(ResourceDO::getName)
+                .collect(Collectors.toList());
+
+        logger.info("{} resource(s) will rebuild", names.size());
+        ttsService.ttsBatchAsync(null, names, true);
     }
 }
