@@ -5,6 +5,8 @@ package cn.edu.xmu.sy.ext.service.impl;
 
 import cn.com.lx1992.lib.util.DigestUtil;
 import cn.com.lx1992.lib.util.UUIDUtil;
+import cn.edu.xmu.sy.ext.config.NlsConfigItem;
+import cn.edu.xmu.sy.ext.config.ServletConfigItem;
 import cn.edu.xmu.sy.ext.exception.BizException;
 import cn.edu.xmu.sy.ext.meta.BizResultEnum;
 import cn.edu.xmu.sy.ext.meta.ResourceTypeEnum;
@@ -49,15 +51,15 @@ import java.util.stream.Collectors;
 public class TtsServiceImpl implements TtsService {
     private final Logger logger = LoggerFactory.getLogger(TtsServiceImpl.class);
 
-    private static final String APP_KEY = "nls-service";
-    //TODO 配置中心
-    private static final String ACCESS_KEY_ID = "LTAIqXAXJ7EB6eob";
-    private static final String ACCESS_KEY_SECRET = "HAgB6obMUpiZasXBSKGPrqvlXtVfqI";
-
     @Autowired
     private SettingService settingService;
     @Autowired
     private ResourceService resourceService;
+
+    @Autowired
+    private ServletConfigItem servletConfigItem;
+    @Autowired
+    private NlsConfigItem nlsConfigItem;
 
     private NlsClient nlsClient;
     private ExecutorService taskExecutor;
@@ -79,8 +81,7 @@ public class TtsServiceImpl implements TtsService {
         taskExecutor.shutdown();
         try {
             logger.info("wait for tts executor shutdown");
-            //TODO 超时可配
-            if (!taskExecutor.awaitTermination(180, TimeUnit.SECONDS)) {
+            if (!taskExecutor.awaitTermination(nlsConfigItem.getExecutorShutdownTimeout(), TimeUnit.SECONDS)) {
                 logger.warn("shutdown timeout. some tasks may be lost");
             }
         } catch (InterruptedException ignored) {
@@ -171,11 +172,11 @@ public class TtsServiceImpl implements TtsService {
         request.setTtsPitchRate(param.getPitchRate());
         request.setTtsRequest(content, param.getSampleRate());
         //NlsRequest囊括了平台全部智能语音交互业务，先设置要使用的业务，然后才能授权，否则报错
-        request.setAppKey(APP_KEY);
-        request.authorize(ACCESS_KEY_ID, ACCESS_KEY_SECRET);
+        request.setAppKey(nlsConfigItem.getAppKey());
+        request.authorize(nlsConfigItem.getAccessKeyId(), nlsConfigItem.getAccessKeySecret());
 
         //执行TTS任务
-        String outputPath = createOutputPath(param.getOutputDir(), param.getEncodeType());
+        String outputPath = createOutputPath(param.getEncodeType());
         try (FileOutputStream fos = new FileOutputStream(outputPath)) {
             logger.info("tts start, from text {} to file {}", content, outputPath);
             NlsFuture future = nlsClient.createNlsFuture(request, new NlsListenerImpl());
@@ -239,24 +240,19 @@ public class TtsServiceImpl implements TtsService {
         String speechRate = settingService.getValueByKeyOptional(SettingEnum.TTS_SPEECH_RATE.getKey())
                 .orElse(SettingEnum.TTS_SPEECH_RATE.getDefaultValue());
         param.setSpeechRate(Integer.parseInt(speechRate));
-        //输出路径，
-        //TODO 拼接Servlet根目录成为绝对路径？
-        String outputDir = settingService.getValueByKeyOptional(SettingEnum.TTS_OUTPUT_DIR.getKey())
-                .orElse(SettingEnum.TTS_OUTPUT_DIR.getDefaultValue());
-        param.setOutputDir(outputDir);
         return param;
     }
 
     /**
      * 生成随机文件名，由输出目录和编码类型，拼合完整输出路径
      *
-     * @param outputDir  输出目录
      * @param encodeType 编码类型
      * @return 完整输出路径
      */
-    private String createOutputPath(String outputDir, String encodeType) {
-        String filename = UUIDUtil.randomUUID();
-        return outputDir + File.separatorChar + filename + '.' + encodeType;
+    private String createOutputPath(String encodeType) {
+        String outputDir = servletConfigItem.getDocumentRoot() + File.separatorChar;
+        String filename = UUIDUtil.randomUUID() + '.' + encodeType;
+        return outputDir + ResourceTypeEnum.VOICE.getType() + File.separatorChar + filename;
     }
 
     /**
@@ -273,7 +269,8 @@ public class TtsServiceImpl implements TtsService {
             if (success) {
                 ResourceModifyParam param = new ResourceModifyParam();
                 param.setId(id.get());
-                param.setPath(path);
+                //文件名即输出路径最后一个'/'后面部分
+                param.setFilename(path.substring(path.lastIndexOf('/') + 1));
                 param.setMd5(DigestUtil.getFileMD5(path));
                 resourceService.modify(param);
             } else {
@@ -285,7 +282,7 @@ public class TtsServiceImpl implements TtsService {
                 ResourceCreateParam param = new ResourceCreateParam();
                 param.setType(ResourceTypeEnum.VOICE.getType());
                 param.setName(content);
-                param.setPath(path);
+                param.setFilename(path.substring(path.lastIndexOf('/') + 1));
                 param.setMd5(DigestUtil.getFileMD5(path));
                 resourceService.create(param);
             }

@@ -63,11 +63,6 @@ public class TtsTaskParam extends BaseParam {
     @Min(-500)
     @Max(500)
     private int speechRate;
-    /**
-     * 输出目录
-     */
-    @NotNull
-    private String outputDir;
 
     public int getNus() {
         return nus;
@@ -123,13 +118,5 @@ public class TtsTaskParam extends BaseParam {
 
     public void setSpeechRate(int speechRate) {
         this.speechRate = speechRate;
-    }
-
-    public String getOutputDir() {
-        return outputDir;
-    }
-
-    public void setOutputDir(String outputDir) {
-        this.outputDir = outputDir;
     }
 }
