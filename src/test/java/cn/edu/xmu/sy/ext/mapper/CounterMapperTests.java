@@ -50,7 +50,7 @@ public class CounterMapperTests {
         for (int i = 0; i < 10; i++) {
             CounterDO counterDO = new CounterDO();
             counterDO.setNumber("0" + i);
-            counterDO.setName("测试柜台" + i);
+            counterDO.setName("测试窗口" + i);
             counterDO.setMac("00000000000" + i);
             counterDO.setIp("192.168.1.10" + i);
             counterDO.setGmtCreate(LocalDateTime.now());

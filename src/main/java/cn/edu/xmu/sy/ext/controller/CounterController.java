@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 
 /**
- * 柜台Controller
+ * 窗口Controller
  *
  * @author luoxin
  * @version 2017-4-23

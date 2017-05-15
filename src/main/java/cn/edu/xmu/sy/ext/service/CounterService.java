@@ -9,39 +9,40 @@ import cn.edu.xmu.sy.ext.param.CounterDeleteParam;
 import cn.edu.xmu.sy.ext.param.CounterModifyParam;
 import cn.edu.xmu.sy.ext.param.CounterQueryParam;
 import cn.edu.xmu.sy.ext.result.CounterQueryResult;
+import cn.edu.xmu.sy.ext.result.CounterQuerySimpleResult;
 
 import java.util.Optional;
 
 /**
- * 柜台Service
+ * 窗口Service
  *
  * @author luoxin
  * @version 2017-3-23
  */
 public interface CounterService {
     /**
-     * 创建柜台
+     * 创建窗口
      *
      * @param param 创建参数
      */
     void create(CounterCreateParam param);
 
     /**
-     * 编辑柜台
+     * 编辑窗口
      *
      * @param param 编辑参数
      */
     void modify(CounterModifyParam param);
 
     /**
-     * 删除柜台
+     * 删除窗口
      *
      * @param param 删除参数
      */
     void delete(CounterDeleteParam param);
 
     /**
-     * 查询柜台信息
+     * 查询窗口信息
      *
      * @param param 查询参数
      * @return 查询结果
@@ -49,19 +50,19 @@ public interface CounterService {
     BasePagingResult<CounterQueryResult> query(CounterQueryParam param);
 
     /**
-     * 根据MAC地址和IP地址查询柜台信息
+     * 根据MAC地址和IP地址查询简版窗口信息
      *
      * @param mac MAC地址
      * @param ip  IP地址
-     * @return 查询结果(可选值)
+     * @return 查询结果
      */
-    Optional<CounterQueryResult> getByMacAndIpOptional(String mac, String ip);
+    CounterQuerySimpleResult querySimple(String mac, String ip);
 
     /**
-     * 根据编号查询柜台ID
+     * 根据编号查询窗口ID
      *
      * @param number 编号
-     * @return 柜台ID(可选值)
+     * @return 窗口ID(可选值)
      */
     Optional<Long> getIdByNumberOptional(String number);
 }

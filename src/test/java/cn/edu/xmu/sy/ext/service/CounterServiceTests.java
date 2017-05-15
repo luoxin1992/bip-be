@@ -32,7 +32,7 @@ public class CounterServiceTests {
     public void testCreate() {
         CounterCreateParam param = new CounterCreateParam();
         param.setNumber("99");
-        param.setName("测试柜台99");
+        param.setName("测试窗口99");
         param.setMac("000000000099");
         param.setIp("192.168.1.199");
         counterService.create(param);

@@ -8,7 +8,7 @@ import cn.com.lx1992.lib.base.result.BaseResult;
 import java.util.List;
 
 /**
- * 查询柜台Result
+ * 查询窗口Result
  *
  * @author luoxin
  * @version 2017-3-24

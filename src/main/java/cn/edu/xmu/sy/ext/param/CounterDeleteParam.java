@@ -9,7 +9,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 /**
- * 删除柜台Param
+ * 删除窗口Param
  *
  * @author luoxin
  * @version 2017-4-23

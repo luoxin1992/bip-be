@@ -11,7 +11,7 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 /**
- * 创建柜台Param
+ * 创建窗口Param
  *
  * @author luoxin
  * @version 2017-3-23

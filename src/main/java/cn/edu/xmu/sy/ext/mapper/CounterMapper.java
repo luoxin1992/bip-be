@@ -11,7 +11,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
- * 柜台Mapper
+ * 窗口Mapper
  *
  * @author luoxin
  * @version 2017-3-14

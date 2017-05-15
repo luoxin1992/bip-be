@@ -11,7 +11,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 /**
- * 查询柜台Param
+ * 查询窗口Param
  *
  * @author luoxin
  * @version 2017-3-25

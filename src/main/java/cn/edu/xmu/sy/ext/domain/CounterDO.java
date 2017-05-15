@@ -7,7 +7,7 @@ import cn.com.lx1992.lib.annotation.FieldComment;
 import cn.com.lx1992.lib.base.domain.BaseDO;
 
 /**
- * 柜台Domain
+ * 窗口Domain
  *
  * @author luoxin
  * @version 2017-3-9
