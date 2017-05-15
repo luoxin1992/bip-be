@@ -15,8 +15,9 @@ import java.util.Optional;
 public enum SessionStatusEnum {
     ONLINE(1, "在线"),
     OFFLINE(2, "离线"),
-    LOST(3, "失联"),
-    CLOSE(4, "关闭"),
+    LOST_SERVER(3, "服务端失联"),
+    LOST_CLIENT(4, "客户端失联"),
+    CLOSE(5, "关闭"),
     UNKNOWN(999, "未知");
 
     private int status;

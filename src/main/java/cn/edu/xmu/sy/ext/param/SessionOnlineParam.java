@@ -11,7 +11,7 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 /**
- * (客户端)会话上线Param
+ * 会话上线Param
  *
  * @author luoxin
  * @version 2017-3-24
@@ -21,14 +21,14 @@ public class SessionOnlineParam extends BaseParam {
      * MAC地址
      */
     @NotNull
-    @Size(min = 1,max = 16)
+    @Size(min = 1, max = 16)
     @Pattern(regexp = RegExpConstant.MAC_ADDRESS)
     private String mac;
     /**
      * IP地址
      */
     @NotNull
-    @Size(min = 1,max = 16)
+    @Size(min = 1, max = 16)
     @Pattern(regexp = RegExpConstant.IP_ADDRESS)
     private String ip;
 

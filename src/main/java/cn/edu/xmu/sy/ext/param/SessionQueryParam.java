@@ -6,8 +6,6 @@ package cn.edu.xmu.sy.ext.param;
 import cn.com.lx1992.lib.base.param.BaseParam;
 import cn.com.lx1992.lib.base.param.BasePeriodParam;
 
-import javax.validation.constraints.NotNull;
-
 /**
  * 查询会话Param
  *
@@ -16,9 +14,8 @@ import javax.validation.constraints.NotNull;
  */
 public class SessionQueryParam extends BaseParam {
     /**
-     * 柜台ID
+     * 窗口ID
      */
-    @NotNull
     private Long counterId;
     /**
      * 会话状态
@@ -27,7 +24,6 @@ public class SessionQueryParam extends BaseParam {
     /**
      * 时间区间
      */
-    @NotNull
     private BasePeriodParam period;
 
     public Long getCounterId() {

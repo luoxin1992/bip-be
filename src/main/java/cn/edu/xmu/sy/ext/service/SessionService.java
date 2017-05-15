@@ -4,6 +4,9 @@
 package cn.edu.xmu.sy.ext.service;
 
 import cn.edu.xmu.sy.ext.param.SessionBatchQueryParam;
+import cn.edu.xmu.sy.ext.param.SessionCloseParam;
+import cn.edu.xmu.sy.ext.param.SessionLostClientParam;
+import cn.edu.xmu.sy.ext.param.SessionLostServerParam;
 import cn.edu.xmu.sy.ext.param.SessionOfflineParam;
 import cn.edu.xmu.sy.ext.param.SessionOnlineParam;
 import cn.edu.xmu.sy.ext.param.SessionQueryParam;
@@ -37,18 +40,25 @@ public interface SessionService {
     void offline(SessionOfflineParam param);
 
     /**
-     * 会话失联
+     * 会话服务端失联
      *
-     * @param id 会话ID
+     * @param param 失联参数
      */
-    void lost(Long id);
+    void lostServer(SessionLostServerParam param);
 
     /**
-     * 会话关闭
+     * 会话客户端失联
      *
-     * @param id 会话ID
+     * @param param 失联参数
      */
-    void close(Long id);
+    void lostClient(SessionLostClientParam param);
+
+    /**
+     * 会话强制关闭
+     *
+     * @param param 关闭参数
+     */
+    void close(SessionCloseParam param);
 
     /**
      * 查询会话
@@ -67,7 +77,7 @@ public interface SessionService {
     List<SessionQueryResult> queryBatch(SessionBatchQueryParam param);
 
     /**
-     * 批量查询会话(按柜台ID分组)
+     * 批量查询会话，并按窗口ID分组
      *
      * @param param 查询参数
      * @return 查询结果
@@ -77,7 +87,7 @@ public interface SessionService {
     /**
      * 查询在线会话ID
      *
-     * @param counterId 柜台ID
+     * @param counterId 窗口ID
      * @return 会话ID(可选值)
      */
     Optional<Long> getOnlineSessionIdOptional(Long counterId);

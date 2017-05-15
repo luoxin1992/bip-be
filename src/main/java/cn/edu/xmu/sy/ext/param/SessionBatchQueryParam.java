@@ -6,7 +6,6 @@ package cn.edu.xmu.sy.ext.param;
 import cn.com.lx1992.lib.base.param.BaseParam;
 import cn.com.lx1992.lib.base.param.BasePeriodParam;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -17,9 +16,8 @@ import java.util.List;
  */
 public class SessionBatchQueryParam extends BaseParam {
     /**
-     * 柜台ID
+     * 窗口ID
      */
-    @NotNull
     private List<Long> counterIds;
     /**
      * 会话状态
@@ -28,7 +26,6 @@ public class SessionBatchQueryParam extends BaseParam {
     /**
      * 时间区间
      */
-    @NotNull
     private BasePeriodParam period;
 
     public List<Long> getCounterIds() {

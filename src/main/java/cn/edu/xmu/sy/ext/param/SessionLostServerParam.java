@@ -9,12 +9,12 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 /**
- * 会话离线Param
+ * 会话服务端失联Param
  *
  * @author luoxin
- * @version 2017-3-24
+ * @version 2017-5-14
  */
-public class SessionOfflineParam extends BaseParam {
+public class SessionLostServerParam extends BaseParam {
     /**
      * Token
      */

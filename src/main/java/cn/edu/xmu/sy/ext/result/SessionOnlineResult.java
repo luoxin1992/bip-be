@@ -17,13 +17,9 @@ public class SessionOnlineResult extends BaseResult {
      */
     private String token;
     /**
-     * 绑定的柜台编号
+     * 绑定的窗口
      */
-    private String number;
-    /**
-     * 绑定的柜台名称
-     */
-    private String name;
+    private CounterQuerySimpleResult counter;
 
     public String getToken() {
         return token;
@@ -33,19 +29,11 @@ public class SessionOnlineResult extends BaseResult {
         this.token = token;
     }
 
-    public String getNumber() {
-        return number;
+    public CounterQuerySimpleResult getCounter() {
+        return counter;
     }
 
-    public void setNumber(String number) {
-        this.number = number;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public void setCounter(CounterQuerySimpleResult counter) {
+        this.counter = counter;
     }
 }

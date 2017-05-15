@@ -17,9 +17,9 @@ import java.time.LocalDateTime;
  */
 public class SessionDO extends BaseDO {
     /**
-     * 柜台ID
+     * 窗口ID
      */
-    @FieldComment("柜台ID")
+    @FieldComment("窗口ID")
     private Long counterId;
     /**
      * Token
