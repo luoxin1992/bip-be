@@ -6,7 +6,6 @@ package cn.edu.xmu.sy.ext.param;
 import cn.com.lx1992.lib.base.param.BaseParam;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 /**
@@ -20,7 +19,6 @@ public class ResourceCreateParam extends BaseParam {
      * 类型
      */
     @NotNull
-    @Pattern(regexp = "image|voice")
     private String type;
     /**
      * 名称
@@ -29,11 +27,11 @@ public class ResourceCreateParam extends BaseParam {
     @Size(min = 1, max = 64)
     private String name;
     /**
-     * 路径
+     * 文件名
      */
     @NotNull
-    @Size(min = 1, max = 128)
-    private String path;
+    @Size(min = 1, max = 64)
+    private String filename;
     /**
      * MD5
      */
@@ -57,12 +55,12 @@ public class ResourceCreateParam extends BaseParam {
         this.name = name;
     }
 
-    public String getPath() {
-        return path;
+    public String getFilename() {
+        return filename;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
     public String getMd5() {

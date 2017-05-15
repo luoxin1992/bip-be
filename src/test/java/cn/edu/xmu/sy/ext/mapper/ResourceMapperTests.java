@@ -34,7 +34,7 @@ public class ResourceMapperTests {
         ResourceDO resourceDO = new ResourceDO();
         resourceDO.setType("测试");
         resourceDO.setName("测试");
-        resourceDO.setPath("测试");
+        resourceDO.setFilename("测试");
         resourceDO.setMd5("测试");
         resourceDO.setGmtCreate(LocalDateTime.now());
         resourceDO.setGmtModify(LocalDateTime.now());
@@ -48,7 +48,7 @@ public class ResourceMapperTests {
             ResourceDO resourceDO = new ResourceDO();
             resourceDO.setType("测试类型" + i);
             resourceDO.setName("测试名称" + i);
-            resourceDO.setPath("测试路径" + i);
+            resourceDO.setFilename("测试路径" + i);
             resourceDO.setMd5("测试MD5" + i);
             resourceDO.setGmtCreate(LocalDateTime.now());
             resourceDO.setGmtModify(LocalDateTime.now());
@@ -63,7 +63,7 @@ public class ResourceMapperTests {
         resourceDO.setId(26281711108103L);
         resourceDO.setType("测试_修改");
         resourceDO.setName("测试_修改");
-        resourceDO.setPath("测试_修改");
+        resourceDO.setFilename("测试_修改");
         resourceDO.setMd5("测试_修改");
         resourceDO.setGmtModify(LocalDateTime.now());
         Assert.assertTrue(resourceMapper.updateById(resourceDO) == 1);

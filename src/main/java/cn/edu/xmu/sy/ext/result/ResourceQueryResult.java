@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
 
 /**
- * 查询资源项Result
+ * 查询资源Result
  *
  * @author luoxin
  * @version 2017-3-27
@@ -29,9 +29,13 @@ public class ResourceQueryResult extends BaseResult {
      */
     private String name;
     /**
-     * 路径
+     * URI
      */
-    private String url;
+    private String uri;
+    /**
+     * MD5
+     */
+    private String md5;
     /**
      * 修改时间
      */
@@ -62,12 +66,20 @@ public class ResourceQueryResult extends BaseResult {
         this.name = name;
     }
 
-    public String getUrl() {
-        return url;
+    public String getUri() {
+        return uri;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+
+    public String getMd5() {
+        return md5;
+    }
+
+    public void setMd5(String md5) {
+        this.md5 = md5;
     }
 
     public LocalDateTime getTimestamp() {

@@ -7,35 +7,35 @@
         <result column="id" jdbcType="BIGINT" property="id"/>
         <result column="type" jdbcType="VARCHAR" property="type"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
-        <result column="path" jdbcType="VARCHAR" property="path"/>
+        <result column="filename" jdbcType="VARCHAR" property="filename"/>
         <result column="md5" jdbcType="VARCHAR" property="md5"/>
         <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
         <result column="gmt_modify" jdbcType="TIMESTAMP" property="gmtModify"/>
     </resultMap>
 
     <sql id="generalInsertColumns">
-        id, type, name, path, md5, gmt_create, gmt_modify
+        id, type, name, filename, md5, gmt_create, gmt_modify
     </sql>
 
     <sql id="generalSelectColumns">
-        id, type, name, path, md5
+        id, type, name, filename, md5
     </sql>
 
-    <sql id="selectWithUpdateTimeColumns">
-        id, type, name, path, md5, gmt_modify
+    <sql id="selectWithTimestampColumns">
+        id, type, name, filename, md5, gmt_modify
     </sql>
 
     <insert id="save" parameterType="cn.edu.xmu.sy.ext.domain.ResourceDO">
         insert into tbl_resource(<include refid="generalInsertColumns"/>)
-        values(#{id}, #{type}, #{name}, #{path}, #{md5}, #{gmtCreate}, #{gmtModify})
+        values(#{id}, #{type}, #{name}, #{filename}, #{md5}, #{gmtCreate}, #{gmtModify})
     </insert>
 
     <insert id="saveBatch" parameterType="cn.edu.xmu.sy.ext.domain.ResourceDO">
         insert into tbl_resource(<include refid="generalInsertColumns"/>)
         values
         <foreach collection="list" item="item" separator=",">
-            (#{item.id}, #{item.type}, #{item.name}, #{item.path}, #{item.md5}, #{item.gmtCreate},
-            #{item.gmtModify})
+            (#{item.id}, #{item.type}, #{item.name}, #{item.filename}, #{item.md5},
+            #{item.gmtCreate}, #{item.gmtModify})
         </foreach>
     </insert>
 
@@ -48,8 +48,8 @@
         <if test="name != null">
             , name = #{name}
         </if>
-        <if test="path != null">
-            , path = #{path}
+        <if test="filename != null">
+            , filename = #{filename}
         </if>
         <if test="md5 != null">
             , md5 = #{md5}
@@ -62,16 +62,12 @@
         where id = #{id} and is_delete = 0
     </update>
 
-    <update id="removeByType" parameterType="java.lang.String">
-        update tbl_resource set is_delete = 1
-        where type = #{type} and is_delete = 0
-    </update>
-
     <select id="getById" parameterType="java.lang.Long" resultMap="resourceMap">
         select
         <include refid="generalSelectColumns"/>
         from tbl_resource
         where id = #{id} and is_delete = 0
+        limit 1
     </select>
 
     <select id="listAll" resultMap="resourceMap">
@@ -83,17 +79,28 @@
 
     <select id="listByParam" parameterType="cn.edu.xmu.sy.ext.param.ResourceQueryParam" resultMap="resourceMap">
         select
-        <include refid="selectWithUpdateTimeColumns"/>
+        <include refid="selectWithTimestampColumns"/>
         from tbl_resource
         where is_delete = 0
         <if test="period != null">
             and gmt_modify >= #{period.start} and #{period.end} >= gmt_modify
         </if>
-        <if test="paging.start != null">
-            and #{paging.start} > id
+        <if test="search.keyword != null">
+            and match(name) against (#{search.keyword} in boolean mode)
+            <if test="paging.start != null">
+                limit ${paging.start}, ${paging.size}
+            </if>
+            <if test="paging.start == null">
+                limit ${paging.size}
+            </if>
         </if>
-        order by id desc
-        limit ${paging.size}
+        <if test="search.keyword == null">
+            <if test="paging.start != null">
+                and #{paging.start} > id
+            </if>
+            order by id desc
+            limit ${paging.size}
+        </if>
     </select>
 
     <select id="countByParam" parameterType="cn.edu.xmu.sy.ext.param.ResourceQueryParam" resultType="java.lang.Long">
@@ -102,6 +109,9 @@
         where is_delete = 0
         <if test="period != null">
             and gmt_modify >= #{period.start} and #{period.end} >= gmt_modify
+        </if>
+        <if test="search.keyword != null">
+            and match(name) against (#{search.keyword} in boolean mode)
         </if>
     </select>
 

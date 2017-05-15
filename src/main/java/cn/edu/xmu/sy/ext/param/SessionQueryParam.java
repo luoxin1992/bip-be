@@ -22,7 +22,7 @@ public class SessionQueryParam extends BaseParam {
      */
     private Integer status;
     /**
-     * 时间区间
+     * 时间参数
      */
     private BasePeriodParam period;
 

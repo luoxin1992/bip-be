@@ -7,8 +7,9 @@ import cn.com.lx1992.lib.annotation.ValidateBody;
 import cn.com.lx1992.lib.base.response.BaseResponse;
 import cn.com.lx1992.lib.base.result.BaseListResult;
 import cn.com.lx1992.lib.base.result.BasePagingResult;
+import cn.com.lx1992.lib.util.PagingUtil;
 import cn.edu.xmu.sy.ext.param.ResourceQueryParam;
-import cn.edu.xmu.sy.ext.result.ResourceListResult;
+import cn.edu.xmu.sy.ext.result.ResourceListSimpleResult;
 import cn.edu.xmu.sy.ext.result.ResourceQueryResult;
 import cn.edu.xmu.sy.ext.service.ResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,15 +30,16 @@ public class ResourceController {
     @Autowired
     private ResourceService resourceService;
 
-    @RequestMapping(value = "/list", method = RequestMethod.POST)
-    public BaseResponse<BaseListResult<ResourceListResult>> list() {
-        BaseListResult<ResourceListResult> results = resourceService.list();
+    @RequestMapping(value = "/list/simple", method = RequestMethod.POST)
+    public BaseResponse<BaseListResult<ResourceListSimpleResult>> listSimple() {
+        BaseListResult<ResourceListSimpleResult> results = resourceService.listSimple();
         return new BaseResponse<>(results);
     }
 
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     public BaseResponse<BasePagingResult<ResourceQueryResult>> query(@RequestBody @ValidateBody
                                                                              ResourceQueryParam param) {
+        PagingUtil.setStartByNow(param.getPaging());
         BasePagingResult<ResourceQueryResult> result = resourceService.query(param);
         return new BaseResponse<>(result);
     }

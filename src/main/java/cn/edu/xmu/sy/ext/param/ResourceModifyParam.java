@@ -36,11 +36,11 @@ public class ResourceModifyParam extends BaseParam {
     @Size(min = 1, max = 64)
     private String name;
     /**
-     * 路径
+     * 文件名
      */
     @NotNull
-    @Size(min = 1, max = 128)
-    private String path;
+    @Size(min = 1, max = 64)
+    private String filename;
     /**
      * MD5
      */
@@ -72,12 +72,12 @@ public class ResourceModifyParam extends BaseParam {
         this.name = name;
     }
 
-    public String getPath() {
-        return path;
+    public String getFilename() {
+        return filename;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
     public String getMd5() {

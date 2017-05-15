@@ -6,6 +6,7 @@ package cn.edu.xmu.sy.ext.param;
 import cn.com.lx1992.lib.base.param.BasePagingParam;
 import cn.com.lx1992.lib.base.param.BaseParam;
 import cn.com.lx1992.lib.base.param.BasePeriodParam;
+import cn.com.lx1992.lib.base.param.BaseSearchParam;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -18,7 +19,13 @@ import javax.validation.constraints.NotNull;
  */
 public class ResourceQueryParam extends BaseParam {
     /**
-     * 时间区间
+     * 搜索参数
+     */
+    @NotNull
+    @Valid
+    private BaseSearchParam search;
+    /**
+     * 时间参数
      */
     @NotNull
     @Valid
@@ -29,6 +36,14 @@ public class ResourceQueryParam extends BaseParam {
     @NotNull
     @Valid
     private BasePagingParam paging;
+
+    public BaseSearchParam getSearch() {
+        return search;
+    }
+
+    public void setSearch(BaseSearchParam search) {
+        this.search = search;
+    }
 
     public BasePeriodParam getPeriod() {
         return period;

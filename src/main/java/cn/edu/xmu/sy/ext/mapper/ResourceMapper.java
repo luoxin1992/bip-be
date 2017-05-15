@@ -26,8 +26,6 @@ public interface ResourceMapper {
 
     Integer removeById(Long id);
 
-    Integer removeByType(String type);
-
     ResourceDO getById(Long id);
 
     List<ResourceDO> listAll();
