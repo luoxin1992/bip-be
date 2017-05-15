@@ -32,7 +32,7 @@ public class LogMapperTests {
     @Test
     public void testSave() {
         LogDO logDO = new LogDO();
-        logDO.setCategory("测试");
+        logDO.setType("测试");
         logDO.setContent("测试");
         logDO.setGmtCreate(LocalDateTime.now());
         logDO.setGmtModify(LocalDateTime.now());
@@ -44,7 +44,7 @@ public class LogMapperTests {
         List<LogDO> logDOs = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             LogDO logDO = new LogDO();
-            logDO.setCategory("测试一级类别" + i);
+            logDO.setType("测试一级类别" + i);
             logDO.setContent("测试内容" + i);
             logDO.setGmtCreate(LocalDateTime.now());
             logDO.setGmtModify(LocalDateTime.now());
@@ -57,7 +57,7 @@ public class LogMapperTests {
     public void testUpdateById() {
         LogDO logDO = new LogDO();
         logDO.setId(26284131221509L);
-        logDO.setCategory("测试_修改");
+        logDO.setType("测试_修改");
         logDO.setContent("测试_修改");
         logDO.setGmtModify(LocalDateTime.now());
         Assert.assertTrue(logMapper.updateById(logDO) == 1);

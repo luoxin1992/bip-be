@@ -5,45 +5,45 @@
 <mapper namespace="cn.edu.xmu.sy.ext.mapper.LogMapper">
     <resultMap id="logMap" type="cn.edu.xmu.sy.ext.domain.LogDO">
         <result column="id" jdbcType="BIGINT" property="id"/>
-        <result column="category" jdbcType="VARCHAR" property="category"/>
+        <result column="type" jdbcType="VARCHAR" property="type"/>
         <result column="content" jdbcType="VARCHAR" property="content"/>
+        <result column="timestamp" jdbcType="TIMESTAMP" property="timestamp"/>
         <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
         <result column="gmt_modify" jdbcType="TIMESTAMP" property="gmtModify"/>
     </resultMap>
 
     <sql id="generalInsertColumns">
-        id, category, content, gmt_create, gmt_modify
+        id, type, content, timestamp, gmt_create, gmt_modify
     </sql>
 
     <sql id="generalSelectColumns">
-        id, category, content
-    </sql>
-
-    <sql id="selectWithCreateTimeColumns">
-        id, category, content, gmt_create
+        id, type, timestamp, content
     </sql>
 
     <insert id="save" parameterType="cn.edu.xmu.sy.ext.domain.LogDO">
         insert into tbl_log(<include refid="generalInsertColumns"/>)
-        values(#{id}, #{category}, #{content}, #{gmtCreate}, #{gmtModify})
+        values(#{id}, #{type}, #{content}, #{timestamp}, #{gmtCreate}, #{gmtModify})
     </insert>
 
     <insert id="saveBatch" parameterType="cn.edu.xmu.sy.ext.domain.LogDO">
         insert into tbl_log(<include refid="generalInsertColumns"/>)
         values
         <foreach collection="list" item="item" separator=",">
-            (#{item.id}, #{item.category}, #{item.content}, #{item.gmtCreate}, #{item.gmtModify})
+            (#{item.id}, #{item.type}, #{item.content}, #{item.timestamp}, #{item.gmtCreate}, #{item.gmtModify})
         </foreach>
     </insert>
 
     <update id="updateById" parameterType="cn.edu.xmu.sy.ext.domain.LogDO">
         update tbl_log
         set gmt_modify = #{gmtModify}
-        <if test="category != null">
-            , category = #{category}
+        <if test="type != null">
+            , type = #{type}
         </if>
         <if test="content != null">
             , content = #{content}
+        </if>
+        <if test="timestamp != null">
+            , timestamp = #{timestamp}
         </if>
         where id = #{id} and is_delete = 0
     </update>
@@ -58,18 +58,19 @@
         <include refid="generalSelectColumns"/>
         from tbl_log
         where id = #{id} and is_delete = 0
+        limit 1
     </select>
 
     <select id="listByParam" parameterType="cn.edu.xmu.sy.ext.param.LogQueryParam" resultMap="logMap">
         select
-        <include refid="selectWithCreateTimeColumns"/>
+        <include refid="generalSelectColumns"/>
         from tbl_log
         where is_delete = 0
-        <if test="category != null">
-            and category = #{category}
+        <if test="type != null">
+            and type = #{type}
         </if>
         <if test="period != null">
-            and gmt_create >= #{period.start} and #{period.end} >= gmt_create
+            and timestamp >= #{period.start} and #{period.end} >= timestamp
         </if>
         <if test="search.keyword != null">
             and match(content) against(#{search.keyword} in boolean mode)
@@ -93,8 +94,11 @@
         select count(1)
         from tbl_log
         where is_delete = 0
-        <if test="category != null">
-            and category = #{category}
+        <if test="type != null">
+            and type = #{type}
+        </if>
+        <if test="period != null">
+            and timestamp >= #{period.start} and #{period.end} >= timestamp
         </if>
         <if test="search.keyword != null">
             and match(content) against(#{search.keyword} in boolean mode)

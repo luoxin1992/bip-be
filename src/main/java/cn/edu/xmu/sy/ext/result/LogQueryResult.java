@@ -21,18 +21,18 @@ public class LogQueryResult extends BaseResult {
      */
     private Long id;
     /**
-     * 时间
-     */
-    @JsonFormat(pattern = DateTimeConstant.DATETIME_PATTERN_WITH_BAR)
-    private LocalDateTime timestamp;
-    /**
      * 类别
      */
-    private String category;
+    private String type;
     /**
      * 内容
      */
     private String content;
+    /**
+     * 时间戳
+     */
+    @JsonFormat(pattern = DateTimeConstant.DATETIME_PATTERN_WITH_BAR)
+    private LocalDateTime timestamp;
 
     public Long getId() {
         return id;
@@ -42,20 +42,12 @@ public class LogQueryResult extends BaseResult {
         this.id = id;
     }
 
-    public LocalDateTime getTimestamp() {
-        return timestamp;
+    public String getType() {
+        return type;
     }
 
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getContent() {
@@ -64,5 +56,13 @@ public class LogQueryResult extends BaseResult {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
     }
 }

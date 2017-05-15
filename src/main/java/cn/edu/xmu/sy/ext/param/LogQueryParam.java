@@ -19,9 +19,9 @@ import javax.validation.constraints.NotNull;
  */
 public class LogQueryParam extends BaseParam {
     /**
-     * 类别
+     * 类型
      */
-    private String category;
+    private String type;
     /**
      * 搜索参数
      */
@@ -41,12 +41,12 @@ public class LogQueryParam extends BaseParam {
     @Valid
     private BasePagingParam paging;
 
-    public String getCategory() {
-        return category;
+    public String getType() {
+        return type;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setType(String type) {
+        this.type = type;
     }
 
     public BaseSearchParam getSearch() {

@@ -37,9 +37,9 @@ public class LogController {
         return new BaseResponse<>(result);
     }
 
-    @RequestMapping(value = "/category", method = RequestMethod.POST)
-    public BaseResponse<LogCategoryListResult> category() {
-        LogCategoryListResult result = logService.listCategory();
+    @RequestMapping(value = "list/type", method = RequestMethod.POST)
+    public BaseResponse<LogCategoryListResult> listType() {
+        LogCategoryListResult result = logService.listType();
         return new BaseResponse<>(result);
     }
 }
