@@ -7,6 +7,7 @@
         <result column="id" jdbcType="BIGINT" property="id"/>
         <result column="user_id" jdbcType="BIGINT" property="userId"/>
         <result column="finger" jdbcType="VARCHAR" property="finger"/>
+        <result column="uuid" jdbcType="VARCHAR" property="uuid"/>
         <result column="template" jdbcType="VARCHAR" property="template"/>
         <result column="enroll_time" jdbcType="TIMESTAMP" property="enrollTime"/>
         <result column="identify_time" jdbcType="TIMESTAMP" property="identifyTime"/>
@@ -15,24 +16,25 @@
     </resultMap>
 
     <sql id="generalInsertColumns">
-        id, user_id, finger, template, enroll_time, identify_time, gmt_create, gmt_modify
+        id, user_id, finger, uuid, template, enroll_time, identify_time, gmt_create, gmt_modify
     </sql>
 
     <sql id="generalSelectColumns">
-        id, user_id, finger, template, enroll_time, identify_time
+        id, user_id, finger, uuid, template, enroll_time, identify_time
     </sql>
 
     <insert id="save" parameterType="cn.edu.xmu.sy.ext.domain.FingerprintDO">
         insert into tbl_fingerprint(<include refid="generalInsertColumns"/>)
-        values(#{id}, #{userId}, #{finger}, #{template}, #{enrollTime}, #{identifyTime}, #{gmtCreate}, #{gmtModify})
+        values(#{id}, #{userId}, #{finger}, #{uuid}, #{template}, #{enrollTime}, #{identifyTime},
+        #{gmtCreate}, #{gmtModify})
     </insert>
 
     <insert id="saveBatch" parameterType="cn.edu.xmu.sy.ext.domain.CounterDO">
         insert into tbl_fingerprint(<include refid="generalInsertColumns"/>)
         values
         <foreach collection="list" item="item" separator=",">
-            (#{item.id}, #{item.userId}, #{item.finger}, #{item.template}, #{item.enrollTime}, #{item.identifyTime},
-            #{item.gmtCreate}, #{item.gmtModify})
+            (#{item.id}, #{item.userId}, #{item.finger}, #{item.uuid}, #{item.template}, #{item.enrollTime},
+            #{item.identifyTime}, #{item.gmtCreate}, #{item.gmtModify})
         </foreach>
     </insert>
 
@@ -44,6 +46,9 @@
         </if>
         <if test="finger != null">
             , finger = #{finger}
+        </if>
+        <if test="uuid != null">
+            , uuid = #{uuid}
         </if>
         <if test="template != null">
             , template = #{template}
@@ -72,11 +77,26 @@
         <include refid="generalSelectColumns"/>
         from tbl_fingerprint
         where id = #{id} and is_delete = 0
+        limit 1
+    </select>
+
+    <select id="getByUuid" parameterType="java.lang.String" resultMap="fingerprintMap">
+        select
+        <include refid="generalSelectColumns"/>
+        from tbl_fingerprint
+        where uuid = #{uuid} and is_delete = 0
+        limit 1
     </select>
 
     <select id="getByUserId" parameterType="java.lang.Long" resultMap="fingerprintMap">
         select
         <include refid="generalSelectColumns"/>
+        from tbl_fingerprint
+        where user_id = #{userId} and is_delete = 0
+    </select>
+
+    <select id="countByUserId" parameterType="java.lang.Long" resultType="java.lang.Long">
+        select count(1)
         from tbl_fingerprint
         where user_id = #{userId} and is_delete = 0
     </select>
@@ -90,5 +110,24 @@
             #{item}
         </foreach>
         and is_delete = 0
+    </select>
+
+    <select id="countAll" resultType="java.lang.Long">
+        select count(1)
+        from tbl_fingerprint
+        where is_delete = 0
+    </select>
+
+    <select id="listByPaging" resultMap="fingerprintMap">
+        select
+        <include refid="generalSelectColumns"/>
+        from tbl_fingerprint
+        where is_delete = 0
+        <if test="offset != null">
+            limit ${offset}, ${rows}
+        </if>
+        <if test="offset == null">
+            limit ${rows}
+        </if>
     </select>
 </mapper>

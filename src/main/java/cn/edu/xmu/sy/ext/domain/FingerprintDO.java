@@ -27,6 +27,11 @@ public class FingerprintDO extends BaseDO {
     @FieldComment("手指名称")
     private String finger;
     /**
+     * UUID
+     */
+    @FieldComment("UUID")
+    private String uuid;
+    /**
      * 指纹模板
      */
     @FieldComment("指纹模板")
@@ -58,6 +63,14 @@ public class FingerprintDO extends BaseDO {
 
     public void setFinger(String finger) {
         this.finger = finger;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public String getTemplate() {

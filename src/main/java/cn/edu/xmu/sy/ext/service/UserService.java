@@ -9,6 +9,7 @@ import cn.edu.xmu.sy.ext.param.UserDeleteParam;
 import cn.edu.xmu.sy.ext.param.UserModifyParam;
 import cn.edu.xmu.sy.ext.param.UserQueryParam;
 import cn.edu.xmu.sy.ext.result.UserQueryResult;
+import cn.edu.xmu.sy.ext.result.UserQuerySimpleResult;
 
 /**
  * 用户Service
@@ -24,6 +25,14 @@ public interface UserService {
      * @return 查询结果
      */
     BasePagingResult<UserQueryResult> query(UserQueryParam param);
+
+    /**
+     * 查询用户(根据ID)(简版结果)
+     *
+     * @param id 用户ID
+     * @return 查询结果
+     */
+    UserQuerySimpleResult queryById(Long id);
 
     /**
      * 创建用户

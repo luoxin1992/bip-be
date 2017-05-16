@@ -18,6 +18,7 @@ import cn.edu.xmu.sy.ext.param.UserModifyParam;
 import cn.edu.xmu.sy.ext.param.UserQueryParam;
 import cn.edu.xmu.sy.ext.result.FingerprintQueryResult;
 import cn.edu.xmu.sy.ext.result.UserQueryResult;
+import cn.edu.xmu.sy.ext.result.UserQuerySimpleResult;
 import cn.edu.xmu.sy.ext.service.FingerprintService;
 import cn.edu.xmu.sy.ext.service.LogService;
 import cn.edu.xmu.sy.ext.service.SettingService;
@@ -75,6 +76,16 @@ public class UserServiceImpl implements UserService {
         result.setTotal(count);
         result.setPage(users);
         return result;
+    }
+
+    @Override
+    public UserQuerySimpleResult queryById(Long id) {
+        UserDO domain = userMapper.getById(id);
+        if (domain == null) {
+            logger.error("user {} not exist", id);
+            throw new BizException(BizResultEnum.USER_NOT_EXIST);
+        }
+        return POJOConvertUtil.convert(domain, UserQuerySimpleResult.class);
     }
 
     @Transactional

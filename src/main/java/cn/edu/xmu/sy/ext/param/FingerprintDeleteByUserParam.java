@@ -3,19 +3,23 @@
  */
 package cn.edu.xmu.sy.ext.param;
 
-import cn.com.lx1992.lib.annotation.ValidateRule;
+import cn.com.lx1992.lib.base.param.BaseParam;
+
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 /**
- * 指纹查询参数
+ * 删除用户全部指纹Param
  *
  * @author luoxin
- * @version 2017-3-25
+ * @version 2017-5-11
  */
-public class FingerprintQueryParam {
+public class FingerprintDeleteByUserParam extends BaseParam {
     /**
      * 用户ID
      */
-    @ValidateRule(comment = "用户ID", minVal = 1)
+    @NotNull
+    @Min(1)
     private Long userId;
 
     public Long getUserId() {

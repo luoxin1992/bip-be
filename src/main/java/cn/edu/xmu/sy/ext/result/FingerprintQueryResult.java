@@ -4,6 +4,10 @@
 package cn.edu.xmu.sy.ext.result;
 
 import cn.com.lx1992.lib.base.result.BaseResult;
+import cn.com.lx1992.lib.constant.DateTimeConstant;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.time.LocalDateTime;
 
 /**
  * 指纹查询Result
@@ -12,11 +16,24 @@ import cn.com.lx1992.lib.base.result.BaseResult;
  * @version 2017-3-11
  */
 public class FingerprintQueryResult extends BaseResult {
+    /**
+     * ID
+     */
     private Long id;
-    private Long userId;
+    /**
+     * 手指名称
+     */
     private String finger;
-    private String enrollTime;
-    private String identifyTime;
+    /**
+     * 登记时间
+     */
+    @JsonFormat(pattern = DateTimeConstant.DATETIME_PATTERN_WITH_BAR)
+    private LocalDateTime enrollTime;
+    /**
+     * (最后)辨识时间
+     */
+    @JsonFormat(pattern = DateTimeConstant.DATETIME_PATTERN_WITH_BAR)
+    private LocalDateTime identifyTime;
 
     public Long getId() {
         return id;
@@ -24,14 +41,6 @@ public class FingerprintQueryResult extends BaseResult {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
     }
 
     public String getFinger() {
@@ -42,19 +51,19 @@ public class FingerprintQueryResult extends BaseResult {
         this.finger = finger;
     }
 
-    public String getEnrollTime() {
+    public LocalDateTime getEnrollTime() {
         return enrollTime;
     }
 
-    public void setEnrollTime(String enrollTime) {
+    public void setEnrollTime(LocalDateTime enrollTime) {
         this.enrollTime = enrollTime;
     }
 
-    public String getIdentifyTime() {
+    public LocalDateTime getIdentifyTime() {
         return identifyTime;
     }
 
-    public void setIdentifyTime(String identifyTime) {
+    public void setIdentifyTime(LocalDateTime identifyTime) {
         this.identifyTime = identifyTime;
     }
 }
