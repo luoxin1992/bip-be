@@ -5,14 +5,12 @@ package cn.edu.xmu.sy.ext.controller;
 
 import cn.com.lx1992.lib.base.meta.BaseResultEnum;
 import cn.com.lx1992.lib.base.response.BaseResponse;
-import cn.com.lx1992.lib.base.result.BaseListResult;
 import cn.com.lx1992.lib.base.result.BasePagingResult;
 import cn.com.lx1992.lib.util.PagingUtil;
 import cn.edu.xmu.sy.ext.param.UserCreateParam;
 import cn.edu.xmu.sy.ext.param.UserDeleteParam;
 import cn.edu.xmu.sy.ext.param.UserModifyParam;
 import cn.edu.xmu.sy.ext.param.UserQueryParam;
-import cn.edu.xmu.sy.ext.result.UserListSimpleResult;
 import cn.edu.xmu.sy.ext.result.UserQueryResult;
 import cn.edu.xmu.sy.ext.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,12 +32,6 @@ import javax.validation.Valid;
 public class UserController {
     @Autowired
     private UserService userService;
-
-    @RequestMapping(value = "/list/simple", method = RequestMethod.POST)
-    public BaseResponse<BaseListResult<UserListSimpleResult>> listSimple() {
-        BaseListResult<UserListSimpleResult> result = userService.listSimple();
-        return new BaseResponse<>(result);
-    }
 
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     public BaseResponse<BasePagingResult<UserQueryResult>> query(@RequestBody @Valid UserQueryParam param) {
