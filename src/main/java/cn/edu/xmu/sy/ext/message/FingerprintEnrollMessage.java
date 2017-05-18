@@ -5,6 +5,8 @@ package cn.edu.xmu.sy.ext.message;
 
 import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
 
+import java.util.List;
+
 /**
  * 指纹登记Message
  *
@@ -13,31 +15,43 @@ import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
  */
 public class FingerprintEnrollMessage extends BaseMessage {
     /**
-     * 手指名称
+     * 采集次数
      */
-    private String finger;
+    private Integer capture;
     /**
-     * 指纹采集次数
+     * 图片(URI)
      */
-    private int captureTimes;
+    private List<String> images;
+    /**
+     * 声音(播放列表)(URI)
+     */
+    private List<List<String>> voices;
 
     public FingerprintEnrollMessage() {
         super(MessageTypeEnum.FINGERPRINT_ENROLL);
     }
 
-    public String getFinger() {
-        return finger;
+    public Integer getCapture() {
+        return capture;
     }
 
-    public void setFinger(String finger) {
-        this.finger = finger;
+    public void setCapture(Integer capture) {
+        this.capture = capture;
     }
 
-    public int getCaptureTimes() {
-        return captureTimes;
+    public List<String> getImages() {
+        return images;
     }
 
-    public void setCaptureTimes(int captureTimes) {
-        this.captureTimes = captureTimes;
+    public void setImages(List<String> images) {
+        this.images = images;
+    }
+
+    public List<List<String>> getVoices() {
+        return voices;
+    }
+
+    public void setVoices(List<List<String>> voices) {
+        this.voices = voices;
     }
 }

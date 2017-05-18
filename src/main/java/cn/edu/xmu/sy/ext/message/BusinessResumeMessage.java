@@ -8,12 +8,12 @@ import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
 import java.util.List;
 
 /**
- * 指纹辨识Message
+ * 业务恢复受理Message
  *
  * @author luoxin
  * @version 2017-4-25
  */
-public class FingerprintIdentifyMessage extends BaseMessage {
+public class BusinessResumeMessage extends BaseMessage {
     /**
      * 图片(URI)
      */
@@ -23,8 +23,8 @@ public class FingerprintIdentifyMessage extends BaseMessage {
      */
     private List<String> voices;
 
-    public FingerprintIdentifyMessage() {
-        super(MessageTypeEnum.FINGERPRINT_IDENTIFY);
+    public BusinessResumeMessage() {
+        super(MessageTypeEnum.BUSINESS_RESUME);
     }
 
     public String getImage() {

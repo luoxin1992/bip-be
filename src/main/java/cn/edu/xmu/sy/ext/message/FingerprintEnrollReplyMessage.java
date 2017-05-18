@@ -6,31 +6,19 @@ package cn.edu.xmu.sy.ext.message;
 import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
 
 /**
- * 指纹模型Message(返回)
+ * 指纹登记回复Message
  *
  * @author luoxin
  * @version 2017-4-25
  */
-public class FingerprintTemplateMessage extends BaseMessage {
-    /**
-     * 对应父消息ID
-     */
-    private Long parent;
+public class FingerprintEnrollReplyMessage extends BaseMessage {
     /**
      * 指纹模型
      */
     private String template;
 
-    public FingerprintTemplateMessage() {
-        super(MessageTypeEnum.FINGERPRINT_TEMPLATE);
-    }
-
-    public Long getParent() {
-        return parent;
-    }
-
-    public void setParent(Long parent) {
-        this.parent = parent;
+    public FingerprintEnrollReplyMessage() {
+        super(MessageTypeEnum.FINGERPRINT_ENROLL_REPLY);
     }
 
     public String getTemplate() {

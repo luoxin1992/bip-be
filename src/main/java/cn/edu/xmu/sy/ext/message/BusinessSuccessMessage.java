@@ -8,27 +8,27 @@ import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
 import java.util.List;
 
 /**
- * 业务受理失败Message
+ * 业务受理成功Message
  *
  * @author luoxin
  * @version 2017-4-25
  */
-public class BizFailureMessage extends BaseMessage {
+public class BusinessSuccessMessage extends BaseMessage {
     /**
      * 附加内容
      */
     private String extra;
     /**
-     * 图片(URL)
+     * 图片(URI)
      */
     private String image;
     /**
-     * 声音(播放列表)(URL)
+     * 声音(播放列表)(URI)
      */
     private List<String> voices;
 
-    public BizFailureMessage() {
-        super(MessageTypeEnum.BIZ_FAILURE);
+    public BusinessSuccessMessage() {
+        super(MessageTypeEnum.BUSINESS_SUCCESS);
     }
 
     public String getExtra() {

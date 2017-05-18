@@ -8,23 +8,23 @@ import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
 import java.util.List;
 
 /**
- * 指纹辨识Message
+ * 业务暂停受理Message
  *
  * @author luoxin
  * @version 2017-4-25
  */
-public class FingerprintIdentifyMessage extends BaseMessage {
+public class BusinessPauseMessage extends BaseMessage {
     /**
-     * 图片(URI)
+     * 图片(URL)
      */
     private String image;
     /**
-     * 声音(播放列表)(URI)
+     * 声音(播放列表)(URL)
      */
     private List<String> voices;
 
-    public FingerprintIdentifyMessage() {
-        super(MessageTypeEnum.FINGERPRINT_IDENTIFY);
+    public BusinessPauseMessage() {
+        super(MessageTypeEnum.BUSINESS_PAUSE);
     }
 
     public String getImage() {

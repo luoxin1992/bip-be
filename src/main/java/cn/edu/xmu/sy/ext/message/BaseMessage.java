@@ -3,36 +3,35 @@
  */
 package cn.edu.xmu.sy.ext.message;
 
-import cn.com.lx1992.lib.util.UUIDUtil;
 import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
 
 /**
- * Message基类
- *
  * @author luoxin
- * @version 2017-4-25
+ * @version 2017-5-19
  */
 public class BaseMessage {
     /**
-     * UUID
+     * (回复)消息ID
      */
-    private String uuid;
+    private Long id;
     /**
      * 类型
      */
     private String type;
 
-    public BaseMessage(MessageTypeEnum type) {
-        this.uuid = UUIDUtil.randomUUID();
-        this.type = type.getType();
+    public BaseMessage() {
     }
 
-    public String getUuid() {
-        return uuid;
+    public BaseMessage(MessageTypeEnum typeEnum) {
+        this.type = typeEnum.getType();
     }
 
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getType() {

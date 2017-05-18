@@ -6,18 +6,18 @@ package cn.edu.xmu.sy.ext.message;
 import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
 
 /**
- * 更新柜台信息Message
+ * 更新窗口信息Message
  *
  * @author luoxin
  * @version 2017-4-29
  */
 public class CounterInfoMessage extends BaseMessage {
     /**
-     * 柜台编号
+     * 窗口编号
      */
     private String number;
     /**
-     * 柜台名称
+     * 窗口名称
      */
     private String name;
 
