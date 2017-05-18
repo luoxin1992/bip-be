@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -63,13 +64,13 @@ public class TtsServiceImpl implements TtsService {
 
     private NlsClient nlsClient;
     private ExecutorService taskExecutor;
-    private ConcurrentHashMap<String, CompletableFuture<String>> taskMap;
+    private Map<String, CompletableFuture<String>> taskMap;
 
     @PostConstruct
     public void initial() {
         nlsClient = new NlsClient();
         nlsClient.init();
-        logger.info("nls service sdk initial");
+        logger.info("initial nls sdk");
 
         //taskExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         taskExecutor = Executors.newCachedThreadPool();
@@ -86,10 +87,10 @@ public class TtsServiceImpl implements TtsService {
             }
         } catch (InterruptedException ignored) {
         }
-        logger.info("tts executor destroy");
+        logger.info("destroy tts executor");
 
         nlsClient.close();
-        logger.info("nls service sdk destroy");
+        logger.info("destroy nls sdk");
     }
 
     @Override
@@ -113,8 +114,11 @@ public class TtsServiceImpl implements TtsService {
         CompletableFuture<String> future = CompletableFuture
                 .supplyAsync(() -> this.executeTtsTask(finalParam, content), taskExecutor)
                 .whenComplete((result, exception) -> {
-                    writeBackDb(content, result, exception == null);
-                    taskMap.remove(content);
+                    try {
+                        writeBackDb(content, result, exception == null);
+                    } finally {
+                        taskMap.remove(content);
+                    }
                 });
         taskMap.put(content, future);
         return future;
