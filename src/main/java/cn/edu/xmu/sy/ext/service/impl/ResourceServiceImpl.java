@@ -27,9 +27,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -59,20 +60,19 @@ public class ResourceServiceImpl implements ResourceService {
         String uriPrefix = (StringUtils.isEmpty(contextPath) || CommonConstant.SLASH_STRING.equals(contextPath)) ?
                 CommonConstant.EMPTY_STRING : contextPath + CommonConstant.SLASH_STRING;
 
-        List<ResourceDO> domains = resourceMapper.listAll();
+        List<ResourceDO> domains = listAllByTypeRaw(null);
         List<ResourceListSimpleResult> results = domains.stream()
-                .map((domain) -> {
+                .map(domain -> {
                     ResourceListSimpleResult result = POJOConvertUtil.convert(domain, ResourceListSimpleResult.class);
                     result.setUri(uriPrefix + domain.getType() + CommonConstant.SLASH_STRING + domain.getFilename());
                     return result;
                 })
                 .collect(Collectors.toList());
-        logger.info("list {} resource(s)", results.size());
 
-        BaseListResult<ResourceListSimpleResult> result = new BaseListResult<>();
-        result.setTotal(results.size());
-        result.setList(results);
-        return result;
+        BaseListResult<ResourceListSimpleResult> resResult = new BaseListResult<>();
+        resResult.setTotal(results.size());
+        resResult.setList(results);
+        return resResult;
     }
 
     @Override
@@ -106,7 +106,7 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void create(ResourceCreateParam param) {
         ResourceDO domain = POJOConvertUtil.convert(param, ResourceDO.class);
         if (resourceMapper.save(domain) != CommonConstant.SAVE_DOMAIN_SUCCESSFUL) {
@@ -119,7 +119,7 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void modify(ResourceModifyParam param) {
         ResourceDO before = resourceMapper.getById(param.getId());
         if (before == null) {
@@ -138,7 +138,7 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void delete(Long id) {
         if (resourceMapper.removeById(id) != CommonConstant.REMOVE_DOMAIN_SUCCESSFUL) {
             logger.error("delete resource {} failed", id);
@@ -156,13 +156,38 @@ public class ResourceServiceImpl implements ResourceService {
 
     @Override
     public void rebuildAllVoice() {
-        List<ResourceDO> domains = resourceMapper.listAll();
+        List<ResourceDO> domains = listAllByTypeRaw(ResourceTypeEnum.VOICE.getType());
         List<String> names = domains.stream()
-                .filter(domain -> domain.getType().equals(ResourceTypeEnum.VOICE.getType()))
                 .map(ResourceDO::getName)
                 .collect(Collectors.toList());
 
         logger.info("{} resource(s) will rebuild", names.size());
         ttsService.ttsBatchAsync(null, names, true);
+    }
+
+    /**
+     * 查询全部资源，可根据类型过滤，内部实现分页，返回原生Domain
+     *
+     * @param type 类型
+     * @return 查询结果
+     */
+    private List<ResourceDO> listAllByTypeRaw(String type) {
+        Long count = resourceMapper.countAll(type);
+        if (count == 0) {
+            logger.warn("resource list all result is empty");
+            return Collections.emptyList();
+        }
+
+        Integer rows = 100;
+        Integer pages = Math.toIntExact(count % rows == 0 ? count / rows : count / rows + 1);
+        logger.info("resource list all contain {} result(s) and divide to {} page(s)", count, pages);
+
+        List<ResourceDO> allDomains = new ArrayList<>();
+        for (int i = 0; i < pages; i++) {
+            List<ResourceDO> domains = resourceMapper.listByPaging(type, (long) (i * rows), rows);
+            allDomains.addAll(domains);
+        }
+        logger.info("list all {} resource(s) with type {}", allDomains.size(),type);
+        return allDomains;
     }
 }

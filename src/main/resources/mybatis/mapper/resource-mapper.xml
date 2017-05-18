@@ -70,11 +70,29 @@
         limit 1
     </select>
 
-    <select id="listAll" resultMap="resourceMap">
+    <select id="countAll" parameterType="java.lang.String" resultType="java.lang.Long">
+        select count(1)
+        from tbl_resource
+        where is_delete = 0
+        <if test="type != null">
+            and type = #{type}
+        </if>
+    </select>
+
+    <select id="listByPaging" resultMap="resourceMap">
         select
         <include refid="generalSelectColumns"/>
         from tbl_resource
         where is_delete = 0
+        <if test="type != null">
+            and type = #{type}
+        </if>
+        <if test="offset != null">
+            limit ${offset}, ${rows}
+        </if>
+        <if test="offset == null">
+            limit ${rows}
+        </if>
     </select>
 
     <select id="listByParam" parameterType="cn.edu.xmu.sy.ext.param.ResourceQueryParam" resultMap="resourceMap">

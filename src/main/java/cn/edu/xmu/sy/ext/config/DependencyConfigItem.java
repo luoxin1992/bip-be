@@ -16,12 +16,12 @@ import org.springframework.stereotype.Component;
  * @version 2017-5-11
  */
 @Component
-public class DependencyServiceConfigItem {
+public class DependencyConfigItem {
     private String hostData;
     private String hostMsg;
     private String hostFp;
 
-    private String apiDataUserList;
+    private String apiDataFingerprintListTemplate;
 
     private String apiMsgTokenRegister;
     private String apiMsgTokenUnregister;
@@ -58,13 +58,13 @@ public class DependencyServiceConfigItem {
         this.hostFp = hostFp;
     }
 
-    @DisconfItem(key = "dependency.service.data.api.user.list", app = "bip-common")
-    public String getApiDataUserList() {
-        return apiDataUserList;
+    @DisconfItem(key = "dependency.service.data.api.fingerprint.list.template", app = "bip-common")
+    public String getApiDataFingerprintListTemplate() {
+        return apiDataFingerprintListTemplate;
     }
 
-    public void setApiDataUserList(String apiDataUserList) {
-        this.apiDataUserList = apiDataUserList;
+    public void setApiDataFingerprintListTemplate(String apiDataFingerprintListTemplate) {
+        this.apiDataFingerprintListTemplate = apiDataFingerprintListTemplate;
     }
 
     @DisconfItem(key = "dependency.service.msg.api.token.register", app = "bip-common")

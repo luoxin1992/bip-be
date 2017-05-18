@@ -28,7 +28,9 @@ public interface ResourceMapper {
 
     ResourceDO getById(Long id);
 
-    List<ResourceDO> listAll();
+    Long countAll(@Param("type") String type);
+
+    List<ResourceDO> listByPaging(@Param("type") String type, @Param("offset") Long offset, @Param("rows") Integer rows);
 
     List<ResourceDO> listByParam(ResourceQueryParam param);
 
