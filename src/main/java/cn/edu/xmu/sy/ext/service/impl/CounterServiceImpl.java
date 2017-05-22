@@ -18,11 +18,16 @@ import cn.edu.xmu.sy.ext.param.CounterCreateParam;
 import cn.edu.xmu.sy.ext.param.CounterDeleteParam;
 import cn.edu.xmu.sy.ext.param.CounterModifyParam;
 import cn.edu.xmu.sy.ext.param.CounterQueryParam;
+import cn.edu.xmu.sy.ext.param.MessageCloseParam;
+import cn.edu.xmu.sy.ext.param.MessageCounterInfoParam;
+import cn.edu.xmu.sy.ext.param.MessageSendToParam;
 import cn.edu.xmu.sy.ext.param.SessionBatchQueryParam;
 import cn.edu.xmu.sy.ext.result.CounterQueryResult;
+import cn.edu.xmu.sy.ext.result.CounterQuerySimpleResult;
 import cn.edu.xmu.sy.ext.result.SessionQueryResult;
 import cn.edu.xmu.sy.ext.service.CounterService;
 import cn.edu.xmu.sy.ext.service.LogService;
+import cn.edu.xmu.sy.ext.service.MessageService;
 import cn.edu.xmu.sy.ext.service.SessionService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -51,6 +56,8 @@ public class CounterServiceImpl implements CounterService {
     @Autowired
     private SessionService sessionService;
     @Autowired
+    private MessageService messageService;
+    @Autowired
     private LogService logService;
 
     @Autowired
@@ -70,14 +77,14 @@ public class CounterServiceImpl implements CounterService {
             throw new BizException(BizResultEnum.COUNTER_CREATE_ERROR);
         }
 
-        logService.logCounterCreate(domain);
+        logService.logCounterCreate(domain.getId(), domain.getNumber(), domain.getName());
         logger.info("create counter {} successfully", domain.getId());
     }
 
     @Override
     @Transactional
     public void modify(CounterModifyParam param) {
-        //获取修改前柜台信息
+        //获取修改前窗口信息
         CounterDO before = counterMapper.getById(param.getId());
         if (before == null) {
             logger.error("counter {} not exist", param.getId());
@@ -89,22 +96,22 @@ public class CounterServiceImpl implements CounterService {
         //MAC+IP不能与除自身外的重复
         checkMacOrIpDuplicate(param.getMac(), param.getIp(), param.getId());
 
-        CounterDO domain = POJOConvertUtil.convert(param, CounterDO.class);
-        if (counterMapper.updateById(domain) != CommonConstant.UPDATE_DOMAIN_SUCCESSFUL) {
-            logger.error("modify counter {} failed", domain.getId());
+        CounterDO after = POJOConvertUtil.convert(param, CounterDO.class);
+        if (counterMapper.updateById(after) != CommonConstant.UPDATE_DOMAIN_SUCCESSFUL) {
+            logger.error("modify counter {} failed", after.getId());
             throw new BizException(BizResultEnum.COUNTER_MODIFY_ERROR);
         }
 
         //修改后处理过程
-        modifyPostProcess(param.getId(), before, domain);
+        modifyPostProcess(param.getId(), before, after);
 
-        logService.logCounterModify(before, domain);
-        logger.info("modify counter {} successfully", domain.getId());
+        logService.logCounterModify(after.getId(), POJOCompareUtil.compare(CounterDO.class, before, after));
+        logger.info("modify counter {} successfully", after.getId());
     }
 
     @Override
     public void delete(CounterDeleteParam param) {
-        //仅能删除没有在线会话的柜台
+        //仅能删除没有在线会话的窗口
         checkOnlineSessionNotExist(param.getId());
 
         if (counterMapper.removeById(param.getId()) != CommonConstant.REMOVE_DOMAIN_SUCCESSFUL) {
@@ -140,9 +147,9 @@ public class CounterServiceImpl implements CounterService {
     }
 
     @Override
-    public Optional<CounterQueryResult> getByMacAndIpOptional(String mac, String ip) {
+    public CounterQuerySimpleResult querySimple(String mac, String ip) {
         CounterDO domain = counterMapper.getByMacAndIp(mac, ip);
-        return Optional.ofNullable(domain != null ? POJOConvertUtil.convert(domain, CounterQueryResult.class) : null);
+        return domain != null ? POJOConvertUtil.convert(domain, CounterQuerySimpleResult.class) : null;
     }
 
     @Override
@@ -182,10 +189,10 @@ public class CounterServiceImpl implements CounterService {
     /**
      * 检查在线会话是否存在
      *
-     * @param id 柜台ID
+     * @param id 窗口ID
      */
     private void checkOnlineSessionNotExist(Long id) {
-        Optional<Long> sessionId = sessionService.getOnlineSessionIdOptional(id);
+        Optional<Long> sessionId = sessionService.getOnlineIdByCounterIdOptional(id);
         if (sessionId.isPresent()) {
             logger.error("online session for counter {} exist", id);
             throw new BizException(BizResultEnum.COUNTER_ONLINE_SESSION_EXIST);
@@ -193,14 +200,14 @@ public class CounterServiceImpl implements CounterService {
     }
 
     /**
-     * 修改柜台后处理(仅限有在线会话时)
+     * 修改窗口后处理(仅限有在线会话时)
      *
-     * @param id     柜台ID
-     * @param before 修改前的柜台信息
-     * @param after  修改后的柜台信息
+     * @param id     窗口ID
+     * @param before 修改前的窗口信息
+     * @param after  修改后的窗口信息
      */
     private void modifyPostProcess(Long id, CounterDO before, CounterDO after) {
-        Optional<Long> sessionId = sessionService.getOnlineSessionIdOptional(id);
+        Optional<Long> sessionId = sessionService.getOnlineIdByCounterIdOptional(id);
         if (sessionId.isPresent()) {
             List<String> diffFieldNames = POJOCompareUtil.compare(CounterDO.class, before, after).stream()
                     .map(DiffFieldDTO::getFieldName)
@@ -209,7 +216,13 @@ public class CounterServiceImpl implements CounterService {
             boolean modifyMacOrIp = diffFieldNames.stream()
                     .anyMatch((fieldName) -> fieldName.equals("mac") || fieldName.equals("ip"));
             if (modifyMacOrIp) {
-                //TODO 如果修改了MAC地址或IP地址：强制离线
+                //如果修改了MAC地址或IP地址：强制离线
+                MessageSendToParam sendTo = new MessageSendToParam();
+                sendTo.setId(after.getId());
+                MessageCloseParam param = new MessageCloseParam();
+                param.setSendTo(sendTo);
+
+                messageService.sendClose(param);
                 logger.info("force offline session because of mac or ip modified");
                 return;
             }
@@ -217,14 +230,22 @@ public class CounterServiceImpl implements CounterService {
             boolean modifyNumberOrName = diffFieldNames.stream()
                     .anyMatch((fieldName) -> fieldName.equals("number") || fieldName.equals("name"));
             if (modifyNumberOrName) {
-                //TODO 如果修改了编号或名称：发送更新消息
-                logger.info("update session info because of number or name modified");
+                //如果修改了编号或名称：发送更新消息
+                MessageSendToParam sendTo = new MessageSendToParam();
+                sendTo.setId(after.getId());
+                MessageCounterInfoParam param = new MessageCounterInfoParam();
+                param.setSendTo(sendTo);
+                param.setNumber(after.getNumber());
+                param.setName(after.getName());
+
+                messageService.sendCounterInfo(param);
+                logger.info("update counter info because of number or name modified");
             }
         }
     }
 
     /**
-     * 查询柜台，Map出柜台ID
+     * 查询窗口，Map出窗口ID
      *
      * @param param 查询参数
      * @return 查询结果
@@ -241,9 +262,9 @@ public class CounterServiceImpl implements CounterService {
     }
 
     /**
-     * 批量查询给定柜台“今天”的会话
+     * 批量查询给定窗口“今天”的会话
      *
-     * @param counterIds 柜台ID
+     * @param counterIds 窗口ID
      * @return 查询结果
      */
     private Map<Long, List<SessionQueryResult>> queryTodaySession(List<Long> counterIds) {

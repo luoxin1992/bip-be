@@ -18,7 +18,6 @@ import cn.edu.xmu.sy.ext.param.UserModifyParam;
 import cn.edu.xmu.sy.ext.param.UserQueryParam;
 import cn.edu.xmu.sy.ext.result.FingerprintQueryResult;
 import cn.edu.xmu.sy.ext.result.UserQueryResult;
-import cn.edu.xmu.sy.ext.result.UserQuerySimpleResult;
 import cn.edu.xmu.sy.ext.service.FingerprintService;
 import cn.edu.xmu.sy.ext.service.LogService;
 import cn.edu.xmu.sy.ext.service.SettingService;
@@ -31,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -79,13 +79,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserQuerySimpleResult queryById(Long id) {
+    public Optional<String> getNumberByIdOptional(Long id) {
         UserDO domain = userMapper.getById(id);
-        if (domain == null) {
-            logger.error("user {} not exist", id);
-            throw new BizException(BizResultEnum.USER_NOT_EXIST);
-        }
-        return POJOConvertUtil.convert(domain, UserQuerySimpleResult.class);
+        return Optional.ofNullable(domain == null ? null : domain.getNumber());
     }
 
     @Transactional

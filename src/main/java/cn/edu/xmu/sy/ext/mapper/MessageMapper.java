@@ -4,6 +4,7 @@
 package cn.edu.xmu.sy.ext.mapper;
 
 import cn.edu.xmu.sy.ext.domain.MessageDO;
+import cn.edu.xmu.sy.ext.param.MessageQueryParam;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -30,11 +31,19 @@ public interface MessageMapper {
 
     MessageDO getById(Long id);
 
+    MessageDO getByReplyId(Long replyId);
+
     List<MessageDO> getByCounterId(Long counterId);
 
     List<MessageDO> getBySessionId(Long sessionId);
 
+    List<MessageDO> listByReplyId(List<Long> replyIds);
+
     List<MessageDO> listByCounterId(List<Long> counterIds);
 
     List<MessageDO> listBySessionId(List<Long> sessionIds);
+
+    Long countByParam(MessageQueryParam param);
+
+    List<MessageDO> listByParam(MessageQueryParam param);
 }

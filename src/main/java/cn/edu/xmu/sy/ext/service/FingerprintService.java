@@ -11,7 +11,6 @@ import cn.edu.xmu.sy.ext.param.FingerprintModifyParam;
 import cn.edu.xmu.sy.ext.result.FingerprintFingerListResult;
 import cn.edu.xmu.sy.ext.result.FingerprintQueryResult;
 import cn.edu.xmu.sy.ext.result.FingerprintTemplateListResult;
-import cn.edu.xmu.sy.ext.result.UserQuerySimpleResult;
 
 import java.util.List;
 import java.util.Map;
@@ -63,9 +62,9 @@ public interface FingerprintService {
      * 辨识指纹
      *
      * @param param 辨识参数
-     * @return 辨识结果(用户查询结果)
+     * @return 用户ID(辨识结果)
      */
-    UserQuerySimpleResult identify(FingerprintIdentifyParam param);
+    Long identify(FingerprintIdentifyParam param);
 
     /**
      * 查询全部手指名称

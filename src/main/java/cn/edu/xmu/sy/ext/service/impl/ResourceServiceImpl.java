@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -155,6 +156,32 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     @Override
+    public List<String> getUriByTypeAndName(ResourceTypeEnum type, List<String> names) {
+        List<String> uris = new ArrayList<>();
+
+        names.forEach(name -> {
+            Long id = resourceMapper.getIdByTypeAndName(type.getType(), name);
+            if (id == null) {
+                //请求的资源未找到时，图片资源将抛出异常，声音资源将自动合成
+                switch (type) {
+                    case IMAGE:
+                        logger.error("image resource {} not exist", name);
+                        throw new BizException(BizResultEnum.RESOURCE_NAME_NOT_EXIST, name);
+                    case VOICE:
+                        String path = ttsService.ttsSync(null, name, false);
+                        String filename = path.substring(path.lastIndexOf(File.separatorChar) + 1);
+                        uris.add(buildUri(type.getType(), filename));
+                        break;
+                }
+            } else {
+                ResourceDO domain = resourceMapper.getById(id);
+                uris.add(buildUri(domain.getType(), domain.getFilename()));
+            }
+        });
+        return uris;
+    }
+
+    @Override
     public void rebuildAllVoice() {
         List<ResourceDO> domains = listAllByTypeRaw(ResourceTypeEnum.VOICE.getType());
         List<String> names = domains.stream()
@@ -187,7 +214,21 @@ public class ResourceServiceImpl implements ResourceService {
             List<ResourceDO> domains = resourceMapper.listByPaging(type, (long) (i * rows), rows);
             allDomains.addAll(domains);
         }
-        logger.info("list all {} resource(s) with type {}", allDomains.size(),type);
+        logger.info("list all {} resource(s) with type {}", allDomains.size(), type);
         return allDomains;
+    }
+
+    /**
+     * 根据资源文件的类型和文件名构建访问其的URI
+     *
+     * @param type     类型
+     * @param filename 文件名
+     * @return URI
+     */
+    private String buildUri(String type, String filename) {
+        String contextPath = servletConfigItem.getContextPath();
+        String uriPrefix = (StringUtils.isEmpty(contextPath) || CommonConstant.SLASH_STRING.equals(contextPath)) ?
+                CommonConstant.EMPTY_STRING : contextPath + CommonConstant.SLASH_STRING;
+        return uriPrefix + type + CommonConstant.SLASH_STRING + filename;
     }
 }

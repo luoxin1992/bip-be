@@ -3,6 +3,10 @@
  */
 package cn.edu.xmu.sy.ext.meta;
 
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Optional;
+
 /**
  * 消息类型枚举
  *
@@ -26,7 +30,8 @@ public enum MessageTypeEnum {
     COUNTER_INFO("counter-info", "更新窗口信息"),
     CLOSE("close", "关闭客户端"),
     FINGERPRINT_ENROLL_REPLY("fingerprint-enroll-reply", "指纹登记回复"),
-    FINGERPRINT_IDENTIFY_REPLY("fingerprint-identify-reply", "指纹辨识回复");
+    FINGERPRINT_IDENTIFY_REPLY("fingerprint-identify-reply", "指纹辨识回复"),
+    UNKNOWN("unknown", "未知");
 
     private String type;
     private String description;
@@ -42,5 +47,13 @@ public enum MessageTypeEnum {
 
     public String getDescription() {
         return description;
+    }
+
+    public static String getDescriptionByType(String type) {
+        Optional<String> result = Arrays.stream(values())
+                .filter(value -> Objects.equals(value.type, type))
+                .map(MessageTypeEnum::getDescription)
+                .findFirst();
+        return result.orElse(UNKNOWN.getDescription());
     }
 }

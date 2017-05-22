@@ -35,7 +35,7 @@ public class MessageMapperTests {
         messageDO.setCounterId(26227809714182L);
         messageDO.setSessionId(26224043098119L);
         messageDO.setType("测试");
-        messageDO.setExtra("测试");
+        //messageDO.setExtra("测试");
         messageDO.setSendTime(LocalDateTime.now());
         messageDO.setGmtCreate(LocalDateTime.now());
         messageDO.setGmtModify(LocalDateTime.now());
@@ -52,7 +52,7 @@ public class MessageMapperTests {
                     messageDO.setCounterId(26224043098119L + i);
                     messageDO.setSessionId(26227809714182L + i * 2 + j);
                     messageDO.setType("测试类别" + k);
-                    messageDO.setExtra("测试内容" + k);
+                    //messageDO.setExtra("测试内容" + k);
                     messageDO.setSendTime(LocalDateTime.now());
                     messageDO.setGmtCreate(LocalDateTime.now());
                     messageDO.setGmtModify(LocalDateTime.now());
@@ -70,7 +70,7 @@ public class MessageMapperTests {
         messageDO.setCounterId(26227071516679L);
         messageDO.setSessionId(26223598501888L);
         messageDO.setType("测试_修改");
-        messageDO.setExtra("测试_修改");
+        //messageDO.setExtra("测试_修改");
         messageDO.setAckTime(LocalDateTime.now());
         messageDO.setGmtModify(LocalDateTime.now());
         Assert.assertTrue(messageMapper.updateById(messageDO) == 1);

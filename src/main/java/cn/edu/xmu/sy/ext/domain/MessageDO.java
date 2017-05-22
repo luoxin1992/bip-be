@@ -17,9 +17,14 @@ import java.time.LocalDateTime;
  */
 public class MessageDO extends BaseDO {
     /**
-     * 柜台ID
+     * 回复消息ID
      */
-    @FieldComment("柜台ID")
+    @FieldComment("回复消息ID")
+    private Long replyId;
+    /**
+     * 窗口ID
+     */
+    @FieldComment("窗口ID")
     private Long counterId;
     /**
      * 会话ID
@@ -32,10 +37,10 @@ public class MessageDO extends BaseDO {
     @FieldComment("类型")
     private String type;
     /**
-     * 附加信息
+     * 消息体
      */
-    @FieldComment("附加信息")
-    private String extra;
+    @FieldComment("消息体")
+    private String body;
     /**
      * 发送时间
      */
@@ -48,6 +53,14 @@ public class MessageDO extends BaseDO {
     @FieldComment("确认时间")
     @CompareIgnore
     private LocalDateTime ackTime;
+
+    public Long getReplyId() {
+        return replyId;
+    }
+
+    public void setReplyId(Long replyId) {
+        this.replyId = replyId;
+    }
 
     public Long getCounterId() {
         return counterId;
@@ -73,12 +86,12 @@ public class MessageDO extends BaseDO {
         this.type = type;
     }
 
-    public String getExtra() {
-        return extra;
+    public String getBody() {
+        return body;
     }
 
-    public void setExtra(String extra) {
-        this.extra = extra;
+    public void setBody(String body) {
+        this.body = body;
     }
 
     public LocalDateTime getSendTime() {

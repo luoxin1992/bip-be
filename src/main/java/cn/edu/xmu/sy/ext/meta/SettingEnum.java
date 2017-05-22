@@ -19,10 +19,12 @@ public enum SettingEnum {
     TTS_VOLUME("tts-volume", "100"),
     TTS_PITCH_RATE("tts-pitch-rate", "0"),
     TTS_SPEECH_RATE("tts-speech-rate", "0"),
-    //指纹识别设置
+    //指纹设置
     FINGERPRINT("fingerprint", null),
-    FINGERPRINT_MAX_ENROLL_COUNT("fingerprint-max-enroll-count", "1"),
-    FINGERPRINT_ENROLL_TIMES("fingerprint-enroll-times", "3"),
+    FINGERPRINT_MAX_ENROLL_COUNT("fingerprint-max-enroll-count", "10"),
+    FINGERPRINT_ENROLL_TIMES("fingerprint-enroll-times", "4"),
+    FINGERPRINT_ENROLL_TIMEOUT("fingerprint-enroll-timeout", "60"),
+    FINGERPRINT_IDENTIFY_TIMEOUT("fingerprint-identify-timeout", "30"),
     //其他设置
     MISC("misc", null),
     MISC_USER_MGR_ENABLE("misc-user-mgr-enable", "false"),

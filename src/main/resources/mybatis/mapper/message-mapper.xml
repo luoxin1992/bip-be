@@ -5,10 +5,11 @@
 <mapper namespace="cn.edu.xmu.sy.ext.mapper.MessageMapper">
     <resultMap id="messageMap" type="cn.edu.xmu.sy.ext.domain.MessageDO">
         <result column="id" jdbcType="BIGINT" property="id"/>
+        <result column="reply_id" jdbcType="BIGINT" property="replyId"/>
         <result column="counter_id" jdbcType="BIGINT" property="counterId"/>
         <result column="session_id" jdbcType="BIGINT" property="sessionId"/>
         <result column="type" jdbcType="VARCHAR" property="type"/>
-        <result column="extra" jdbcType="VARCHAR" property="extra"/>
+        <result column="body" jdbcType="VARCHAR" property="body"/>
         <result column="send_time" jdbcType="TIMESTAMP" property="sendTime"/>
         <result column="ack_time" jdbcType="TIMESTAMP" property="ackTime"/>
         <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
@@ -16,31 +17,34 @@
     </resultMap>
 
     <sql id="generalInsertColumns">
-        id, counter_id, session_id, type, extra, send_time, ack_time, gmt_create, gmt_modify
+        id, reply_id, counter_id, session_id, type, body, send_time, ack_time, gmt_create, gmt_modify
     </sql>
 
     <sql id="generalSelectColumns">
-        id, counter_id, session_id, type, extra, send_time, ack_time
+        id, reply_id, counter_id, session_id, type, body, send_time, ack_time
     </sql>
 
     <insert id="save" parameterType="cn.edu.xmu.sy.ext.domain.MessageDO">
         insert into tbl_message(<include refid="generalInsertColumns"/>)
-        values(#{id}, #{counterId}, #{sessionId}, #{type}, #{extra}, #{sendTime}, #{ackTime}, #{gmtCreate},
-        #{gmtModify})
+        values(#{id}, #{replyId}, #{counterId}, #{sessionId}, #{type}, #{body}, #{sendTime}, #{ackTime},
+        #{gmtCreate}, #{gmtModify})
     </insert>
 
     <insert id="saveBatch" parameterType="cn.edu.xmu.sy.ext.domain.MessageDO">
         insert into tbl_message(<include refid="generalInsertColumns"/>)
         values
         <foreach collection="list" item="item" separator=",">
-            (#{item.id}, #{item.counterId}, #{item.sessionId}, #{item.type}, #{item.extra}, #{item.sendTime},
-            #{item.ackTime}, #{item.gmtCreate}, #{item.gmtModify})
+            (#{item.id}, #{item.replyId}, #{item.counterId}, #{item.sessionId}, #{item.type}, #{item.body},
+            #{item.sendTime}, #{item.ackTime}, #{item.gmtCreate}, #{item.gmtModify})
         </foreach>
     </insert>
 
     <update id="updateById" parameterType="cn.edu.xmu.sy.ext.domain.MessageDO">
         update tbl_message
         set gmt_modify = #{gmtModify}
+        <if test="replyId != null">
+            , reply_id = #{replyId}
+        </if>
         <if test="counterId != null">
             , counter_id = #{counterId}
         </if>
@@ -50,8 +54,8 @@
         <if test="type != null">
             , type = #{type}
         </if>
-        <if test="extra != null">
-            , extra = #{extra}
+        <if test="body != null">
+            , body = #{body}
         </if>
         <if test="sendTime != null">
             , send_time = #{sendTime}
@@ -81,6 +85,15 @@
         <include refid="generalSelectColumns"/>
         from tbl_message
         where id = #{id} and is_delete = 0
+        limit 1
+    </select>
+
+    <select id="getByReplyId" parameterType="java.lang.Long" resultMap="messageMap">
+        select
+        <include refid="generalSelectColumns"/>
+        from tbl_message
+        where reply_id = #{replyId} and is_delete = 0
+        limit 1
     </select>
 
     <select id="getByCounterId" parameterType="java.lang.Long" resultMap="messageMap">
@@ -95,6 +108,16 @@
         <include refid="generalSelectColumns"/>
         from tbl_message
         where session_id = #{sessionId} and is_delete = 0
+    </select>
+
+    <select id="listByReplyId" parameterType="java.lang.Long" resultMap="messageMap">
+        select
+        <include refid="generalSelectColumns"/>
+        from tbl_message
+        where is_delete = 0 and reply_id in
+        <foreach collection="list" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
     </select>
 
     <select id="listByCounterId" parameterType="java.lang.Long" resultMap="messageMap">
@@ -117,5 +140,62 @@
             #{item}
         </foreach>
         and is_delete = 0
+    </select>
+
+    <select id="countByParam" parameterType="cn.edu.xmu.sy.ext.param.MessageQueryParam" resultType="java.lang.Long">
+        select count(1)
+        from tbl_message
+        <!--只查询下发的消息(reply_id = 0)，回复部分需二次查询-->
+        where is_delete = 0 and reply_id = 0
+        <if test="type != null">
+            and type = #{type}
+        </if>
+        <if test="period != null">
+            and(
+            <!--发送时间-->
+            (send_time >= #{period.start} and #{period.end} > send_time)
+            or
+            <!--确认时间(若存在)-->
+            (ack_time is not null and ack_time >= #{period.start} and #{period.end} > ack_time)
+            )
+        </if>
+        <if test="search.keyword != null">
+            and match(body) against (#{search.keyword} in boolean mode)
+        </if>
+    </select>
+
+    <select id="listByParam" parameterType="cn.edu.xmu.sy.ext.param.MessageQueryParam" resultMap="messageMap">
+        select
+        <include refid="generalSelectColumns"/>
+        from tbl_message
+        where is_delete = 0 and reply_id = 0
+        <if test="type != null">
+            and type = #{type}
+        </if>
+        <if test="period != null">
+            and(
+            <!--发送时间-->
+            (send_time >= #{period.start} and #{period.end} > send_time)
+            or
+            <!--确认时间(若存在)-->
+            (ack_time is not null and ack_time >= #{period.start} and #{period.end} > ack_time)
+            )
+        </if>
+        <if test="search.keyword != null">
+            and match(body) against (#{search.keyword} in boolean mode)
+            <if test="paging.start != null">
+                limit ${paging.start}, ${paging.size}
+            </if>
+            <if test="paging.start == null">
+                limit ${paging.size}
+            </if>
+        </if>
+        <if test="search.keyword == null">
+            <if test="paging.start != null">
+                and #{paging.start} > id
+            </if>
+            order by id desc
+            limit ${paging.size}
+        </if>
     </select>
 </mapper>

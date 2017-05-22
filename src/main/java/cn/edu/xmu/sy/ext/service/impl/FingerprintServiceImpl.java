@@ -30,7 +30,6 @@ import cn.edu.xmu.sy.ext.param.FingerprintModifyParam;
 import cn.edu.xmu.sy.ext.result.FingerprintFingerListResult;
 import cn.edu.xmu.sy.ext.result.FingerprintQueryResult;
 import cn.edu.xmu.sy.ext.result.FingerprintTemplateListResult;
-import cn.edu.xmu.sy.ext.result.UserQuerySimpleResult;
 import cn.edu.xmu.sy.ext.service.FingerprintService;
 import cn.edu.xmu.sy.ext.service.LogService;
 import cn.edu.xmu.sy.ext.service.SettingService;
@@ -71,7 +70,7 @@ public class FingerprintServiceImpl implements FingerprintService {
     private FingerprintMapper fingerprintMapper;
 
     @Autowired
-    private DependencyConfigItem dependencyServiceConfigItem;
+    private DependencyConfigItem dependencyConfigItem;
 
     @Override
     @Transactional
@@ -158,14 +157,14 @@ public class FingerprintServiceImpl implements FingerprintService {
 
     @Override
     @Transactional
-    public UserQuerySimpleResult identify(FingerprintIdentifyParam param) {
+    public Long identify(FingerprintIdentifyParam param) {
         String uuid = identifyRemote(param.getTemplate());
 
         //根据UUID反查指纹
         FingerprintDO domain = fingerprintMapper.getByUuid(uuid);
         if (domain == null) {
-            logger.error("fingerprint never enroll");
-            throw new BizException(BizResultEnum.FINGERPRINT_NEVER_ENROLL);
+            logger.error("fingerprint no enroll");
+            throw new BizException(BizResultEnum.FINGERPRINT_NO_ENROLL);
         }
 
         domain.setIdentifyTime(DateTimeUtil.getNow());
@@ -176,7 +175,7 @@ public class FingerprintServiceImpl implements FingerprintService {
 
         logService.logFingerprintIdentify(domain.getId(), domain.getUserId());
         logger.info("identify fingerprint {} for user {} successful", domain.getId(), domain.getUserId());
-        return userService.queryById(domain.getUserId());
+        return domain.getUserId();
     }
 
     @Override
@@ -295,7 +294,7 @@ public class FingerprintServiceImpl implements FingerprintService {
     private void deleteRemote(String uuid) {
         FingerprintDeleteRemoteParam param = new FingerprintDeleteRemoteParam();
         param.setUuid(uuid);
-        JsonNode response = callRemote(dependencyServiceConfigItem.getApiFpRemove(), JsonUtil.toJson(param));
+        JsonNode response = callRemote(dependencyConfigItem.getApiFpRemove(), JsonUtil.toJson(param));
 
         int code = response.get(BaseFieldNameConstant.CODE).asInt();
         if (code != BaseResultEnum.OK.getCode()) {
@@ -314,7 +313,7 @@ public class FingerprintServiceImpl implements FingerprintService {
         FingerprintEnrollRemoteParam param = new FingerprintEnrollRemoteParam();
         param.setUuid(uuid);
         param.setTemplate(template);
-        JsonNode response = callRemote(dependencyServiceConfigItem.getApiFpEnroll(), JsonUtil.toJson(param));
+        JsonNode response = callRemote(dependencyConfigItem.getApiFpEnroll(), JsonUtil.toJson(param));
 
         int code = response.get(BaseFieldNameConstant.CODE).asInt();
         if (code != BaseResultEnum.OK.getCode()) {
@@ -337,7 +336,7 @@ public class FingerprintServiceImpl implements FingerprintService {
     private String identifyRemote(String template) {
         FingerprintIdentifyRemoteParam param = new FingerprintIdentifyRemoteParam();
         param.setTemplate(template);
-        JsonNode response = callRemote(dependencyServiceConfigItem.getApiFpIdentify(), JsonUtil.toJson(param));
+        JsonNode response = callRemote(dependencyConfigItem.getApiFpIdentify(), JsonUtil.toJson(param));
 
         int code = response.get(BaseFieldNameConstant.CODE).asInt();
         if (code != BaseResultEnum.OK.getCode()) {
@@ -360,7 +359,7 @@ public class FingerprintServiceImpl implements FingerprintService {
      * @return 响应体(JSON)
      */
     private JsonNode callRemote(String api, String request) {
-        String url = dependencyServiceConfigItem.getHostFp() + api;
+        String url = dependencyConfigItem.getHostFp() + api;
         logger.info("call downstream url {}", url);
         try {
             JsonNode response = HttpUtils.executeAsJson(url, request);
