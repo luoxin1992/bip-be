@@ -7,7 +7,7 @@ import cn.com.lx1992.lib.base.response.BaseResponse;
 import cn.com.lx1992.lib.base.result.BasePagingResult;
 import cn.com.lx1992.lib.util.PagingUtil;
 import cn.edu.xmu.sy.ext.param.LogQueryParam;
-import cn.edu.xmu.sy.ext.result.LogCategoryListResult;
+import cn.edu.xmu.sy.ext.result.LogTypeListResult;
 import cn.edu.xmu.sy.ext.result.LogQueryResult;
 import cn.edu.xmu.sy.ext.service.LogService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +38,8 @@ public class LogController {
     }
 
     @RequestMapping(value = "list/type", method = RequestMethod.POST)
-    public BaseResponse<LogCategoryListResult> listType() {
-        LogCategoryListResult result = logService.listType();
+    public BaseResponse<LogTypeListResult> listType() {
+        LogTypeListResult result = logService.listType();
         return new BaseResponse<>(result);
     }
 }

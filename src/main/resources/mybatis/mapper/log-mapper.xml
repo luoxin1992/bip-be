@@ -7,29 +7,32 @@
         <result column="id" jdbcType="BIGINT" property="id"/>
         <result column="type" jdbcType="VARCHAR" property="type"/>
         <result column="content" jdbcType="VARCHAR" property="content"/>
-        <result column="timestamp" jdbcType="TIMESTAMP" property="timestamp"/>
         <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
         <result column="gmt_modify" jdbcType="TIMESTAMP" property="gmtModify"/>
     </resultMap>
 
     <sql id="generalInsertColumns">
-        id, type, content, timestamp, gmt_create, gmt_modify
+        id, type, content, gmt_create, gmt_modify
     </sql>
 
     <sql id="generalSelectColumns">
-        id, type, timestamp, content
+        id, type, content
+    </sql>
+
+    <sql id="selectWithTimestampColumns">
+        id, type, content, gmt_create
     </sql>
 
     <insert id="save" parameterType="cn.edu.xmu.sy.ext.domain.LogDO">
         insert into tbl_log(<include refid="generalInsertColumns"/>)
-        values(#{id}, #{type}, #{content}, #{timestamp}, #{gmtCreate}, #{gmtModify})
+        values(#{id}, #{type}, #{content}, #{gmtCreate}, #{gmtModify})
     </insert>
 
     <insert id="saveBatch" parameterType="cn.edu.xmu.sy.ext.domain.LogDO">
         insert into tbl_log(<include refid="generalInsertColumns"/>)
         values
         <foreach collection="list" item="item" separator=",">
-            (#{item.id}, #{item.type}, #{item.content}, #{item.timestamp}, #{item.gmtCreate}, #{item.gmtModify})
+            (#{item.id}, #{item.type}, #{item.content}, #{item.gmtCreate}, #{item.gmtModify})
         </foreach>
     </insert>
 
@@ -41,9 +44,6 @@
         </if>
         <if test="content != null">
             , content = #{content}
-        </if>
-        <if test="timestamp != null">
-            , timestamp = #{timestamp}
         </if>
         where id = #{id} and is_delete = 0
     </update>
@@ -63,14 +63,14 @@
 
     <select id="listByParam" parameterType="cn.edu.xmu.sy.ext.param.LogQueryParam" resultMap="logMap">
         select
-        <include refid="generalSelectColumns"/>
+        <include refid="selectWithTimestampColumns"/>
         from tbl_log
         where is_delete = 0
         <if test="type != null">
             and type = #{type}
         </if>
         <if test="period != null">
-            and timestamp >= #{period.start} and #{period.end} >= timestamp
+            and gmt_create >= #{period.start} and #{period.end} >= gmt_create
         </if>
         <if test="search.keyword != null">
             and match(content) against(#{search.keyword} in boolean mode)
@@ -98,7 +98,7 @@
             and type = #{type}
         </if>
         <if test="period != null">
-            and timestamp >= #{period.start} and #{period.end} >= timestamp
+            and gmt_create >= #{period.start} and #{period.end} >= gmt_create
         </if>
         <if test="search.keyword != null">
             and match(content) against(#{search.keyword} in boolean mode)

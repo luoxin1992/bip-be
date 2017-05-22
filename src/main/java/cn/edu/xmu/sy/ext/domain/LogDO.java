@@ -6,8 +6,6 @@ package cn.edu.xmu.sy.ext.domain;
 import cn.com.lx1992.lib.annotation.FieldComment;
 import cn.com.lx1992.lib.base.domain.BaseDO;
 
-import java.time.LocalDateTime;
-
 /**
  * 日志Domain
  *
@@ -25,11 +23,6 @@ public class LogDO extends BaseDO {
      */
     @FieldComment("内容")
     private String content;
-    /**
-     * 时间戳
-     */
-    @FieldComment("时间戳")
-    private LocalDateTime timestamp;
 
     public String getType() {
         return type;
@@ -45,13 +38,5 @@ public class LogDO extends BaseDO {
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
     }
 }
