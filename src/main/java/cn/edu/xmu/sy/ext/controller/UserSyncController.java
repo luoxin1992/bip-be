@@ -23,8 +23,8 @@ import javax.validation.Valid;
  * @author luoxin
  * @version 2017-3-23
  */
-@RequestMapping("/api/v1/user/sync")
 @RestController
+@RequestMapping("/api/v1/user/sync")
 public class UserSyncController {
     @Autowired
     private UserSyncService userSyncService;

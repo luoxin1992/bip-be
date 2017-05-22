@@ -85,10 +85,18 @@ public interface SessionService {
     Map<Long, List<SessionQueryResult>> queryBatchAndGroup(SessionBatchQueryParam param);
 
     /**
-     * 查询在线会话ID
+     * 根据窗口ID查询在线会话ID
      *
      * @param counterId 窗口ID
      * @return 会话ID(可选值)
      */
-    Optional<Long> getOnlineSessionIdOptional(Long counterId);
+    Optional<Long> getOnlineIdByCounterIdOptional(Long counterId);
+
+    /**
+     * 查询会话Token
+     *
+     * @param id 会话ID
+     * @return Token
+     */
+    String getTokenById(Long id);
 }

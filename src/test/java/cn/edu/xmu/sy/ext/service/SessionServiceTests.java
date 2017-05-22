@@ -77,6 +77,6 @@ public class SessionServiceTests {
 
     @Test
     public void testGetOnline() {
-        logger.info("{}", sessionService.getOnlineSessionIdOptional(26224043098124L));
+        logger.info("{}", sessionService.getOnlineIdByCounterIdOptional(26224043098124L));
     }
 }

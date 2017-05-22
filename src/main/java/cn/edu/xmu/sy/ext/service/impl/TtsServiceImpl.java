@@ -273,8 +273,8 @@ public class TtsServiceImpl implements TtsService {
             if (success) {
                 ResourceModifyParam param = new ResourceModifyParam();
                 param.setId(id.get());
-                //文件名即输出路径最后一个'/'后面部分
-                param.setFilename(path.substring(path.lastIndexOf('/') + 1));
+                //文件名即输出路径最后一个路径分隔符后面部分
+                param.setFilename(path.substring(path.lastIndexOf(File.separatorChar) + 1));
                 param.setMd5(DigestUtil.getFileMD5(path));
                 resourceService.modify(param);
             } else {
@@ -286,7 +286,7 @@ public class TtsServiceImpl implements TtsService {
                 ResourceCreateParam param = new ResourceCreateParam();
                 param.setType(ResourceTypeEnum.VOICE.getType());
                 param.setName(content);
-                param.setFilename(path.substring(path.lastIndexOf('/') + 1));
+                param.setFilename(path.substring(path.lastIndexOf(File.separatorChar) + 1));
                 param.setMd5(DigestUtil.getFileMD5(path));
                 resourceService.create(param);
             }

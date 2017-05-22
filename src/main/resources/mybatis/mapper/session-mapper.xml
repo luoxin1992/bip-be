@@ -108,11 +108,11 @@
             <!--在线-->
             (status = 1 and #{period.end} >= online_time)
             or
-            <!--离线-->
-            (status = 2 and #{period.end} >= online_time and offline_time >= #{period.start})
+            <!--离线/强制关闭-->
+            ((status = 2 or status = 5) and #{period.end} >= online_time and offline_time >= #{period.start})
             or
-            <!--失联-->
-            (status = 3 and #{period.end} >= online_time and online_time >= #{period.start})
+            <!--服务端/客户端失联-->
+            ((status = 3 or status = 4) and #{period.end} >= online_time and online_time >= #{period.start})
             )
         </if>
     </select>
@@ -136,11 +136,11 @@
             <!--在线-->
             (status = 1 and #{period.end} >= online_time)
             or
-            <!--离线-->
-            (status = 2 and #{period.end} >= online_time and offline_time >= #{period.start})
+            <!--离线/强制关闭-->
+            ((status = 2 or status = 5) and #{period.end} >= online_time and offline_time >= #{period.start})
             or
-            <!--失联-->
-            (status = 3 and #{period.end} >= online_time and online_time >= #{period.start})
+            <!--服务端/客户端失联-->
+            ((status = 3 or status = 4) and #{period.end} >= online_time and online_time >= #{period.start})
             )
         </if>
     </select>

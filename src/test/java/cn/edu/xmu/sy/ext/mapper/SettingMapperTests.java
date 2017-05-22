@@ -32,10 +32,10 @@ public class SettingMapperTests {
     @Test
     public void testSave() {
         SettingDO settingDO = new SettingDO();
-        settingDO.setParent(32762111197193L);
-        settingDO.setKey("misc-user-mgr-enable");
-        settingDO.setValue("true");
-        settingDO.setDescription("启用用户管理功能");
+        settingDO.setParent(32762111197190L);
+        settingDO.setKey("fingerprint-identify-timeout");
+        settingDO.setValue("30");
+        settingDO.setDescription("指纹辨识超时时间");
         Assert.assertTrue(settingMapper.save(settingDO) == 1);
     }
 

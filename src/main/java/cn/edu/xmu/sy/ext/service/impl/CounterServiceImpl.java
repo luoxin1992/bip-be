@@ -128,7 +128,7 @@ public class CounterServiceImpl implements CounterService {
         long count = counterMapper.countByParam(param);
         if (count == 0) {
             logger.warn("counter query result is empty");
-            throw new BizException(BizResultEnum.COUNTER_EMPTY_QUERY_RESULT);
+            return new BasePagingResult<>();
         }
 
         Map<Long, CounterQueryResult> counters = queryAndMap(param);

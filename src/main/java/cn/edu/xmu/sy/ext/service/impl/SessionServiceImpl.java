@@ -128,7 +128,7 @@ public class SessionServiceImpl implements SessionService {
 
         updateSessionStatus(id, SessionStatusEnum.LOST_CLIENT);
 
-        logService.logSessionLostServer(id, param.getToken());
+        logService.logSessionLostClient(id, param.getToken());
         logger.info("mark session {} status as client lost successfully", id);
     }
 
@@ -191,8 +191,18 @@ public class SessionServiceImpl implements SessionService {
     }
 
     @Override
-    public Optional<Long> getOnlineSessionIdOptional(Long counterId) {
+    public Optional<Long> getOnlineIdByCounterIdOptional(Long counterId) {
         return Optional.ofNullable(sessionMapper.getOnlineIdByCounterId(counterId));
+    }
+
+    @Override
+    public String getTokenById(Long id) {
+        SessionDO domain = sessionMapper.getById(id);
+        if (domain == null) {
+            logger.error("session {} not exist", id);
+            throw new BizException(BizResultEnum.SESSION_NOT_EXIST, id);
+        }
+        return domain.getToken();
     }
 
     /**
