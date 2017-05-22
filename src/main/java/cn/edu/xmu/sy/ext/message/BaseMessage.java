@@ -4,8 +4,15 @@
 package cn.edu.xmu.sy.ext.message;
 
 import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringExclude;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
+import java.lang.reflect.Field;
 
 /**
+ * 消息基类
+ *
  * @author luoxin
  * @version 2017-5-19
  */
@@ -13,6 +20,7 @@ public class BaseMessage {
     /**
      * (回复)消息ID
      */
+    @ToStringExclude
     private Long id;
     /**
      * 类型
@@ -40,5 +48,21 @@ public class BaseMessage {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    @Override
+    public String toString() {
+        //自定义ToStringBuilder过滤null字段
+        return new ReflectionToStringBuilder(this, ToStringStyle.JSON_STYLE) {
+            @Override
+            protected boolean accept(Field field) {
+                boolean isNull = false;
+                try {
+                    isNull = field.get(BaseMessage.this) == null;
+                } catch (IllegalAccessException ignored) {
+                }
+                return !isNull && super.accept(field);
+            }
+        }.toString();
     }
 }

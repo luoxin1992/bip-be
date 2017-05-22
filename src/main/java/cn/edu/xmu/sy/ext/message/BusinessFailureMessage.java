@@ -5,8 +5,6 @@ package cn.edu.xmu.sy.ext.message;
 
 import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
 
-import java.util.List;
-
 /**
  * 业务受理失败Message
  *
@@ -19,13 +17,9 @@ public class BusinessFailureMessage extends BaseMessage {
      */
     private String extra;
     /**
-     * 图片(URI)
+     * 图像/声音资源
      */
-    private String image;
-    /**
-     * 声音(播放列表)(URI)
-     */
-    private List<String> voices;
+    private BaseMessageResource resource;
 
     public BusinessFailureMessage() {
         super(MessageTypeEnum.BUSINESS_FAILURE);
@@ -39,19 +33,11 @@ public class BusinessFailureMessage extends BaseMessage {
         this.extra = extra;
     }
 
-    public String getImage() {
-        return image;
+    public BaseMessageResource getResource() {
+        return resource;
     }
 
-    public void setImage(String image) {
-        this.image = image;
-    }
-
-    public List<String> getVoices() {
-        return voices;
-    }
-
-    public void setVoices(List<String> voices) {
-        this.voices = voices;
+    public void setResource(BaseMessageResource resource) {
+        this.resource = resource;
     }
 }

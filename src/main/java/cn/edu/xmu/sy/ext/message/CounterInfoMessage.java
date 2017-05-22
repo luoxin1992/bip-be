@@ -20,6 +20,10 @@ public class CounterInfoMessage extends BaseMessage {
      * 窗口名称
      */
     private String name;
+    /**
+     * 图像/声音资源
+     */
+    private BaseMessageResource resource;
 
     public CounterInfoMessage() {
         super(MessageTypeEnum.COUNTER_INFO);
@@ -39,5 +43,13 @@ public class CounterInfoMessage extends BaseMessage {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public BaseMessageResource getResource() {
+        return resource;
+    }
+
+    public void setResource(BaseMessageResource resource) {
+        this.resource = resource;
     }
 }

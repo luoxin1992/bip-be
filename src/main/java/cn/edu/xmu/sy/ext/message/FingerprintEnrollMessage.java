@@ -17,41 +17,29 @@ public class FingerprintEnrollMessage extends BaseMessage {
     /**
      * 采集次数
      */
-    private Integer capture;
+    private Integer times;
     /**
-     * 图片(URI)
+     * 图像/声音资源
      */
-    private List<String> images;
-    /**
-     * 声音(播放列表)(URI)
-     */
-    private List<List<String>> voices;
+    private List<BaseMessageResource> resources;
 
     public FingerprintEnrollMessage() {
         super(MessageTypeEnum.FINGERPRINT_ENROLL);
     }
 
-    public Integer getCapture() {
-        return capture;
+    public Integer getTimes() {
+        return times;
     }
 
-    public void setCapture(Integer capture) {
-        this.capture = capture;
+    public void setTimes(Integer times) {
+        this.times = times;
     }
 
-    public List<String> getImages() {
-        return images;
+    public List<BaseMessageResource> getResources() {
+        return resources;
     }
 
-    public void setImages(List<String> images) {
-        this.images = images;
-    }
-
-    public List<List<String>> getVoices() {
-        return voices;
-    }
-
-    public void setVoices(List<List<String>> voices) {
-        this.voices = voices;
+    public void setResources(List<BaseMessageResource> resources) {
+        this.resources = resources;
     }
 }

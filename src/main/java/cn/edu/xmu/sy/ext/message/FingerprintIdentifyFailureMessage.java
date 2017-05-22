@@ -6,19 +6,19 @@ package cn.edu.xmu.sy.ext.message;
 import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
 
 /**
- * 业务暂停受理Message
+ * 指纹辨识失败Message
  *
  * @author luoxin
  * @version 2017-4-25
  */
-public class BusinessPauseMessage extends BaseMessage {
+public class FingerprintIdentifyFailureMessage extends BaseMessage {
     /**
      * 图像/声音资源
      */
     private BaseMessageResource resource;
 
-    public BusinessPauseMessage() {
-        super(MessageTypeEnum.BUSINESS_PAUSE);
+    public FingerprintIdentifyFailureMessage() {
+        super(MessageTypeEnum.FINGERPRINT_IDENTIFY_FAILURE);
     }
 
     public BaseMessageResource getResource() {
