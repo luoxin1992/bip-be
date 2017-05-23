@@ -22,6 +22,9 @@ public class DependencyConfigItem {
     private String hostFp;
 
     private String apiDataFingerprintListTemplate;
+    private String apiDataSessionLostClient;
+    private String apiDataMessageReply;
+    private String apiDataSyncMessageStatus;
 
     private String apiMsgTokenRegister;
     private String apiMsgTokenUnregister;
@@ -65,6 +68,33 @@ public class DependencyConfigItem {
 
     public void setApiDataFingerprintListTemplate(String apiDataFingerprintListTemplate) {
         this.apiDataFingerprintListTemplate = apiDataFingerprintListTemplate;
+    }
+
+    @DisconfItem(key = "dependency.service.data.api.session.lost.client", app = "bip-common")
+    public String getApiDataSessionLostClient() {
+        return apiDataSessionLostClient;
+    }
+
+    public void setApiDataSessionLostClient(String apiDataSessionLostClient) {
+        this.apiDataSessionLostClient = apiDataSessionLostClient;
+    }
+
+    @DisconfItem(key = "dependency.service.data.api.message.reply", app = "bip-common")
+    public String getApiDataMessageReply() {
+        return apiDataMessageReply;
+    }
+
+    public void setApiDataMessageReply(String apiDataMessageReply) {
+        this.apiDataMessageReply = apiDataMessageReply;
+    }
+
+    @DisconfItem(key = "dependency.service.data.api.sync.message.status", app = "bip-common")
+    public String getApiDataSyncMessageStatus() {
+        return apiDataSyncMessageStatus;
+    }
+
+    public void setApiDataSyncMessageStatus(String apiDataSyncMessageStatus) {
+        this.apiDataSyncMessageStatus = apiDataSyncMessageStatus;
     }
 
     @DisconfItem(key = "dependency.service.msg.api.token.register", app = "bip-common")
