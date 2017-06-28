@@ -8,6 +8,7 @@ import cn.edu.xmu.sy.ext.param.CounterCreateParam;
 import cn.edu.xmu.sy.ext.param.CounterDeleteParam;
 import cn.edu.xmu.sy.ext.param.CounterModifyParam;
 import cn.edu.xmu.sy.ext.param.CounterQueryParam;
+import cn.edu.xmu.sy.ext.param.CounterQuerySimpleParam;
 import cn.edu.xmu.sy.ext.result.CounterQueryResult;
 import cn.edu.xmu.sy.ext.result.CounterQuerySimpleResult;
 
@@ -52,11 +53,10 @@ public interface CounterService {
     /**
      * 根据MAC地址和IP地址查询简版窗口信息
      *
-     * @param mac MAC地址
-     * @param ip  IP地址
+     * @param param 查询参数
      * @return 查询结果
      */
-    CounterQuerySimpleResult querySimple(String mac, String ip);
+    CounterQuerySimpleResult querySimple(CounterQuerySimpleParam param);
 
     /**
      * 根据编号查询窗口ID

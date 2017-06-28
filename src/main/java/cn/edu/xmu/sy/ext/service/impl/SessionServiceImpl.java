@@ -14,6 +14,7 @@ import cn.edu.xmu.sy.ext.exception.BizException;
 import cn.edu.xmu.sy.ext.mapper.SessionMapper;
 import cn.edu.xmu.sy.ext.meta.BizResultEnum;
 import cn.edu.xmu.sy.ext.meta.SessionStatusEnum;
+import cn.edu.xmu.sy.ext.param.CounterQuerySimpleParam;
 import cn.edu.xmu.sy.ext.param.SessionBatchQueryParam;
 import cn.edu.xmu.sy.ext.param.SessionCloseParam;
 import cn.edu.xmu.sy.ext.param.SessionLostClientParam;
@@ -64,7 +65,7 @@ public class SessionServiceImpl implements SessionService {
     @Transactional
     public SessionOnlineResult online(SessionOnlineParam param) {
         //查询绑定的窗口
-        CounterQuerySimpleResult counter = checkCounterBind(param.getMac(), param.getIp());
+        CounterQuerySimpleResult counter = checkCounterBind(param);
         //不允许同一窗口多个客户端同时上线
         checkOnlineSessionNotExist(counter.getId());
         //生成Token
@@ -208,14 +209,14 @@ public class SessionServiceImpl implements SessionService {
     /**
      * 根据会话上线参数(MAC+IP)查询是否已绑定(存在)某个窗口
      *
-     * @param mac MAC地址
-     * @param ip  IP地址
+     * @param param 上线参数
      * @return 查询结果
      */
-    private CounterQuerySimpleResult checkCounterBind(String mac, String ip) {
-        CounterQuerySimpleResult result = counterService.querySimple(mac, ip);
+    private CounterQuerySimpleResult checkCounterBind(SessionOnlineParam param) {
+        CounterQuerySimpleResult result = counterService.querySimple(POJOConvertUtil.convert(param,
+                CounterQuerySimpleParam.class));
         if (result == null) {
-            logger.error("counter with mac {} and ip {} unbind", mac, ip);
+            logger.error("counter with mac {} and ip {} unbind", param.getMac(), param.getIp());
             throw new BizException(BizResultEnum.SESSION_COUNTER_UNBIND);
         }
         return result;

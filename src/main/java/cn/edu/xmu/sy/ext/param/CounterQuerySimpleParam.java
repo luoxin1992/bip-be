@@ -11,25 +11,12 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 /**
- * 创建窗口Param
+ * 根据MAC地址和IP地址查询窗口Param
  *
  * @author luoxin
- * @version 2017-3-23
+ * @version 2017-6-27
  */
-public class CounterCreateParam extends BaseParam {
-    /**
-     * 编号
-     */
-    @NotNull
-    @Size(min = 1, max = 16)
-    @Pattern(regexp = RegExpConstant.NUMBER)
-    private String number;
-    /**
-     * 名称
-     */
-    @NotNull
-    @Size(min = 1, max = 32)
-    private String name;
+public class CounterQuerySimpleParam extends BaseParam {
     /**
      * MAC地址
      */
@@ -44,22 +31,6 @@ public class CounterCreateParam extends BaseParam {
     @Size(min = 1, max = 16)
     @Pattern(regexp = RegExpConstant.IP_ADDRESS)
     private String ip;
-
-    public String getNumber() {
-        return number;
-    }
-
-    public void setNumber(String number) {
-        this.number = number;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 
     public String getMac() {
         return mac;

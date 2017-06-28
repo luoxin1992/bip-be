@@ -21,7 +21,7 @@ public class SessionOnlineParam extends BaseParam {
      * MAC地址
      */
     @NotNull
-    @Size(min = 1, max = 16)
+    @Size(min = 1, max = 32)
     @Pattern(regexp = RegExpConstant.MAC_ADDRESS)
     private String mac;
     /**
