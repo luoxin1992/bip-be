@@ -33,6 +33,9 @@ public class FingerprintController {
     @Autowired
     private FingerprintService fingerprintService;
 
+    /**
+     * @apiDefine fingerprint 指纹API
+     */
     @RequestMapping(value = "/list/finger", method = RequestMethod.POST)
     public BaseResponse<FingerprintFingerListResult> listFinger() {
         FingerprintFingerListResult result = fingerprintService.listFinger();
@@ -58,6 +61,17 @@ public class FingerprintController {
         return new BaseResponse(BaseResultEnum.OK);
     }
 
+    /**
+     * @api {POST} /api/v1/fingerprint/delete 删除指纹
+     * @apiName delete
+     * @apiGroup fingerprint
+     * @apiVersion 1.0.0
+     *
+     * @apiParam {Number} id 指纹ID
+     *
+     * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
+     * @apiSuccess {String} message 提示信息
+     */
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public BaseResponse delete(@RequestBody @Valid FingerprintDeleteParam param) {
         fingerprintService.delete(param.getId());

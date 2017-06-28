@@ -29,18 +29,58 @@ public class UserSyncController {
     @Autowired
     private UserSyncService userSyncService;
 
+    /**
+     * @apiDefine sync 数据同步API
+     */
+    /**
+     * @api {POST} /api/v1/user/sync/create 同步新增用户
+     * @apiName user-create
+     * @apiGroup sync
+     * @apiVersion 1.0.0
+     *
+     * @apiParam {String} number 编号
+     * @apiParam {String} name 姓名
+     * @apiParam {String} [photo] 照片
+     *
+     * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
+     * @apiSuccess {String} message 提示信息
+     */
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     public BaseResponse create(@RequestBody @Valid UserSyncCreateParam param) {
         userSyncService.create(param);
         return new BaseResponse(BaseResultEnum.OK);
     }
 
+    /**
+     * @api {POST} /api/v1/user/sync/modify 同步编辑用户
+     * @apiName user-modify
+     * @apiGroup sync
+     * @apiVersion 1.0.0
+     *
+     * @apiParam {String} number 编号
+     * @apiParam {String} name 姓名
+     * @apiParam {String} [photo] 照片
+     *
+     * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
+     * @apiSuccess {String} message 提示信息
+     */
     @RequestMapping(value = "/modify", method = RequestMethod.POST)
     public BaseResponse modify(@RequestBody @Valid UserSyncModifyParam param) {
         userSyncService.modify(param);
         return new BaseResponse(BaseResultEnum.OK);
     }
 
+    /**
+     * @api {POST} /api/v1/user/sync/delete 同步删除用户
+     * @apiName user-delete
+     * @apiGroup sync
+     * @apiVersion 1.0.0
+     *
+     * @apiParam {String} number 编号
+     *
+     * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
+     * @apiSuccess {String} message 提示信息
+     */
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public BaseResponse delete(@RequestBody @Valid UserSyncDeleteParam param) {
         userSyncService.delete(param);

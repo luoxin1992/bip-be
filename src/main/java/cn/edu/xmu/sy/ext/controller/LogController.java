@@ -30,6 +30,36 @@ public class LogController {
     @Autowired
     private LogService logService;
 
+    /**
+     * @apiDefine log 日志API
+     */
+    /**
+     * @api {POST} /api/v1/log/query 查询日志
+     * @apiName query
+     * @apiGroup log
+     * @apiVersion 1.0.0
+     *
+     * @apiParam {String} [type] 类型
+     * @apiParam {Object} search 搜索参数
+     * @apiParam {String} [search.keyword] 关键词(内容)
+     * @apiParam {Object} period 时间参数
+     * @apiParam {String} period.start 开始时间(yyyyMMddHHmmss)
+     * @apiParam {String} period.end 结束时间(yyyyMMddHHmmss)
+     * @apiParam {Object} paging 分页参数
+     * @apiParam {Number} [paging.now] 当前页码
+     * @apiParam {Number} paging.size 分页长度
+     * @apiParam {Number} [paging.start] 起始记录
+     *
+     * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
+     * @apiSuccess {String} message 提示信息
+     * @apiSuccess {Object} result 具体结果
+     * @apiSuccess {Number} result.total 总记录数
+     * @apiSuccess {Array} result.page 日志(分页)
+     * @apiSuccess {Number} result.page.id ID
+     * @apiSuccess {String} result.page.timestamp 时间
+     * @apiSuccess {String} result.page.category 类别
+     * @apiSuccess {String} result.page.content 内容
+     */
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     public BaseResponse<BasePagingResult<LogQueryResult>> query(@RequestBody @Valid LogQueryParam param) {
         PagingUtil.setStartByNow(param.getPaging());
@@ -37,7 +67,7 @@ public class LogController {
         return new BaseResponse<>(result);
     }
 
-    @RequestMapping(value = "list/type", method = RequestMethod.POST)
+    @RequestMapping(value = "/list/type", method = RequestMethod.POST)
     public BaseResponse<LogTypeListResult> listType() {
         LogTypeListResult result = logService.listType();
         return new BaseResponse<>(result);

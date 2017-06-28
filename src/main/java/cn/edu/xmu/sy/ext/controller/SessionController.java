@@ -32,30 +32,94 @@ public class SessionController {
     @Autowired
     private SessionService sessionService;
 
+    /**
+     * @apiDefine session 会话API
+     */
+    /**
+     * @api {POST} /api/v1/session/online 会话上线
+     * @apiName online
+     * @apiGroup session
+     * @apiVersion 1.0.0
+     *
+     * @apiParam {String} mac MAC地址
+     * @apiParam {String} ip IP地址
+     *
+     * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
+     * @apiSuccess {String} message 提示信息
+     * @apiSuccess {Object} result 具体结果
+     * @apiSuccess {String} result.token Token
+     * @apiSuccess {Object} result.counter 绑定的窗口
+     * @apiSuccess {String} result.counter.number 窗口编号
+     * @apiSuccess {String} result.counter.name 窗口名称
+     */
     @RequestMapping(value = "/online", method = RequestMethod.POST)
     public BaseResponse<SessionOnlineResult> online(@RequestBody @Valid SessionOnlineParam param) {
         SessionOnlineResult result = sessionService.online(param);
         return new BaseResponse<>(result);
     }
 
+    /**
+     * @api {POST} /api/v1/session/offline 会话下线
+     * @apiName offline
+     * @apiGroup session
+     * @apiVersion 1.0.0
+     *
+     * @apiParam {String} token Token
+     *
+     * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
+     * @apiSuccess {String} message 提示信息
+     */
     @RequestMapping(value = "/offline", method = RequestMethod.POST)
     public BaseResponse offline(@RequestBody @Valid SessionOfflineParam param) {
         sessionService.offline(param);
         return new BaseResponse(BaseResultEnum.OK);
     }
 
+    /**
+     * @api {POST} /api/v1/session/lost/server 会话服务端失联
+     * @apiName lost-server
+     * @apiGroup session
+     * @apiVersion 1.0.0
+     *
+     * @apiParam {String} token Token
+     *
+     * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
+     * @apiSuccess {String} message 提示信息
+     */
     @RequestMapping(value = "/lost/server", method = RequestMethod.POST)
     public BaseResponse lostServer(@RequestBody @Valid SessionLostServerParam param) {
         sessionService.lostServer(param);
         return new BaseResponse(BaseResultEnum.OK);
     }
 
+    /**
+     * @api {POST} /api/v1/session/lost/client 会话客户端失联
+     * @apiName lost-client
+     * @apiGroup session
+     * @apiVersion 1.0.0
+     *
+     * @apiParam {String} token Token
+     *
+     * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
+     * @apiSuccess {String} message 提示信息
+     */
     @RequestMapping(value = "/lost/client", method = RequestMethod.POST)
     public BaseResponse lostClient(@RequestBody @Valid SessionLostClientParam param) {
         sessionService.lostClient(param);
         return new BaseResponse(BaseResultEnum.OK);
     }
 
+    /**
+     * @api {POST} /api/v1/session/close 会话强制关闭
+     * @apiName close
+     * @apiGroup session
+     * @apiVersion 1.0.0
+     *
+     * @apiParam {Number} id 会话ID
+     *
+     * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
+     * @apiSuccess {String} message 提示信息
+     */
     @RequestMapping(value = "/close", method = RequestMethod.POST)
     public BaseResponse close(@RequestBody @Valid SessionCloseParam param) {
         sessionService.close(param);
