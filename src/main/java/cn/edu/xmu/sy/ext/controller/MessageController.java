@@ -6,6 +6,7 @@ package cn.edu.xmu.sy.ext.controller;
 import cn.com.lx1992.lib.base.meta.BaseResultEnum;
 import cn.com.lx1992.lib.base.response.BaseResponse;
 import cn.com.lx1992.lib.base.result.BasePagingResult;
+import cn.com.lx1992.lib.util.PagingUtil;
 import cn.edu.xmu.sy.ext.param.MessageBusinessFailureParam;
 import cn.edu.xmu.sy.ext.param.MessageBusinessPauseParam;
 import cn.edu.xmu.sy.ext.param.MessageBusinessProcessParam;
@@ -86,6 +87,7 @@ public class MessageController {
      */
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     public BaseResponse<BasePagingResult<MessageQueryResult>> query(MessageQueryParam param) {
+        PagingUtil.setStartByNow(param.getPaging());
         BasePagingResult<MessageQueryResult> result = messageService.query(param);
         return new BaseResponse<>(result);
     }

@@ -99,18 +99,14 @@
             <!--and (number like concat(#{search.keyword}, '%') or name like concat(#{search.keyword}, '%'))-->
             <!--MySQL 5.7以后fulltext索引支持ngram中文分词-->
             and match(number, name) against(#{search.keyword} in boolean mode)
-            <if test="paging.start != null">
-                limit ${paging.start}, ${paging.size}
-            </if>
-            <if test="paging.start == null">
-                limit ${paging.size}
-            </if>
         </if>
         <if test="search.keyword == null">
-            <if test="paging.start != null">
-                and #{paging.start} > id
-            </if>
             order by id desc
+        </if>
+        <if test="paging.start != null">
+            limit ${paging.start}, ${paging.size}
+        </if>
+        <if test="paging.start == null">
             limit ${paging.size}
         </if>
     </select>
