@@ -59,7 +59,7 @@ public class ResourceServiceImpl implements ResourceService {
     public BaseListResult<ResourceListSimpleResult> listSimple() {
         String contextPath = servletConfigItem.getContextPath();
         String uriPrefix = (StringUtils.isEmpty(contextPath) || CommonConstant.SLASH_STRING.equals(contextPath)) ?
-                CommonConstant.EMPTY_STRING : contextPath + CommonConstant.SLASH_STRING;
+                CommonConstant.SLASH_STRING : CommonConstant.SLASH_STRING + contextPath + CommonConstant.SLASH_STRING;
 
         List<ResourceDO> domains = listAllByTypeRaw(null);
         List<ResourceListSimpleResult> results = domains.stream()
@@ -86,7 +86,7 @@ public class ResourceServiceImpl implements ResourceService {
 
         String contextPath = servletConfigItem.getContextPath();
         String uriPrefix = (StringUtils.isEmpty(contextPath) || CommonConstant.SLASH_STRING.equals(contextPath)) ?
-                CommonConstant.EMPTY_STRING : contextPath + CommonConstant.SLASH_STRING;
+                CommonConstant.SLASH_STRING : CommonConstant.SLASH_STRING + contextPath + CommonConstant.SLASH_STRING;
 
         List<ResourceDO> domains = resourceMapper.listByParam(param);
         List<ResourceQueryResult> results = domains.stream()
