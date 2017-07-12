@@ -1,6 +1,7 @@
 target/
 logs/
-msc/
+apidoc/
+apidoc.json
 
 # mvnw
 .mvn/
