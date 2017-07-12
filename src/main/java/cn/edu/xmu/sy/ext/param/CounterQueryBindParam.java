@@ -16,7 +16,7 @@ import javax.validation.constraints.Size;
  * @author luoxin
  * @version 2017-6-27
  */
-public class CounterQuerySimpleParam extends BaseParam {
+public class CounterQueryBindParam extends BaseParam {
     /**
      * MAC地址
      */

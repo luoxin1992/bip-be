@@ -11,7 +11,7 @@ import cn.edu.xmu.sy.ext.param.CounterCreateParam;
 import cn.edu.xmu.sy.ext.param.CounterDeleteParam;
 import cn.edu.xmu.sy.ext.param.CounterModifyParam;
 import cn.edu.xmu.sy.ext.param.CounterQueryParam;
-import cn.edu.xmu.sy.ext.param.CounterQuerySimpleParam;
+import cn.edu.xmu.sy.ext.param.CounterQueryBindParam;
 import cn.edu.xmu.sy.ext.result.CounterQueryResult;
 import cn.edu.xmu.sy.ext.result.CounterQuerySimpleResult;
 import cn.edu.xmu.sy.ext.service.CounterService;
@@ -76,7 +76,7 @@ public class CounterController {
     }
 
     @RequestMapping(value = "/query/simple", method = RequestMethod.POST)
-    public BaseResponse<CounterQuerySimpleResult> querySimple(@RequestBody @Valid CounterQuerySimpleParam param) {
+    public BaseResponse<CounterQuerySimpleResult> querySimple(@RequestBody @Valid CounterQueryBindParam param) {
         CounterQuerySimpleResult result = counterService.querySimple(param);
         return new BaseResponse<>(result);
     }

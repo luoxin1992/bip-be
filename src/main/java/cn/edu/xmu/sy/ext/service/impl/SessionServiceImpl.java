@@ -14,7 +14,7 @@ import cn.edu.xmu.sy.ext.exception.BizException;
 import cn.edu.xmu.sy.ext.mapper.SessionMapper;
 import cn.edu.xmu.sy.ext.meta.BizResultEnum;
 import cn.edu.xmu.sy.ext.meta.SessionStatusEnum;
-import cn.edu.xmu.sy.ext.param.CounterQuerySimpleParam;
+import cn.edu.xmu.sy.ext.param.CounterQueryBindParam;
 import cn.edu.xmu.sy.ext.param.SessionBatchQueryParam;
 import cn.edu.xmu.sy.ext.param.SessionCloseParam;
 import cn.edu.xmu.sy.ext.param.SessionLostClientParam;
@@ -214,7 +214,7 @@ public class SessionServiceImpl implements SessionService {
      */
     private CounterQuerySimpleResult checkCounterBind(SessionOnlineParam param) {
         CounterQuerySimpleResult result = counterService.querySimple(POJOConvertUtil.convert(param,
-                CounterQuerySimpleParam.class));
+                CounterQueryBindParam.class));
         if (result == null) {
             logger.error("counter with mac {} and ip {} unbind", param.getMac(), param.getIp());
             throw new BizException(BizResultEnum.SESSION_COUNTER_UNBIND);

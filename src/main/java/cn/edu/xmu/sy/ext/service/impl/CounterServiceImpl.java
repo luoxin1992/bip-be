@@ -17,8 +17,8 @@ import cn.edu.xmu.sy.ext.meta.BizResultEnum;
 import cn.edu.xmu.sy.ext.param.CounterCreateParam;
 import cn.edu.xmu.sy.ext.param.CounterDeleteParam;
 import cn.edu.xmu.sy.ext.param.CounterModifyParam;
+import cn.edu.xmu.sy.ext.param.CounterQueryBindParam;
 import cn.edu.xmu.sy.ext.param.CounterQueryParam;
-import cn.edu.xmu.sy.ext.param.CounterQuerySimpleParam;
 import cn.edu.xmu.sy.ext.param.MessageCloseParam;
 import cn.edu.xmu.sy.ext.param.MessageCounterInfoParam;
 import cn.edu.xmu.sy.ext.param.MessageSendToParam;
@@ -148,9 +148,13 @@ public class CounterServiceImpl implements CounterService {
     }
 
     @Override
-    public CounterQuerySimpleResult querySimple(CounterQuerySimpleParam param) {
+    public CounterQuerySimpleResult querySimple(CounterQueryBindParam param) {
         CounterDO domain = counterMapper.getByMacAndIp(param.getMac(), param.getIp());
-        return domain != null ? POJOConvertUtil.convert(domain, CounterQuerySimpleResult.class) : null;
+        if (domain == null) {
+            logger.error("counter with mac {} or ip {} unbind", param.getMac(), param.getIp());
+            throw new BizException(BizResultEnum.COUNTER_UNBIND_ERROR, param.getMac(), param.getIp());
+        }
+        return POJOConvertUtil.convert(domain, CounterQuerySimpleResult.class);
     }
 
     @Override

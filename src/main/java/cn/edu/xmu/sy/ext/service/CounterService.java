@@ -8,7 +8,7 @@ import cn.edu.xmu.sy.ext.param.CounterCreateParam;
 import cn.edu.xmu.sy.ext.param.CounterDeleteParam;
 import cn.edu.xmu.sy.ext.param.CounterModifyParam;
 import cn.edu.xmu.sy.ext.param.CounterQueryParam;
-import cn.edu.xmu.sy.ext.param.CounterQuerySimpleParam;
+import cn.edu.xmu.sy.ext.param.CounterQueryBindParam;
 import cn.edu.xmu.sy.ext.result.CounterQueryResult;
 import cn.edu.xmu.sy.ext.result.CounterQuerySimpleResult;
 
@@ -56,7 +56,7 @@ public interface CounterService {
      * @param param 查询参数
      * @return 查询结果
      */
-    CounterQuerySimpleResult querySimple(CounterQuerySimpleParam param);
+    CounterQuerySimpleResult querySimple(CounterQueryBindParam param);
 
     /**
      * 根据编号查询窗口ID

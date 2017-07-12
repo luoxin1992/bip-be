@@ -29,7 +29,6 @@ public class CounterModifyParam extends BaseParam {
      */
     @NotNull
     @Size(min = 1, max = 16)
-    @Pattern(regexp = RegExpConstant.NUMBER)
     private String number;
     /**
      * 名称

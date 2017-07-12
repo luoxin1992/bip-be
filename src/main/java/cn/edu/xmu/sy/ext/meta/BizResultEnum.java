@@ -43,6 +43,7 @@ public enum BizResultEnum implements IResultEnum {
     COUNTER_MODIFY_ERROR(20305, "窗口修改失败."),
     COUNTER_ONLINE_SESSION_EXIST(20306, "窗口存在在线会话，不能删除."),
     COUNTER_DELETE_ERROR(20307, "窗口删除失败."),
+    COUNTER_UNBIND_ERROR(20308, "MAC地址为{0}或IP地址为{1}的网卡尚未绑定窗口."),
     //会话错误码(204**)
     SESSION_COUNTER_UNBIND(20401, "客户端尚未与窗口绑定，请运行客户端初始化工具，或通过管理后台创建窗口，然后重新启动客户端."),
     SESSION_ANOTHER_ONLINE(20402, "该窗口已有其他客户端在线，如遇非正常离线，请通过管理后台操作强制关闭，或40秒后重试."),
