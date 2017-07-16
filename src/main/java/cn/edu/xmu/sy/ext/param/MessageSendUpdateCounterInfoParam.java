@@ -3,36 +3,28 @@
  */
 package cn.edu.xmu.sy.ext.param;
 
-import cn.com.lx1992.lib.base.param.BaseParam;
-
-import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 /**
- * 消息接收目标(发送至某个窗口)Param
+ * 更新窗口信息 消息发送Param
  *
  * @author luoxin
  * @version 2017-4-28
  */
-public class MessageSendToParam extends BaseParam {
-    /**
-     * 窗口ID
-     */
-    @Min(1)
-    private Long id;
+public class MessageSendUpdateCounterInfoParam extends MessageSendBaseParam {
     /**
      * 窗口编号
      */
     @Size(min = 1, max = 16)
+    @NotNull
     private String number;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    /**
+     * 窗口名称
+     */
+    @Size(min = 1, max = 32)
+    @NotNull
+    private String name;
 
     public String getNumber() {
         return number;
@@ -40,5 +32,13 @@ public class MessageSendToParam extends BaseParam {
 
     public void setNumber(String number) {
         this.number = number;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

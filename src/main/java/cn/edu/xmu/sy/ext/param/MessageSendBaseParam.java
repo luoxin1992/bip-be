@@ -5,28 +5,28 @@ package cn.edu.xmu.sy.ext.param;
 
 import cn.com.lx1992.lib.base.param.BaseParam;
 
-import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 /**
- * 关闭客户端 消息Param
+ * 消息发送Param基类
  *
  * @author luoxin
  * @version 2017-4-28
  */
-public class MessageCloseParam extends BaseParam {
+public class MessageSendBaseParam extends BaseParam {
     /**
-     * 消息接收目标
+     * 消息发送目标(接收窗口ID)
      */
     @NotNull
-    @Valid
-    private MessageSendToParam sendTo;
+    @Min(1)
+    private Long sendTo;
 
-    public MessageSendToParam getSendTo() {
+    public Long getSendTo() {
         return sendTo;
     }
 
-    public void setSendTo(MessageSendToParam sendTo) {
+    public void setSendTo(Long sendTo) {
         this.sendTo = sendTo;
     }
 }
