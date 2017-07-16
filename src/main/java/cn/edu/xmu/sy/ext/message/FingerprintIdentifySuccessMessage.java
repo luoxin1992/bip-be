@@ -6,13 +6,13 @@ package cn.edu.xmu.sy.ext.message;
 import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
 
 /**
- * 业务受理失败Message
+ * 指纹辨识成功Message
  *
  * @author luoxin
  * @version 2017-4-25
  */
-public class BusinessFailureMessage extends BaseSendMessage {
-    public BusinessFailureMessage() {
-        super(MessageTypeEnum.BUSINESS_FAILURE);
+public class FingerprintIdentifySuccessMessage extends BaseSendMessage {
+    public FingerprintIdentifySuccessMessage() {
+        super(MessageTypeEnum.FINGERPRINT_ENROLL_SUCCESS);
     }
 }

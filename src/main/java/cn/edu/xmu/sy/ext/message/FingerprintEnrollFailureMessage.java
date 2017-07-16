@@ -11,21 +11,8 @@ import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
  * @author luoxin
  * @version 2017-4-25
  */
-public class FingerprintEnrollFailureMessage extends BaseMessage {
-    /**
-     * 图像/声音资源
-     */
-    private BaseMessageResource resource;
-
+public class FingerprintEnrollFailureMessage extends BaseSendMessage {
     public FingerprintEnrollFailureMessage() {
         super(MessageTypeEnum.FINGERPRINT_ENROLL_FAILURE);
-    }
-
-    public BaseMessageResource getResource() {
-        return resource;
-    }
-
-    public void setResource(BaseMessageResource resource) {
-        this.resource = resource;
     }
 }

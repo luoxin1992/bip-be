@@ -11,7 +11,7 @@ import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
  * @author luoxin
  * @version 2017-4-29
  */
-public class CounterInfoMessage extends BaseMessage {
+public class UpdateCounterInfoMessage extends BaseSendMessage {
     /**
      * 窗口编号
      */
@@ -20,13 +20,9 @@ public class CounterInfoMessage extends BaseMessage {
      * 窗口名称
      */
     private String name;
-    /**
-     * 图像/声音资源
-     */
-    private BaseMessageResource resource;
 
-    public CounterInfoMessage() {
-        super(MessageTypeEnum.COUNTER_INFO);
+    public UpdateCounterInfoMessage() {
+        super(MessageTypeEnum.UPDATE_COUNTER_INFO);
     }
 
     public String getNumber() {
@@ -43,13 +39,5 @@ public class CounterInfoMessage extends BaseMessage {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public BaseMessageResource getResource() {
-        return resource;
-    }
-
-    public void setResource(BaseMessageResource resource) {
-        this.resource = resource;
     }
 }

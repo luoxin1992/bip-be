@@ -11,21 +11,8 @@ import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
  * @author luoxin
  * @version 2017-4-25
  */
-public class BusinessResumeMessage extends BaseMessage {
-    /**
-     * 图像/声音资源
-     */
-    private BaseMessageResource resource;
-
+public class BusinessResumeMessage extends BaseSendMessage {
     public BusinessResumeMessage() {
         super(MessageTypeEnum.BUSINESS_RESUME);
-    }
-
-    public BaseMessageResource getResource() {
-        return resource;
-    }
-
-    public void setResource(BaseMessageResource resource) {
-        this.resource = resource;
     }
 }

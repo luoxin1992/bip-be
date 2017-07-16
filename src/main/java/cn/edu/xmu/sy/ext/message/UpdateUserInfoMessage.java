@@ -11,7 +11,7 @@ import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
  * @author luoxin
  * @version 2017-4-25
  */
-public class UserInfoMessage extends BaseMessage {
+public class UpdateUserInfoMessage extends BaseSendMessage {
     /**
      * 用户编号
      */
@@ -24,13 +24,9 @@ public class UserInfoMessage extends BaseMessage {
      * 用户照片(URL)
      */
     private String photo;
-    /**
-     * 图像/声音资源
-     */
-    private BaseMessageResource resource;
 
-    public UserInfoMessage() {
-        super(MessageTypeEnum.USER_INFO);
+    public UpdateUserInfoMessage() {
+        super(MessageTypeEnum.UPDATE_USER_INFO);
     }
 
     public String getNumber() {
@@ -55,13 +51,5 @@ public class UserInfoMessage extends BaseMessage {
 
     public void setPhoto(String photo) {
         this.photo = photo;
-    }
-
-    public BaseMessageResource getResource() {
-        return resource;
-    }
-
-    public void setResource(BaseMessageResource resource) {
-        this.resource = resource;
     }
 }

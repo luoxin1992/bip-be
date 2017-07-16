@@ -11,21 +11,21 @@ import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
  * @author luoxin
  * @version 2017-4-25
  */
-public class FingerprintIdentifyMessage extends BaseMessage {
+public class FingerprintIdentifyMessage extends BaseSendMessage {
     /**
-     * 图像/声音资源
+     * 超时时间
      */
-    private BaseMessageResource resource;
+    private Long timeout;
 
     public FingerprintIdentifyMessage() {
         super(MessageTypeEnum.FINGERPRINT_IDENTIFY);
     }
 
-    public BaseMessageResource getResource() {
-        return resource;
+    public Long getTimeout() {
+        return timeout;
     }
 
-    public void setResource(BaseMessageResource resource) {
-        this.resource = resource;
+    public void setTimeout(Long timeout) {
+        this.timeout = timeout;
     }
 }

@@ -5,26 +5,36 @@ package cn.edu.xmu.sy.ext.message;
 
 import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
 
-import java.util.List;
-
 /**
  * 指纹登记Message
  *
  * @author luoxin
  * @version 2017-4-25
  */
-public class FingerprintEnrollMessage extends BaseMessage {
+public class FingerprintEnrollMessage extends BaseSendMessage {
+    /**
+     * 用户ID
+     */
+    private Long userId;
     /**
      * 采集次数
      */
     private Integer times;
     /**
-     * 图像/声音资源
+     * 超时时间
      */
-    private List<BaseMessageResource> resources;
+    private Integer timeout;
 
     public FingerprintEnrollMessage() {
         super(MessageTypeEnum.FINGERPRINT_ENROLL);
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public Integer getTimes() {
@@ -35,11 +45,11 @@ public class FingerprintEnrollMessage extends BaseMessage {
         this.times = times;
     }
 
-    public List<BaseMessageResource> getResources() {
-        return resources;
+    public Integer getTimeout() {
+        return timeout;
     }
 
-    public void setResources(List<BaseMessageResource> resources) {
-        this.resources = resources;
+    public void setTimeout(Integer timeout) {
+        this.timeout = timeout;
     }
 }

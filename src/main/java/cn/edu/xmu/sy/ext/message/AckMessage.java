@@ -6,13 +6,13 @@ package cn.edu.xmu.sy.ext.message;
 import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
 
 /**
- * 关闭客户端Message
+ * 确认Message
  *
  * @author luoxin
- * @version 2017-4-29
+ * @version 2017-4-25
  */
-public class CloseMessage extends BaseMessage {
-    public CloseMessage() {
-        super(MessageTypeEnum.CLOSE);
+public class AckMessage extends BaseReceiveMessage {
+    public AckMessage() {
+        super(MessageTypeEnum.ACK);
     }
 }
