@@ -3,10 +3,7 @@
  */
 package cn.edu.xmu.sy.ext.mapper;
 
-import cn.com.lx1992.lib.base.param.BasePagingParam;
-import cn.com.lx1992.lib.base.param.BaseSearchParam;
 import cn.edu.xmu.sy.ext.domain.CounterDO;
-import cn.edu.xmu.sy.ext.param.CounterQueryParam;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,83 +30,89 @@ public class CounterMapperTests {
 
     @Test
     public void testSave() {
-        CounterDO counterDO = new CounterDO();
-        counterDO.setNumber("00");
-        counterDO.setName("测试");
-        counterDO.setMac("000000000000");
-        counterDO.setIp("0.0.0.0");
-        counterDO.setGmtCreate(LocalDateTime.now());
-        counterDO.setGmtModify(LocalDateTime.now());
-        Assert.assertTrue(counterMapper.save(counterDO) == 1);
+        CounterDO domain = new CounterDO();
+        domain.setNumber("编号");
+        domain.setName("名称");
+        domain.setMac("MAC地址");
+        domain.setIp("IP地址");
+        Assert.assertTrue(counterMapper.save(domain) == 1);
     }
 
     @Test
     public void testSaveBatch() {
-        List<CounterDO> counterDOs = new ArrayList<>();
+        List<CounterDO> domains = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            CounterDO counterDO = new CounterDO();
-            counterDO.setNumber("0" + i);
-            counterDO.setName("测试窗口" + i);
-            counterDO.setMac("00000000000" + i);
-            counterDO.setIp("192.168.1.10" + i);
-            counterDO.setGmtCreate(LocalDateTime.now());
-            counterDO.setGmtModify(LocalDateTime.now());
-            counterDOs.add(counterDO);
+            CounterDO domain = new CounterDO();
+            domain.setNumber("编号_" + i);
+            domain.setName("名称_" + i);
+            domain.setMac("MAC地址_" + i);
+            domain.setIp("IP地址_" + i);
+            domains.add(domain);
         }
-        Assert.assertTrue(counterMapper.saveBatch(counterDOs) == counterDOs.size());
+        Assert.assertTrue(counterMapper.saveBatch(domains) == domains.size());
     }
 
     @Test
     public void testUpdateById() {
-        CounterDO counterDO = new CounterDO();
-        counterDO.setId(26223598501888L);
-        counterDO.setNumber("00_修改");
-        counterDO.setName("测试_修改");
-        counterDO.setMac("FFFFFFFFFFFF");
-        counterDO.setIp("255.255.255.255");
-        counterDO.setGmtModify(LocalDateTime.now());
-        Assert.assertTrue(counterMapper.updateById(counterDO) == 1);
+        CounterDO domain = new CounterDO();
+        domain.setId(78825709010681860L);
+        domain.setNumber("编号_修改");
+        domain.setName("名称_修改");
+        domain.setMac("MAC地址_修改");
+        domain.setIp("IP地址_修改");
+        Assert.assertTrue(counterMapper.updateById(domain) == 1);
     }
 
     @Test
     public void testRemoveById() {
-        Assert.assertTrue(counterMapper.removeById(26223598501888L) == 1);
+        Assert.assertTrue(counterMapper.removeById(78825706632511490L) == 1);
     }
 
     @Test
     public void testGetById() {
-        logger.info("{}", counterMapper.getById(26223598501888L));
-    }
+        CounterDO domain1 = counterMapper.getById(78825709010681860L);
+        logger.info("testGetById --> {}", domain1);
+        Assert.assertNotNull(domain1);
 
-    @Test
-    public void testListByParam() {
-        BaseSearchParam search = new BaseSearchParam();
-        //search.setKeyword("0");
-        BasePagingParam paging = new BasePagingParam();
-        paging.setSize(5);
-        paging.setStart(26224043098126L);
-        CounterQueryParam param = new CounterQueryParam();
-        param.setSearch(search);
-        param.setPaging(paging);
-        logger.info("{}", counterMapper.listByParam(param));
-    }
-
-    @Test
-    public void testCountByParam() {
-        BaseSearchParam search = new BaseSearchParam();
-        search.setKeyword("测试");
-        CounterQueryParam param = new CounterQueryParam();
-        param.setSearch(search);
-        logger.info("{}", counterMapper.countByParam(param));
+        CounterDO domain2 = counterMapper.getById(78825706632511490L);
+        logger.info("testGetById --> {}", domain2);
+        Assert.assertNull(domain2);
     }
 
     @Test
     public void testGetIdByNumber() {
-        logger.info("{}", counterMapper.getIdByNumber("09", 26224043098128L));
+        CounterDO domain = counterMapper.getByNumber("编号_6");
+        logger.info("testGetById --> {}", domain);
+        Assert.assertEquals(domain.getId().longValue(), 78825709014876162L);
     }
 
     @Test
     public void testGetIdByMacAndIp() {
-        logger.info("{}", counterMapper.getByMacAndIp("000000000001", "192.168.1.101"));
+        CounterDO domain = counterMapper.getByMacAndIp("MAC地址_7", "IP地址_7");
+        logger.info("testGetIdByMacAndIp --> {}", domain);
+        Assert.assertEquals(domain.getId().longValue(), 78825709014876163L);
+    }
+
+    @Test
+    public void testListById() {
+        List<Long> ids = new ArrayList<>();
+        ids.add(78825709014876162L);
+        ids.add(78825709014876163L);
+
+        List<CounterDO> domains = counterMapper.listById(ids);
+        logger.info("testListById --> {}", domains.size());
+        Assert.assertEquals(domains.size(), 2);
+    }
+
+    @Test
+    public void testCountAll() {
+        Assert.assertEquals(counterMapper.countAll().longValue(), 10);
+    }
+
+    @Test
+    public void testListAll() {
+        List<CounterDO> domains = counterMapper.listAll(0L, 100);
+        logger.info("testListAll --> {}", domains.size());
+        Assert.assertEquals(domains.size(), 10);
     }
 }

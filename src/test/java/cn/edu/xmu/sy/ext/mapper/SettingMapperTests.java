@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,47 +30,74 @@ public class SettingMapperTests {
 
     @Test
     public void testSave() {
-        SettingDO settingDO = new SettingDO();
-        settingDO.setParent(32762111197190L);
-        settingDO.setKey("fingerprint-identify-timeout");
-        settingDO.setValue("30");
-        settingDO.setDescription("指纹辨识超时时间");
-        Assert.assertTrue(settingMapper.save(settingDO) == 1);
+        SettingDO domain = new SettingDO();
+        domain.setParentId(0L);
+        domain.setKey("键");
+        domain.setDescription("描述");
+        Assert.assertTrue(settingMapper.save(domain) == 1);
+        Assert.assertTrue(settingMapper.save(domain) == 1);
     }
 
     @Test
     public void testSaveBatch() {
-        List<SettingDO> settingDOs = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            SettingDO settingDO = new SettingDO();
-            //settingDO.setCategory("测试类别" + i);
-            //settingDO.setPropName("测试属性名" + i);
-            //settingDO.setPropValue("测试属性值" + i);
-            settingDO.setGmtCreate(LocalDateTime.now());
-            settingDO.setGmtModify(LocalDateTime.now());
-            settingDOs.add(settingDO);
+        List<SettingDO> domains = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            SettingDO domain = new SettingDO();
+            domain.setParentId(78811545047400454L);
+            domain.setKey("键_" + i);
+            domain.setValue("值_" + i);
+            domain.setRegExp("\\d{" + i + "}");
+            domain.setDescription("描述_" + i);
+            domains.add(domain);
         }
-        Assert.assertTrue(settingMapper.saveBatch(settingDOs) == settingDOs.size());
+        for (int i = 5; i < 10; i++) {
+            SettingDO domain = new SettingDO();
+            domain.setParentId(78811547966636041L);
+            domain.setKey("键_" + i);
+            domain.setValue("值_" + i);
+            domain.setRegExp("\\d{" + i + "}");
+            domain.setDescription("描述_" + i);
+            domains.add(domain);
+        }
+        Assert.assertTrue(settingMapper.saveBatch(domains) == domains.size());
     }
 
     @Test
     public void testUpdateById() {
-        SettingDO settingDO = new SettingDO();
-        settingDO.setId(26296130994177L);
-        //settingDO.setCategory("测试_修改");
-        //settingDO.setPropName("测试_修改");
-        //settingDO.setPropValue("测试_修改");
-        settingDO.setGmtModify(LocalDateTime.now());
-        Assert.assertTrue(settingMapper.updateById(settingDO) == 1);
+        SettingDO domain = new SettingDO();
+        domain.setId(78812174880866318L);
+        domain.setKey("键_修改");
+        domain.setValue("值_修改");
+        domain.setRegExp("\\w+");
+        domain.setDescription("内容_修改");
+        Assert.assertTrue(settingMapper.updateById(domain) == 1);
     }
 
     @Test
     public void testRemoveById() {
-        Assert.assertTrue(settingMapper.removeById(26296130994177L) == 1);
+        Assert.assertTrue(settingMapper.removeById(78812174880866315L) == 1);
+    }
+
+    @Test
+    public void testRemoveByParentId() {
+        Assert.assertTrue(settingMapper.removeByParentId(78811545047400454L) == 6);
     }
 
     @Test
     public void testGetById() {
-        logger.info("{}", settingMapper.getById(26296130994177L));
+        SettingDO domain1 = settingMapper.getById(78812174880866316L);
+        logger.info("testGetById --> {}", domain1);
+        Assert.assertNotNull(domain1);
+
+        SettingDO domain2 = settingMapper.getById(78812174880866315L);
+        logger.info("testGetById --> {}", domain2);
+        Assert.assertNull(domain2);
+    }
+
+    @Test
+    public void testGetByKey() {
+        SettingDO domain = settingMapper.getByKey("键_8");
+        logger.info("testGetByKey --> {}", domain);
+        Assert.assertNotNull(domain);
     }
 }

@@ -3,6 +3,7 @@
  */
 package cn.edu.xmu.sy.ext.mapper;
 
+import cn.com.lx1992.lib.util.UIDGenerateUtil;
 import cn.edu.xmu.sy.ext.domain.MessageDO;
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,109 +32,110 @@ public class MessageMapperTests {
 
     @Test
     public void testSave() {
-        MessageDO messageDO = new MessageDO();
-        messageDO.setCounterId(26227809714182L);
-        messageDO.setSessionId(26224043098119L);
-        messageDO.setType("测试");
-        //messageDO.setExtra("测试");
-        messageDO.setSendTime(LocalDateTime.now());
-        messageDO.setGmtCreate(LocalDateTime.now());
-        messageDO.setGmtModify(LocalDateTime.now());
-        Assert.assertTrue(messageMapper.save(messageDO) == 1);
+        MessageDO domain = new MessageDO();
+        domain.setCounterId(26227809714182L);
+        domain.setSessionId(26224043098119L);
+        domain.setUid(UIDGenerateUtil.Standard.nextId());
+        domain.setDirection(2);
+        domain.setType("类型");
+        domain.setBody("消息体");
+        domain.setRetry(1);
+        domain.setSendTime(LocalDateTime.now());
+        domain.setAckTime(LocalDateTime.now().plusNanos(304759104));
+        Assert.assertTrue(messageMapper.save(domain) == 1);
     }
 
     @Test
     public void testSaveBatch() {
-        List<MessageDO> messageDOs = new ArrayList<>();
+        List<MessageDO> domains = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 2; j++) {
-                for (int k = 1; k <= 2; k++) {
-                    MessageDO messageDO = new MessageDO();
-                    messageDO.setCounterId(26224043098119L + i);
-                    messageDO.setSessionId(26227809714182L + i * 2 + j);
-                    messageDO.setType("测试类别" + k);
-                    //messageDO.setExtra("测试内容" + k);
-                    messageDO.setSendTime(LocalDateTime.now());
-                    messageDO.setGmtCreate(LocalDateTime.now());
-                    messageDO.setGmtModify(LocalDateTime.now());
-                    messageDOs.add(messageDO);
-                }
-            }
+            MessageDO domain = new MessageDO();
+            domain.setCounterId(78825709014876164L);
+            domain.setSessionId(78830704477077515L);
+            domain.setUid(UIDGenerateUtil.Standard.nextId());
+            domain.setDirection(1);
+            domain.setType("类型_" + i);
+            domain.setBody("消息体_" + i);
+            domain.setRetry(i);
+            domain.setSendTime(LocalDateTime.now());
+            domains.add(domain);
         }
-        Assert.assertTrue(messageMapper.saveBatch(messageDOs) == messageDOs.size());
+        for (int i = 0; i < 5; i++) {
+            MessageDO domain = new MessageDO();
+            domain.setCounterId(78825709014876165L);
+            domain.setSessionId(78830704477077517L);
+            domain.setUid(UIDGenerateUtil.Standard.nextId());
+            domain.setDirection(2);
+            domain.setType("类型_" + i);
+            domain.setBody("消息体_" + i);
+            domain.setRetry(i);
+            domain.setSendTime(LocalDateTime.now());
+            domains.add(domain);
+        }
+        Assert.assertTrue(messageMapper.saveBatch(domains) == domains.size());
     }
 
     @Test
     public void testUpdateById() {
-        MessageDO messageDO = new MessageDO();
-        messageDO.setId(26286379106309L);
-        messageDO.setCounterId(26227071516679L);
-        messageDO.setSessionId(26223598501888L);
-        messageDO.setType("测试_修改");
-        //messageDO.setExtra("测试_修改");
-        messageDO.setAckTime(LocalDateTime.now());
-        messageDO.setGmtModify(LocalDateTime.now());
-        Assert.assertTrue(messageMapper.updateById(messageDO) == 1);
+        MessageDO domain = new MessageDO();
+        domain.setId(78835371441389574L);
+        domain.setType("类型_修改");
+        domain.setBody("消息体_修改");
+        domain.setAckTime(LocalDateTime.now());
+        Assert.assertTrue(messageMapper.updateById(domain) == 1);
     }
 
     @Test
     public void testRemoveById() {
-        Assert.assertTrue(messageMapper.removeById(26286379106309L) == 1);
+        Assert.assertTrue(messageMapper.removeById(78835368757035009L) == 1);
     }
 
     @Test
     public void testRemoveByCounterId() {
-        Assert.assertTrue(messageMapper.removeByCounterId(26227071516679L) == 1);
+        Assert.assertTrue(messageMapper.removeByCounterId(78825709014876164L) == 5);
     }
 
 
     @Test
     public void testRemoveBySessionId() {
-        Assert.assertTrue(messageMapper.removeBySessionId(26224043098119L) == 2);
+        Assert.assertTrue(messageMapper.removeBySessionId(78825709014876164L, 78830704477077515L) == 5);
     }
 
     @Test
     public void testGetById() {
-        logger.info("{}", messageMapper.getById(26286379106309L));
+        MessageDO domain1 = messageMapper.getById(78835371441389574L);
+        logger.info("testGetById --> {}", domain1);
+        Assert.assertNotNull(domain1);
+
+        MessageDO domain2 = messageMapper.getById(78835368757035009L);
+        logger.info("testGetById --> {}", domain2);
+        Assert.assertNull(domain2);
     }
 
     @Test
-    public void testGetByCounterId() {
-        List<MessageDO> results = messageMapper.getByCounterId(26227071516679L);
-        for (MessageDO result : results) {
-            logger.info("{}", result);
-        }
+    public void testGetByUid() {
+        List<MessageDO> domains1 = messageMapper.getByUid(9623458427910L, null);
+        logger.info("testGetByUid --> {}", domains1);
+        Assert.assertEquals(domains1.size(), 1);
+
+        List<MessageDO> domains2 = messageMapper.getByUid(9623458427910L, 1);
+        logger.info("testGetByUid --> {}", domains2);
+        Assert.assertEquals(domains2.size(), 0);
     }
 
     @Test
-    public void testGetBySessionId() {
-        List<MessageDO> results = messageMapper.getBySessionId(26224043098119L);
-        for (MessageDO result : results) {
-            logger.info("{}", result);
-        }
-    }
+    public void testListByUid() {
+        List<Long> uids = new ArrayList<>();
+        uids.add(9623458427912L);
+        uids.add(9623458427913L);
+        uids.add(9623458427914L);
 
-    @Test
-    public void testListByCounterId() {
-        List<Long> counterIds = new ArrayList<>();
-        for (int i = 1; i <= 3; i++) {
-            counterIds.add(26224043098119L + i);
-        }
-        List<MessageDO> results = messageMapper.listByCounterId(counterIds);
-        for (MessageDO result : results) {
-            logger.info("{}", result);
-        }
-    }
+        List<MessageDO> domains1 = messageMapper.listByUid(uids, 2);
+        logger.info("testListByUid --> {}", domains1);
+        Assert.assertEquals(domains1.size(), 3);
 
-    @Test
-    public void testListBySessionId() {
-        List<Long> sessionIds = new ArrayList<>();
-        for (int i = 1; i <= 3; i++) {
-            sessionIds.add(26227809714182L + i);
-        }
-        List<MessageDO> results = messageMapper.listBySessionId(sessionIds);
-        for (MessageDO result : results) {
-            logger.info("{}", result);
-        }
+        List<MessageDO> domains2 = messageMapper.listByUid(uids, 1);
+        logger.info("testListByUid --> {}", domains2);
+        Assert.assertEquals(domains2.size(), 0);
     }
 }

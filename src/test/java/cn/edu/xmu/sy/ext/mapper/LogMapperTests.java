@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,45 +30,46 @@ public class LogMapperTests {
 
     @Test
     public void testSave() {
-        LogDO logDO = new LogDO();
-        logDO.setType("测试");
-        logDO.setContent("测试");
-        logDO.setGmtCreate(LocalDateTime.now());
-        logDO.setGmtModify(LocalDateTime.now());
-        Assert.assertTrue(logMapper.save(logDO) == 1);
+        LogDO domain = new LogDO();
+        domain.setType("类型");
+        domain.setContent("内容");
+        Assert.assertTrue(logMapper.save(domain) == 1);
     }
 
     @Test
     public void testSaveBatch() {
-        List<LogDO> logDOs = new ArrayList<>();
+        List<LogDO> domains = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            LogDO logDO = new LogDO();
-            logDO.setType("测试一级类别" + i);
-            logDO.setContent("测试内容" + i);
-            logDO.setGmtCreate(LocalDateTime.now());
-            logDO.setGmtModify(LocalDateTime.now());
-            logDOs.add(logDO);
+            LogDO domain = new LogDO();
+            domain.setType("类型_" + i);
+            domain.setContent("内容_" + i);
+            domains.add(domain);
         }
-        Assert.assertTrue(logMapper.saveBatch(logDOs) == logDOs.size());
+        Assert.assertTrue(logMapper.saveBatch(domains) == domains.size());
     }
 
     @Test
     public void testUpdateById() {
-        LogDO logDO = new LogDO();
-        logDO.setId(26284131221509L);
-        logDO.setType("测试_修改");
-        logDO.setContent("测试_修改");
-        logDO.setGmtModify(LocalDateTime.now());
-        Assert.assertTrue(logMapper.updateById(logDO) == 1);
+        LogDO domain = new LogDO();
+        domain.setId(78805323623694340L);
+        domain.setType("类型_修改");
+        domain.setContent("类型_修改");
+        Assert.assertTrue(logMapper.updateById(domain) == 1);
     }
 
     @Test
     public void testRemoveById() {
-        Assert.assertTrue(logMapper.removeById(26284131221509L) == 1);
+        Assert.assertTrue(logMapper.removeById(78805321618817028L) == 1);
     }
 
     @Test
     public void testGetById() {
-        logger.info("{}", logMapper.getById(26284131221509L));
+        LogDO domain1 = logMapper.getById(78805323623694340L);
+        logger.info("testGetById --> {}", domain1);
+        Assert.assertNotNull(domain1);
+
+        LogDO domain2 = logMapper.getById(78805321618817028L);
+        logger.info("testGetById --> {}", domain2);
+        Assert.assertNull(domain2);
     }
 }

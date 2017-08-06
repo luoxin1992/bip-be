@@ -3,6 +3,7 @@
  */
 package cn.edu.xmu.sy.ext.mapper;
 
+import cn.com.lx1992.lib.util.UIDGenerateUtil;
 import cn.edu.xmu.sy.ext.domain.FingerprintDO;
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,78 +32,102 @@ public class FingerprintMapperTests {
 
     @Test
     public void testSave() {
-        FingerprintDO fingerprintDO = new FingerprintDO();
-        fingerprintDO.setUserId(26208150618113L);
-        fingerprintDO.setFinger("测试");
-        fingerprintDO.setTemplate("");
-        fingerprintDO.setEnrollTime(LocalDateTime.of(2017, 1, 13, 15, 23, 39));
-        fingerprintDO.setIdentifyTime(LocalDateTime.of(2017, 2, 28, 8, 17, 56));
-        fingerprintDO.setGmtCreate(LocalDateTime.now());
-        fingerprintDO.setGmtModify(LocalDateTime.now());
-        Assert.assertTrue(fingerprintMapper.save(fingerprintDO) == 1);
+        FingerprintDO domain = new FingerprintDO();
+        domain.setUserId(0L);
+        domain.setUid(UIDGenerateUtil.Compact.nextId());
+        domain.setFinger("手指");
+        domain.setTemplate("模板");
+        domain.setEnrollTime(LocalDateTime.of(2017, 1, 13, 15, 23, 39));
+        domain.setIdentifyTime(LocalDateTime.of(2017, 2, 28, 8, 17, 56));
+        Assert.assertTrue(fingerprintMapper.save(domain) == 1);
     }
 
     @Test
     public void testSaveBatch() {
-        List<FingerprintDO> fingerprintDOs = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            for (int j = 1; j <= 2; j++) {
-                FingerprintDO fingerprintDO = new FingerprintDO();
-                fingerprintDO.setUserId(26208708460552L + i);
-                fingerprintDO.setFinger("测试手指" + j);
-                fingerprintDO.setTemplate("");
-                fingerprintDO.setEnrollTime(LocalDateTime.now());
-                fingerprintDO.setGmtCreate(LocalDateTime.now());
-                fingerprintDO.setGmtModify(LocalDateTime.now());
-                fingerprintDOs.add(fingerprintDO);
+        List<FingerprintDO> domains = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            for (long j = 78817317265342476L; j <= 78817317265342478L; j++) {
+                FingerprintDO domain = new FingerprintDO();
+                domain.setUserId(j);
+                domain.setUid(UIDGenerateUtil.Compact.nextId());
+                domain.setFinger("手指_" + i);
+                domain.setTemplate("模板_" + i);
+                domain.setEnrollTime(LocalDateTime.now());
+                domains.add(domain);
             }
         }
-        Assert.assertTrue(fingerprintMapper.saveBatch(fingerprintDOs) == fingerprintDOs.size());
+        Assert.assertTrue(fingerprintMapper.saveBatch(domains) == domains.size());
     }
 
     @Test
     public void testUpdateById() {
-        FingerprintDO fingerprintDO = new FingerprintDO();
-        fingerprintDO.setId(26209752973319L);
-        fingerprintDO.setUserId(0L);
-        fingerprintDO.setFinger("测试_修改");
-        fingerprintDO.setTemplate("测试_修改");
-        fingerprintDO.setGmtModify(LocalDateTime.now());
-        Assert.assertTrue(fingerprintMapper.updateById(fingerprintDO) == 1);
+        FingerprintDO domain = new FingerprintDO();
+        domain.setId(78820791101161475L);
+        domain.setFinger("手指_修改");
+        domain.setTemplate("模板_修改");
+        Assert.assertTrue(fingerprintMapper.updateById(domain) == 1);
     }
 
     @Test
     public void testRemoveById() {
-        Assert.assertTrue(fingerprintMapper.removeById(26209752973319L) == 1);
+        Assert.assertTrue(fingerprintMapper.removeById(78820785627594761L) == 1);
     }
 
     @Test
     public void testRemoveByUserId() {
-        Assert.assertTrue(fingerprintMapper.removeByUserId(26208150618113L) == 2);
+        Assert.assertTrue(fingerprintMapper.removeByUserId(78817317265342477L) == 3);
     }
 
     @Test
     public void testGetById() {
-        logger.info("{}", fingerprintMapper.getById(26211141287942L));
+        FingerprintDO domain1 = fingerprintMapper.getById(78820791101161475L);
+        logger.info("testGetById --> {}", domain1);
+        Assert.assertNotNull(domain1);
+
+        FingerprintDO domain2 = fingerprintMapper.getById(78820785627594761L);
+        logger.info("testGetById --> {}", domain2);
+        Assert.assertNull(domain2);
+    }
+
+    @Test
+    public void testGetByUid() {
+        FingerprintDO domain = fingerprintMapper.getByUid(150338725);
+        logger.info("testGetByUid --> {}", domain);
+        Assert.assertEquals(domain.getId().longValue(), 78820791101161477L);
+    }
+
+    @Test
+    public void testCountByUserId() {
+        Assert.assertEquals(fingerprintMapper.countByUserId(78817317265342476L).longValue(), 3);
     }
 
     @Test
     public void testGetByUserId() {
-        List<FingerprintDO> results = fingerprintMapper.getByUserId(26208708460552L);
-        for (FingerprintDO result : results) {
-            logger.info("{}", result);
-        }
+        List<FingerprintDO> domains = fingerprintMapper.getByUserId(78817317265342476L);
+        logger.info("testGetByUserId --> {}", domains.size());
+        Assert.assertEquals(domains.size(), 3);
     }
 
     @Test
     public void testListByUserId() {
         List<Long> userIds = new ArrayList<>();
-        for (int i = 1; i <= 3; i++) {
-            userIds.add(26208708460552L + i);
-        }
-        List<FingerprintDO> results = fingerprintMapper.listByUserId(userIds);
-        for (FingerprintDO result : results) {
-            logger.info("{}", result);
-        }
+        userIds.add(78817317265342476L);
+        userIds.add(78817317265342478L);
+
+        List<FingerprintDO> domains = fingerprintMapper.listByUserId(userIds);
+        logger.info("testListByUserId --> {}", domains.size());
+        Assert.assertEquals(domains.size(), 6);
+    }
+
+    @Test
+    public void testCountAll() {
+        Assert.assertEquals(fingerprintMapper.countAll().longValue(), 6);
+    }
+
+    @Test
+    public void testListAll() {
+        List<FingerprintDO> domains = fingerprintMapper.listAll(0L, 100);
+        logger.info("testListAll --> {}", domains.size());
+        Assert.assertEquals(domains.size(), 6);
     }
 }

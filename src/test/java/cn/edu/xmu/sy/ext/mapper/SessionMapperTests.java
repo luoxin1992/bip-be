@@ -4,9 +4,6 @@
 package cn.edu.xmu.sy.ext.mapper;
 
 import cn.edu.xmu.sy.ext.domain.SessionDO;
-import cn.edu.xmu.sy.ext.param.SessionBatchQueryParam;
-import cn.edu.xmu.sy.ext.param.SessionQueryParam;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,104 +31,96 @@ public class SessionMapperTests {
 
     @Test
     public void testSave() {
-        SessionDO sessionDO = new SessionDO();
-        sessionDO.setCounterId(26223598501888L);
-        sessionDO.setToken("");
-        sessionDO.setStatus(1);
-        sessionDO.setOnlineTime(LocalDateTime.now());
-        sessionDO.setGmtCreate(LocalDateTime.now());
-        sessionDO.setGmtModify(LocalDateTime.now());
-        Assert.assertTrue(sessionMapper.save(sessionDO) == 1);
+        SessionDO domain = new SessionDO();
+        domain.setCounterId(0L);
+        domain.setToken("Token");
+        domain.setStatus(2);
+        domain.setOnlineTime(LocalDateTime.now());
+        domain.setOfflineTime(LocalDateTime.now().plusHours(3).plusMinutes(4).plusSeconds(5));
+        Assert.assertTrue(sessionMapper.save(domain) == 1);
     }
 
     @Test
     public void testSaveBatch() {
-        List<SessionDO> sessionDOs = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
+        List<SessionDO> domains = new ArrayList<>();
+        for (long i = 78825709014876161L; i <= 78825709014876165L; i++) {
             for (int j = 1; j <= 2; j++) {
-                SessionDO sessionDO = new SessionDO();
-                sessionDO.setCounterId(26224043098119L + i);
-                sessionDO.setToken("");
-                sessionDO.setStatus(1);
-                sessionDO.setOnlineTime(LocalDateTime.now());
-                sessionDO.setGmtCreate(LocalDateTime.now());
-                sessionDO.setGmtModify(LocalDateTime.now());
-                sessionDOs.add(sessionDO);
+                SessionDO domain = new SessionDO();
+                domain.setCounterId(i);
+                domain.setToken("Token_" + j);
+                domain.setStatus(1);
+                domain.setOnlineTime(LocalDateTime.now());
+                domains.add(domain);
             }
         }
-        Assert.assertTrue(sessionMapper.saveBatch(sessionDOs) == sessionDOs.size());
+        Assert.assertTrue(sessionMapper.saveBatch(domains) == domains.size());
     }
 
     @Test
     public void testUpdateById() {
         SessionDO sessionDO = new SessionDO();
-        sessionDO.setId(26226647891969L);
-        sessionDO.setCounterId(0L);
-        sessionDO.setToken("1234567890ABCDEF");
-        sessionDO.setStatus(2);
+        sessionDO.setId(78830704477077514L);
+        sessionDO.setToken("Token_修改");
+        sessionDO.setStatus(3);
         sessionDO.setOfflineTime(LocalDateTime.now());
-        sessionDO.setGmtModify(LocalDateTime.now());
         Assert.assertTrue(sessionMapper.updateById(sessionDO) == 1);
     }
 
     @Test
     public void testRemoveById() {
-        Assert.assertTrue(sessionMapper.removeById(26226647891969L) == 1);
+        Assert.assertTrue(sessionMapper.removeById(78830702170210307L) == 1);
     }
 
     @Test
     public void testRemoveByCounterId() {
-        Assert.assertTrue(sessionMapper.removeByCounterId(26223598501888L) == 2);
+        Assert.assertTrue(sessionMapper.removeByCounterId(78825709014876162L) == 2);
     }
 
     @Test
     public void testGetById() {
-        logger.info("{}", ToStringBuilder.reflectionToString(sessionMapper.getById(34523110703106L)));
+        SessionDO domain1 = sessionMapper.getById(78830704477077514L);
+        logger.info("testGetById --> {}", domain1);
+        Assert.assertNotNull(domain1);
+
+        SessionDO domain2 = sessionMapper.getById(78830702170210307L);
+        logger.info("testGetById --> {}", domain2);
+        Assert.assertNull(domain2);
+    }
+
+    @Test
+    public void testGetByToken() {
+        SessionDO domain = sessionMapper.getByToken("Token_5");
+        logger.info("testGetByToken --> {}", domain);
+        Assert.assertEquals(domain.getId().longValue(), 78830704477077513L);
+    }
+
+    @Test
+    public void testListById() {
+        List<Long> ids = new ArrayList<>();
+        ids.add(78830704477077515L);
+        ids.add(78830704477077516L);
+        ids.add(78830704477077517L);
+
+        List<SessionDO> domains = sessionMapper.listById(ids);
+        logger.info("testListById --> {}", domains.size());
+        Assert.assertEquals(domains.size(), 3);
     }
 
     @Test
     public void testGetByCounterId() {
-        List<SessionDO> results = sessionMapper.getByCounterId(26224043098119L);
-        for (SessionDO result : results) {
-            logger.info("{}", result);
-        }
+        List<SessionDO> domains = sessionMapper.getByCounterId(78825709014876161L, 10);
+        logger.info("testGetByCounterId --> {}", domains);
+        Assert.assertEquals(domains.size(), 2);
     }
 
     @Test
     public void testListByCounterId() {
         List<Long> counterIds = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            counterIds.add(26224043098120L + i);
-        }
-        List<SessionDO> results = sessionMapper.listByCounterId(counterIds);
-        for (SessionDO result : results) {
-            logger.info("{}", result);
-        }
-    }
+        counterIds.add(78825709014876163L);
+        counterIds.add(78825709014876164L);
 
-    @Test
-    public void testGetByParam() {
-        SessionQueryParam param = new SessionQueryParam();
-        param.setCounterId(26224043098121L);
-        param.setStatus(1);
-        //param.setPeriod(new BasePeriodParam(DateTimeUtil.getTodayStr(DateTimeConstant.DATE_PATTERN)));
-        logger.info("{}", sessionMapper.getByParam(param));
-    }
-
-    @Test
-    public void testListByParam() {
-        List<Long> counterIds = new ArrayList<>();
-        counterIds.add(26224043098122L);
-        counterIds.add(26224043098123L);
-        SessionBatchQueryParam param = new SessionBatchQueryParam();
-        param.setCounterIds(counterIds);
-        param.setStatus(2);
-        //param.setPeriod(new BasePeriodParam(DateTimeUtil.getTodayStr(DateTimeConstant.DATE_PATTERN)));
-        logger.info("{}", sessionMapper.listByParam(param));
-    }
-
-    @Test
-    public void testGetOnlineSessionId() {
-        logger.info("{}", sessionMapper.getOnlineIdByCounterId(26224043098121L));
+        List<SessionDO> domains = sessionMapper.listByCounterId(counterIds);
+        logger.info("testListByCounterId --> {}", domains);
+        Assert.assertEquals(domains.size(), 2);
     }
 }

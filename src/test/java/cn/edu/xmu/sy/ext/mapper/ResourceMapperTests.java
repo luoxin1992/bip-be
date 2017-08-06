@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,51 +30,80 @@ public class ResourceMapperTests {
 
     @Test
     public void testSave() {
-        ResourceDO resourceDO = new ResourceDO();
-        resourceDO.setType("测试");
-        resourceDO.setName("测试");
-        resourceDO.setFilename("测试");
-        resourceDO.setMd5("测试");
-        resourceDO.setGmtCreate(LocalDateTime.now());
-        resourceDO.setGmtModify(LocalDateTime.now());
-        Assert.assertTrue(resourceMapper.save(resourceDO) == 1);
+        ResourceDO domain = new ResourceDO();
+        domain.setType("类型");
+        domain.setTag("标签");
+        domain.setFilename("文件名");
+        domain.setMd5("MD5");
+        Assert.assertTrue(resourceMapper.save(domain) == 1);
     }
 
     @Test
     public void testSaveBatch() {
-        List<ResourceDO> resourceDOs = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            ResourceDO resourceDO = new ResourceDO();
-            resourceDO.setType("测试类型" + i);
-            resourceDO.setName("测试名称" + i);
-            resourceDO.setFilename("测试路径" + i);
-            resourceDO.setMd5("测试MD5" + i);
-            resourceDO.setGmtCreate(LocalDateTime.now());
-            resourceDO.setGmtModify(LocalDateTime.now());
-            resourceDOs.add(resourceDO);
+        List<ResourceDO> domains = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 2; j++) {
+                ResourceDO domain = new ResourceDO();
+                domain.setType("类型_" + i);
+                domain.setTag("标签_" + j);
+                domain.setFilename("文件名_" + j);
+                domain.setMd5("MD5_" + j);
+                domains.add(domain);
+            }
         }
-        Assert.assertTrue(resourceMapper.saveBatch(resourceDOs) == resourceDOs.size());
+        Assert.assertTrue(resourceMapper.saveBatch(domains) == domains.size());
     }
 
     @Test
     public void testUpdateById() {
-        ResourceDO resourceDO = new ResourceDO();
-        resourceDO.setId(26281711108103L);
-        resourceDO.setType("测试_修改");
-        resourceDO.setName("测试_修改");
-        resourceDO.setFilename("测试_修改");
-        resourceDO.setMd5("测试_修改");
-        resourceDO.setGmtModify(LocalDateTime.now());
-        Assert.assertTrue(resourceMapper.updateById(resourceDO) == 1);
+        ResourceDO domain = new ResourceDO();
+        domain.setId(78808120993775617L);
+        domain.setType("类型_修改");
+        domain.setTag("标签_修改");
+        domain.setFilename("文件名_修改");
+        domain.setMd5("MD5_修改");
+        Assert.assertTrue(resourceMapper.updateById(domain) == 1);
     }
 
     @Test
     public void testRemoveById() {
-        Assert.assertTrue(resourceMapper.removeById(26281711108103L) == 1);
+        Assert.assertTrue(resourceMapper.removeById(78808120993775622L) == 1);
     }
 
     @Test
     public void testGetById() {
-        logger.info("{}", resourceMapper.getById(26281711108103L));
+        ResourceDO domain1 = resourceMapper.getById(78808120993775617L);
+        logger.info("testGetById --> {}", domain1);
+        Assert.assertNotNull(domain1);
+
+        ResourceDO domain2 = resourceMapper.getById(78808120993775622L);
+        logger.info("testGetById --> {}", domain2);
+        Assert.assertNull(domain2);
+    }
+
+    @Test
+    public void testGetByType() {
+        List<ResourceDO> domains = resourceMapper.getByType("类型_0");
+        logger.info("testGetByType --> {}", domains);
+        Assert.assertTrue(domains.size() == 2);
+    }
+
+    @Test
+    public void testGetByTag() {
+        ResourceDO domain = resourceMapper.getByTag("类型_2", "标签_1");
+        logger.info("testGetByTag --> {}", domain);
+        Assert.assertNotNull(domain);
+    }
+
+    @Test
+    public void testCountAll() {
+        Assert.assertTrue(resourceMapper.countAll() == 10);
+    }
+
+    @Test
+    public void testListAll() {
+        List<ResourceDO> domains = resourceMapper.listAll(0L, 100);
+        logger.info("testListAll --> {}", domains.size());
+        Assert.assertTrue(domains.size() == 10);
     }
 }
