@@ -1,7 +1,7 @@
 /*
  * Copyright © 2017 Xiamen University. All Rights Reserved.
  */
-package cn.edu.xmu.sy.ext.config;
+package cn.edu.xmu.sy.ext.disconf;
 
 import com.baidu.disconf.client.common.annotations.DisconfItem;
 import org.springframework.stereotype.Component;
@@ -26,10 +26,6 @@ public class NlsConfigItem {
      * Access Key Secret
      */
     private String accessKeySecret;
-    /**
-     * 线程池关闭超时
-     */
-    private int executorShutdownTimeout;
 
     @DisconfItem(key = "nls.app.key")
     public String getAppKey() {
@@ -56,14 +52,5 @@ public class NlsConfigItem {
 
     public void setAccessKeySecret(String accessKeySecret) {
         this.accessKeySecret = accessKeySecret;
-    }
-
-    @DisconfItem(key = "nls.executor.shutdown.timeout")
-    public int getExecutorShutdownTimeout() {
-        return executorShutdownTimeout;
-    }
-
-    public void setExecutorShutdownTimeout(int executorShutdownTimeout) {
-        this.executorShutdownTimeout = executorShutdownTimeout;
     }
 }

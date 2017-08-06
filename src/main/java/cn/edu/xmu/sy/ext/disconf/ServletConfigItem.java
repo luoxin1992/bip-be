@@ -1,7 +1,7 @@
 /*
  * Copyright © 2017 Xiamen University. All Rights Reserved.
  */
-package cn.edu.xmu.sy.ext.config;
+package cn.edu.xmu.sy.ext.disconf;
 
 import cn.com.lx1992.lib.config.meta.IServletConfigItem;
 import com.baidu.disconf.client.common.annotations.DisconfItem;
@@ -24,7 +24,7 @@ public class ServletConfigItem implements IServletConfigItem {
      */
     private String contextPath;
     /**
-     * 静态文件路径
+     * 站点根目录
      */
     private String documentRoot;
 

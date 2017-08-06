@@ -1,24 +1,24 @@
 /*
  * Copyright © 2017 Xiamen University. All Rights Reserved.
  */
-package cn.edu.xmu.sy.ext.config;
+package cn.edu.xmu.sy.ext.disconf;
 
-import cn.com.lx1992.lib.config.meta.IDataSourceConfigItem;
+import cn.com.lx1992.lib.config.meta.IMySQLConfigItem;
 import com.baidu.disconf.client.common.annotations.DisconfItem;
 import org.springframework.stereotype.Component;
 
 /**
- * 数据源配置项
+ * MySQL配置项
  * <p>
  * JDBC
  * 连接池
- * 德鲁伊
+ * Druid
  *
  * @author luoxin
  * @version 2017-5-13
  */
 @Component
-public class DataSourceConfigItem implements IDataSourceConfigItem {
+public class MySQLConfigItem implements IMySQLConfigItem {
     /**
      * JDBC连接串
      */
@@ -49,16 +49,16 @@ public class DataSourceConfigItem implements IDataSourceConfigItem {
      */
     private int poolMaxWait;
     /**
-     * 德鲁伊管理页用户名
+     * Druid管理页用户名
      */
     private String druidUsername;
     /**
-     * 德鲁伊管理页密码
+     * Druid管理页密码
      */
     private String druidPassword;
 
     @Override
-    @DisconfItem(key = "data.source.jdbc.url")
+    @DisconfItem(key = "mysql.jdbc.url")
     public String getJdbcUrl() {
         return jdbcUrl;
     }
@@ -68,7 +68,7 @@ public class DataSourceConfigItem implements IDataSourceConfigItem {
     }
 
     @Override
-    @DisconfItem(key = "data.source.jdbc.username")
+    @DisconfItem(key = "mysql.jdbc.username")
     public String getJdbcUsername() {
         return jdbcUsername;
     }
@@ -78,7 +78,7 @@ public class DataSourceConfigItem implements IDataSourceConfigItem {
     }
 
     @Override
-    @DisconfItem(key = "data.source.jdbc.password")
+    @DisconfItem(key = "mysql.jdbc.password")
     public String getJdbcPassword() {
         return jdbcPassword;
     }
@@ -88,7 +88,7 @@ public class DataSourceConfigItem implements IDataSourceConfigItem {
     }
 
     @Override
-    @DisconfItem(key = "data.source.pool.initial.size")
+    @DisconfItem(key = "mysql.pool.initial.size")
     public int getPoolInitialSize() {
         return poolInitialSize;
     }
@@ -98,7 +98,7 @@ public class DataSourceConfigItem implements IDataSourceConfigItem {
     }
 
     @Override
-    @DisconfItem(key = "data.source.pool.min.idle")
+    @DisconfItem(key = "mysql.pool.min.idle")
     public int getPoolMinIdle() {
         return poolMinIdle;
     }
@@ -108,7 +108,7 @@ public class DataSourceConfigItem implements IDataSourceConfigItem {
     }
 
     @Override
-    @DisconfItem(key = "data.source.pool.max.active")
+    @DisconfItem(key = "mysql.pool.max.active")
     public int getPoolMaxActive() {
         return poolMaxActive;
     }
@@ -118,7 +118,7 @@ public class DataSourceConfigItem implements IDataSourceConfigItem {
     }
 
     @Override
-    @DisconfItem(key = "data.source.pool.max.wait")
+    @DisconfItem(key = "mysql.pool.max.wait")
     public int getPoolMaxWait() {
         return poolMaxWait;
     }
@@ -128,7 +128,7 @@ public class DataSourceConfigItem implements IDataSourceConfigItem {
     }
 
     @Override
-    @DisconfItem(key = "data.source.druid.username")
+    @DisconfItem(key = "mysql.druid.username")
     public String getDruidUsername() {
         return druidUsername;
     }
@@ -138,7 +138,7 @@ public class DataSourceConfigItem implements IDataSourceConfigItem {
     }
 
     @Override
-    @DisconfItem(key = "data.source.druid.password")
+    @DisconfItem(key = "mysql.druid.password")
     public String getDruidPassword() {
         return druidPassword;
     }
