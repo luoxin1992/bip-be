@@ -5,6 +5,8 @@ package cn.edu.xmu.sy.ext.message;
 
 import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
 
+import java.util.List;
+
 /**
  * 指纹登记Message
  *
@@ -13,9 +15,9 @@ import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
  */
 public class FingerprintEnrollMessage extends BaseSendMessage {
     /**
-     * 用户ID
+     * 用户(ID)
      */
-    private Long userId;
+    private Long user;
     /**
      * 采集次数
      */
@@ -24,17 +26,21 @@ public class FingerprintEnrollMessage extends BaseSendMessage {
      * 超时时间
      */
     private Integer timeout;
+    /**
+     * 附加信息
+     */
+    private List<String> extras;
 
     public FingerprintEnrollMessage() {
         super(MessageTypeEnum.FINGERPRINT_ENROLL);
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getUser() {
+        return user;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setUser(Long user) {
+        this.user = user;
     }
 
     public Integer getTimes() {
@@ -51,5 +57,13 @@ public class FingerprintEnrollMessage extends BaseSendMessage {
 
     public void setTimeout(Integer timeout) {
         this.timeout = timeout;
+    }
+
+    public List<String> getExtras() {
+        return extras;
+    }
+
+    public void setExtras(List<String> extras) {
+        this.extras = extras;
     }
 }

@@ -11,8 +11,8 @@ import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
  * @author luoxin
  * @version 2017-4-29
  */
-public class BackHomeMessage extends BaseSendMessage {
-    public BackHomeMessage() {
-        super(MessageTypeEnum.BACK_HOME);
+public class ServiceCancelMessage extends BaseSendMessage {
+    public ServiceCancelMessage() {
+        super(MessageTypeEnum.SERVICE_CANCEL);
     }
 }

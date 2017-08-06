@@ -8,31 +8,19 @@ import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
 import java.util.List;
 
 /**
- * 指纹辨识Message
+ * 一般业务Message
  *
  * @author luoxin
  * @version 2017-4-25
  */
-public class FingerprintIdentifyMessage extends BaseSendMessage {
-    /**
-     * 超时时间
-     */
-    private Integer timeout;
+public class GeneralBusinessMessage extends BaseSendMessage {
     /**
      * 附加信息
      */
     private List<String> extras;
 
-    public FingerprintIdentifyMessage() {
-        super(MessageTypeEnum.FINGERPRINT_IDENTIFY);
-    }
-
-    public Integer getTimeout() {
-        return timeout;
-    }
-
-    public void setTimeout(Integer timeout) {
-        this.timeout = timeout;
+    public GeneralBusinessMessage() {
+        super(MessageTypeEnum.GENERAL_BUSINESS);
     }
 
     public List<String> getExtras() {

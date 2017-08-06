@@ -13,11 +13,11 @@ import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
  */
 public class UpdateCounterInfoMessage extends BaseSendMessage {
     /**
-     * 窗口编号
+     * 编号
      */
     private String number;
     /**
-     * 窗口名称
+     * 名称
      */
     private String name;
 

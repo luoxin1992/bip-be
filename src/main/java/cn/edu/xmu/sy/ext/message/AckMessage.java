@@ -3,8 +3,6 @@
  */
 package cn.edu.xmu.sy.ext.message;
 
-import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
-
 /**
  * 确认Message
  *
@@ -12,7 +10,4 @@ import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
  * @version 2017-4-25
  */
 public class AckMessage extends BaseReceiveMessage {
-    public AckMessage() {
-        super(MessageTypeEnum.ACK);
-    }
 }

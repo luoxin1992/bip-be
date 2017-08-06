@@ -13,24 +13,12 @@ import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
  */
 public class UpdateCompanyInfoMessage extends BaseSendMessage {
     /**
-     * 公司商标
-     */
-    private String logo;
-    /**
-     * 公司名称
+     * 名称
      */
     private String name;
 
     public UpdateCompanyInfoMessage() {
         super(MessageTypeEnum.UPDATE_COUNTER_INFO);
-    }
-
-    public String getLogo() {
-        return logo;
-    }
-
-    public void setLogo(String logo) {
-        this.logo = logo;
     }
 
     public String getName() {

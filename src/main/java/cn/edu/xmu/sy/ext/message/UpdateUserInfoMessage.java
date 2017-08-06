@@ -13,17 +13,13 @@ import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
  */
 public class UpdateUserInfoMessage extends BaseSendMessage {
     /**
-     * 用户编号
+     * 编号
      */
     private String number;
     /**
-     * 用户姓名
+     * 姓名
      */
     private String name;
-    /**
-     * 用户照片(URL)
-     */
-    private String photo;
 
     public UpdateUserInfoMessage() {
         super(MessageTypeEnum.UPDATE_USER_INFO);
@@ -43,13 +39,5 @@ public class UpdateUserInfoMessage extends BaseSendMessage {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getPhoto() {
-        return photo;
-    }
-
-    public void setPhoto(String photo) {
-        this.photo = photo;
     }
 }

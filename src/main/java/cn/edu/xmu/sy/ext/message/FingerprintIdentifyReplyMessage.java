@@ -3,8 +3,6 @@
  */
 package cn.edu.xmu.sy.ext.message;
 
-import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
-
 /**
  * 指纹辨识回复Message
  *
@@ -20,10 +18,6 @@ public class FingerprintIdentifyReplyMessage extends BaseReceiveMessage {
      * 指纹模型
      */
     private String template;
-
-    public FingerprintIdentifyReplyMessage() {
-        super(MessageTypeEnum.FINGERPRINT_IDENTIFY_REPLY);
-    }
 
     public String getStatus() {
         return status;

@@ -3,8 +3,6 @@
  */
 package cn.edu.xmu.sy.ext.message;
 
-import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
-
 /**
  * 接收的消息基类
  *
@@ -13,17 +11,13 @@ import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
  */
 public class BaseReceiveMessage {
     /**
-     * (回复的)消息ID
+     * (回复)UID
      */
     private Long uid;
     /**
      * 类型
      */
     private String type;
-
-    BaseReceiveMessage(MessageTypeEnum type) {
-        this.type = type.getType();
-    }
 
     public Long getUid() {
         return uid;
