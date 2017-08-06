@@ -5,43 +5,38 @@
 <mapper namespace="cn.edu.xmu.sy.ext.mapper.SettingMapper">
     <resultMap id="settingMap" type="cn.edu.xmu.sy.ext.domain.SettingDO">
         <result column="id" jdbcType="BIGINT" property="id"/>
-        <result column="parent" jdbcType="BIGINT" property="parent"/>
+        <result column="parent_id" jdbcType="BIGINT" property="parentId"/>
         <result column="key" jdbcType="VARCHAR" property="key"/>
         <result column="value" jdbcType="VARCHAR" property="value"/>
         <result column="reg_exp" jdbcType="VARCHAR" property="regExp"/>
         <result column="description" jdbcType="VARCHAR" property="description"/>
-        <result column="remark" jdbcType="VARCHAR" property="remark"/>
         <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
         <result column="gmt_modify" jdbcType="TIMESTAMP" property="gmtModify"/>
     </resultMap>
 
-    <sql id="generalInsertColumns">
-        id, parent, `key`, value, reg_exp, description, remark, gmt_create, gmt_modify
-    </sql>
-
-    <sql id="generalSelectColumns">
-        id, parent, `key`, value, reg_exp, description, remark
+    <sql id="generalColumns">
+        id, parent_id, `key`, value, reg_exp, description, gmt_create, gmt_modify
     </sql>
 
     <insert id="save" parameterType="cn.edu.xmu.sy.ext.domain.SettingDO">
-        insert into tbl_setting(<include refid="generalInsertColumns"/>)
-        values(#{id}, #{parent}, #{key}, #{value}, #{regExp}, #{description}, #{remark}, #{gmtCreate}, #{gmtModify})
+        insert into tbl_setting(<include refid="generalColumns"/>)
+        values(#{id}, #{parentId}, #{key}, #{value}, #{regExp}, #{description}, #{gmtCreate}, #{gmtModify})
     </insert>
 
     <insert id="saveBatch" parameterType="cn.edu.xmu.sy.ext.domain.SettingDO">
-        insert into tbl_setting(<include refid="generalInsertColumns"/>)
+        insert into tbl_setting(<include refid="generalColumns"/>)
         values
         <foreach collection="list" item="item" separator=",">
-            (#{item.id}, #{item.parent}, #{item.key}, #{item.value}, #{item.regExp}, #{item.description},
-            #{item.remark}, #{item.gmtCreate}, #{item.gmtModify})
+            (#{item.id}, #{item.parentId}, #{item.key}, #{item.value}, #{item.regExp}, #{item.description},
+            #{item.gmtCreate}, #{item.gmtModify})
         </foreach>
     </insert>
 
     <update id="updateById" parameterType="cn.edu.xmu.sy.ext.domain.SettingDO">
         update tbl_setting
         set gmt_modify = #{gmtModify}
-        <if test="parent != null">
-            , parent = #{parent}
+        <if test="parentId != null">
+            , parent_id = #{parentId}
         </if>
         <if test="key != null">
             , `key` = #{key}
@@ -55,9 +50,6 @@
         <if test="description != null">
             , description = #{description}
         </if>
-        <if test="remark != null">
-            , remark = #{remark}
-        </if>
         where id = #{id} and is_delete = 0
     </update>
 
@@ -66,29 +58,31 @@
         where id = #{id} and is_delete = 0
     </update>
 
-    <update id="removeByParent" parameterType="java.lang.Long">
+    <update id="removeByParentId" parameterType="java.lang.Long">
         update tbl_setting set is_delete = 1
-        where (parent = #{parent} or id = #{parent}) and is_delete = 0
+        where (parent_id = #{parentId} or id = #{parentId}) and is_delete = 0
     </update>
 
     <select id="getById" parameterType="java.lang.Long" resultMap="settingMap">
         select
-        <include refid="generalSelectColumns"/>
+        <include refid="generalColumns"/>
         from tbl_setting
         where id = #{id} and is_delete = 0
+        limit 1
     </select>
 
-    <select id="getValueByKey" parameterType="java.lang.String" resultType="java.lang.String">
-        select value
+    <select id="getByKey" parameterType="java.lang.String" resultMap="settingMap">
+        select
+        <include refid="generalColumns"/>
         from tbl_setting
         where `key` = #{key} and is_delete = 0
         limit 1
     </select>
 
-    <select id="list" resultMap="settingMap">
+    <select id="listByParam" parameterType="cn.edu.xmu.sy.ext.param.SettingQueryParam" resultMap="settingMap">
         select
-        <include refid="generalSelectColumns"/>
+        <include refid="generalColumns"/>
         from tbl_setting
-        where is_delete = 0
+        where parent_id = (select id from tbl_setting where `key` = #{parent}) and is_delete = 0
     </select>
 </mapper>

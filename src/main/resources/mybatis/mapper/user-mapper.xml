@@ -12,21 +12,17 @@
         <result column="gmt_modify" jdbcType="TIMESTAMP" property="gmtModify"/>
     </resultMap>
 
-    <sql id="generalInsertColumns">
+    <sql id="generalColumns">
         id, number, name, photo, gmt_create, gmt_modify
     </sql>
 
-    <sql id="generalSelectColumns">
-        id, number, name, photo
-    </sql>
-
     <insert id="save" parameterType="cn.edu.xmu.sy.ext.domain.UserDO">
-        insert into tbl_user(<include refid="generalInsertColumns"/>)
+        insert into tbl_user(<include refid="generalColumns"/>)
         values(#{id}, #{number}, #{name}, #{photo}, #{gmtCreate}, #{gmtModify})
     </insert>
 
     <insert id="saveBatch" parameterType="cn.edu.xmu.sy.ext.domain.UserDO">
-        insert into tbl_user(<include refid="generalInsertColumns"/>)
+        insert into tbl_user(<include refid="generalColumns"/>)
         values
         <foreach collection="list" item="item" separator=",">
             (#{item.id}, #{item.number}, #{item.name}, #{item.photo}, #{item.gmtCreate}, #{item.gmtModify})
@@ -56,30 +52,18 @@
 
     <select id="getById" parameterType="java.lang.Long" resultMap="userMap">
         select
-        <include refid="generalSelectColumns"/>
+        <include refid="generalColumns"/>
         from tbl_user
         where id = #{id} and is_delete = 0
+        limit 1
     </select>
 
-    <select id="countAll" resultType="java.lang.Long">
-        select count(1)
-        from tbl_user
-        where is_delete = 0
-    </select>
-
-    <select id="listByPaging" resultMap="userMap">
+    <select id="getByNumber" parameterType="java.lang.String" resultMap="userMap">
         select
-        <include refid="generalSelectColumns"/>
+        <include refid="generalColumns"/>
         from tbl_user
-        where is_delete = 0
-        <if test="rows != null">
-            <if test="offset != null">
-                limit ${offset}, ${rows}
-            </if>
-            <if test="offset == null">
-                limit ${rows}
-            </if>
-        </if>
+        where number = #{number} and is_delete = 0
+        limit 1
     </select>
 
     <select id="countByParam" parameterType="cn.edu.xmu.sy.ext.param.UserQueryParam" resultType="java.lang.Long">
@@ -92,7 +76,7 @@
 
     <select id="queryByParam" parameterType="cn.edu.xmu.sy.ext.param.UserQueryParam" resultMap="userMap">
         select
-        <include refid="generalSelectColumns"/>
+        <include refid="generalColumns"/>
         from tbl_user
         where is_delete = 0
         <if test="search.keyword != null">
@@ -109,14 +93,5 @@
         <if test="paging.start == null">
             limit ${paging.size}
         </if>
-    </select>
-
-    <select id="getIdByNumber" resultType="java.lang.Long">
-        select id from tbl_user
-        where number = #{number} and is_delete = 0
-        <if test="exclude != null">
-            and id != #{exclude}
-        </if>
-        limit 1
     </select>
 </mapper>

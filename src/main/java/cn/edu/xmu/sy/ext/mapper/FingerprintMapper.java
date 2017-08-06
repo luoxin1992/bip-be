@@ -29,15 +29,15 @@ public interface FingerprintMapper {
 
     FingerprintDO getById(Long id);
 
-    FingerprintDO getByUuid(String uuid);
-
-    List<FingerprintDO> getByUserId(Long userId);
+    FingerprintDO getByUid(Integer uid);
 
     Long countByUserId(Long userId);
+
+    List<FingerprintDO> getByUserId(Long userId);
 
     List<FingerprintDO> listByUserId(List<Long> userIds);
 
     Long countAll();
 
-    List<FingerprintDO> listByPaging(@Param("offset") Long offset, @Param("rows") Integer rows);
+    List<FingerprintDO> listAll(@Param("offset") Long offset, @Param("rows") Integer rows);
 }

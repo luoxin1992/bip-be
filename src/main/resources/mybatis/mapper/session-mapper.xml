@@ -14,21 +14,17 @@
         <result column="gmt_modify" jdbcType="TIMESTAMP" property="gmtModify"/>
     </resultMap>
 
-    <sql id="generalInsertColumns">
+    <sql id="generalColumns">
         id, counter_id, token, status, online_time, offline_time, gmt_create, gmt_modify
     </sql>
 
-    <sql id="generalSelectColumns">
-        id, counter_id, token, status, online_time, offline_time
-    </sql>
-
     <insert id="save" parameterType="cn.edu.xmu.sy.ext.domain.SessionDO">
-        insert into tbl_session(<include refid="generalInsertColumns"/>)
+        insert into tbl_session(<include refid="generalColumns"/>)
         values(#{id}, #{counterId}, #{token}, #{status}, #{onlineTime}, #{offlineTime}, #{gmtCreate}, #{gmtModify})
     </insert>
 
     <insert id="saveBatch" parameterType="cn.edu.xmu.sy.ext.domain.SessionDO">
-        insert into tbl_session(<include refid="generalInsertColumns"/>)
+        insert into tbl_session(<include refid="generalColumns"/>)
         values
         <foreach collection="list" item="item" separator=",">
             (#{item.id}, #{item.counterId}, #{item.token}, #{item.status}, #{item.onlineTime}, #{item.offlineTime},
@@ -69,93 +65,59 @@
 
     <select id="getById" parameterType="java.lang.Long" resultMap="sessionMap">
         select
-        <include refid="generalSelectColumns"/>
+        <include refid="generalColumns"/>
         from tbl_session
         where id = #{id} and is_delete = 0
     </select>
 
-    <select id="getByCounterId" parameterType="java.lang.Long" resultMap="sessionMap">
+    <select id="getByToken" parameterType="java.lang.String" resultMap="sessionMap">
         select
-        <include refid="generalSelectColumns"/>
+        <include refid="generalColumns"/>
         from tbl_session
-        where counter_id = #{counterId} and is_delete = 0
+        where token = #{token} and is_delete = 0
+        order by id desc
+        limit 1
     </select>
 
-    <select id="listByCounterId" parameterType="java.lang.Long" resultMap="sessionMap">
+    <select id="listById" parameterType="java.lang.Long" resultMap="sessionMap">
         select
-        <include refid="generalSelectColumns"/>
+        <include refid="generalColumns"/>
         from tbl_session
-        where counter_id in
-        <foreach collection="list" item="item" open="(" close=")" separator=",">
+        where id in
+        <foreach collection="list" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
         and is_delete = 0
     </select>
 
-    <select id="getByParam" parameterType="cn.edu.xmu.sy.ext.param.SessionQueryParam" resultMap="sessionMap">
+    <select id="getByCounterId" resultMap="sessionMap">
         select
-        <include refid="generalSelectColumns"/>
+        <include refid="generalColumns"/>
         from tbl_session
-        where is_delete = 0
-        <if test="counterId != null">
-            and counter_id = #{counterId}
-        </if>
-        <if test="status != null">
-            and status = #{status}
-        </if>
-        <if test="period != null">
-            and(
-            <!--在线-->
-            (status = 1 and #{period.end} >= online_time)
-            or
-            <!--离线/强制关闭-->
-            ((status = 2 or status = 5) and #{period.end} >= online_time and offline_time >= #{period.start})
-            or
-            <!--服务端/客户端失联-->
-            ((status = 3 or status = 4) and #{period.end} >= online_time and online_time >= #{period.start})
-            )
+        where counter_id = #{counterId} and is_delete = 0
+        order by id desc
+        <if test="limit != null">
+            limit ${limit}
         </if>
     </select>
 
-    <select id="listByParam" parameterType="cn.edu.xmu.sy.ext.param.SessionBatchQueryParam" resultMap="sessionMap">
+    <select id="listByCounterId" resultMap="sessionMap">
+        <!--TODO 外层select where in不走索引-->
         select
-        <include refid="generalSelectColumns"/>
+        <include refid="generalColumns"/>
         from tbl_session
-        where is_delete = 0
-        <if test="counterIds != null">
-            and counter_id in
-            <foreach collection="counterIds" item="item" open="(" close=")" separator=",">
+        where id in
+        (
+            <!--批量查询获取最新id-->
+            select max(id)
+            from tbl_session
+            where counter_id in
+            <foreach collection="list" item="item" open="(" separator="," close=")">
                 #{item}
             </foreach>
-        </if>
-        <if test="status != null">
-            and status = #{status}
-        </if>
-        <if test="period != null">
-            and(
-            <!--在线-->
-            (status = 1 and #{period.end} >= online_time)
-            or
-            <!--离线/强制关闭-->
-            ((status = 2 or status = 5) and #{period.end} >= online_time and offline_time >= #{period.start})
-            or
-            <!--服务端/客户端失联-->
-            ((status = 3 or status = 4) and #{period.end} >= online_time and online_time >= #{period.start})
-            )
-        </if>
-    </select>
-
-    <select id="getOnlineIdByCounterId" parameterType="java.lang.Long" resultType="java.lang.Long">
-        select id
-        from tbl_session
-        where counter_id = #{id} and status = 1 and is_delete = 0
-        limit 1
-    </select>
-
-    <select id="getIdByToken" parameterType="java.lang.String" resultType="java.lang.Long">
-        select id
-        from tbl_session
-        where token = #{token} and is_delete = 0
-        limit 1
+            and is_delete = 0
+            group by counter_id
+        )
+        and is_delete = 0
     </select>
 </mapper>

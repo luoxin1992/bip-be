@@ -11,25 +11,17 @@
         <result column="gmt_modify" jdbcType="TIMESTAMP" property="gmtModify"/>
     </resultMap>
 
-    <sql id="generalInsertColumns">
+    <sql id="generalColumns">
         id, type, content, gmt_create, gmt_modify
     </sql>
 
-    <sql id="generalSelectColumns">
-        id, type, content
-    </sql>
-
-    <sql id="selectWithTimestampColumns">
-        id, type, content, gmt_create
-    </sql>
-
     <insert id="save" parameterType="cn.edu.xmu.sy.ext.domain.LogDO">
-        insert into tbl_log(<include refid="generalInsertColumns"/>)
+        insert into tbl_log(<include refid="generalColumns"/>)
         values(#{id}, #{type}, #{content}, #{gmtCreate}, #{gmtModify})
     </insert>
 
     <insert id="saveBatch" parameterType="cn.edu.xmu.sy.ext.domain.LogDO">
-        insert into tbl_log(<include refid="generalInsertColumns"/>)
+        insert into tbl_log(<include refid="generalColumns"/>)
         values
         <foreach collection="list" item="item" separator=",">
             (#{item.id}, #{item.type}, #{item.content}, #{item.gmtCreate}, #{item.gmtModify})
@@ -55,15 +47,30 @@
 
     <select id="getById" parameterType="java.lang.Long" resultMap="logMap">
         select
-        <include refid="generalSelectColumns"/>
+        <include refid="generalColumns"/>
         from tbl_log
         where id = #{id} and is_delete = 0
         limit 1
     </select>
 
+    <select id="countByParam" parameterType="cn.edu.xmu.sy.ext.param.LogQueryParam" resultType="java.lang.Long">
+        select count(1)
+        from tbl_log
+        where is_delete = 0
+        <if test="type != null">
+            and type = #{type}
+        </if>
+        <if test="period != null">
+            and gmt_create >= #{period.start} and #{period.end} >= gmt_create
+        </if>
+        <if test="search.keyword != null">
+            and match(content) against(#{search.keyword} in boolean mode)
+        </if>
+    </select>
+
     <select id="listByParam" parameterType="cn.edu.xmu.sy.ext.param.LogQueryParam" resultMap="logMap">
         select
-        <include refid="selectWithTimestampColumns"/>
+        <include refid="generalColumns"/>
         from tbl_log
         where is_delete = 0
         <if test="type != null">
@@ -83,21 +90,6 @@
         </if>
         <if test="paging.start == null">
             limit ${paging.size}
-        </if>
-    </select>
-
-    <select id="countByParam" parameterType="cn.edu.xmu.sy.ext.param.LogQueryParam" resultType="java.lang.Long">
-        select count(1)
-        from tbl_log
-        where is_delete = 0
-        <if test="type != null">
-            and type = #{type}
-        </if>
-        <if test="period != null">
-            and gmt_create >= #{period.start} and #{period.end} >= gmt_create
-        </if>
-        <if test="search.keyword != null">
-            and match(content) against(#{search.keyword} in boolean mode)
         </if>
     </select>
 </mapper>

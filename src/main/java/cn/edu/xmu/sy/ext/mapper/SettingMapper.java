@@ -4,6 +4,7 @@
 package cn.edu.xmu.sy.ext.mapper;
 
 import cn.edu.xmu.sy.ext.domain.SettingDO;
+import cn.edu.xmu.sy.ext.param.SettingQueryParam;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -24,11 +25,11 @@ public interface SettingMapper {
 
     Integer removeById(Long id);
 
-    Integer removeByParent(Long parent);
+    Integer removeByParentId(Long parent);
 
     SettingDO getById(Long id);
 
-    String getValueByKey(String key);
+    SettingDO getByKey(String key);
 
-    List<SettingDO> list();
+    List<SettingDO> listByParam(SettingQueryParam param);
 }

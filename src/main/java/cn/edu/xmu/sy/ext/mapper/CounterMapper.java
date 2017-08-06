@@ -28,13 +28,17 @@ public interface CounterMapper {
 
     CounterDO getById(Long id);
 
-    List<CounterDO> listByParam(CounterQueryParam param);
-
-    Long countByParam(CounterQueryParam param);
+    CounterDO getByNumber(String number);
 
     CounterDO getByMacAndIp(@Param("mac") String mac, @Param("ip") String ip);
 
-    Long getIdByMacOrIp(@Param("mac") String mac, @Param("ip") String ip, @Param("exclude") Long exclude);
+    List<CounterDO> listById(List<Long> counterIds);
 
-    Long getIdByNumber(@Param("number") String number, @Param("exclude") Long exclude);
+    Long countByParam(CounterQueryParam param);
+
+    List<CounterDO> listByParam(CounterQueryParam param);
+
+    Long countAll();
+
+    List<CounterDO> listAll(@Param("offset") Long offset, @Param("rows") Integer rows);
 }

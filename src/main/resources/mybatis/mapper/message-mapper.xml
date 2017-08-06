@@ -5,57 +5,61 @@
 <mapper namespace="cn.edu.xmu.sy.ext.mapper.MessageMapper">
     <resultMap id="messageMap" type="cn.edu.xmu.sy.ext.domain.MessageDO">
         <result column="id" jdbcType="BIGINT" property="id"/>
-        <result column="reply_id" jdbcType="BIGINT" property="replyId"/>
         <result column="counter_id" jdbcType="BIGINT" property="counterId"/>
         <result column="session_id" jdbcType="BIGINT" property="sessionId"/>
+        <result column="uid" jdbcType="BIGINT" property="uid"/>
+        <result column="direction" jdbcType="INTEGER" property="direction"/>
         <result column="type" jdbcType="VARCHAR" property="type"/>
         <result column="body" jdbcType="VARCHAR" property="body"/>
+        <result column="retry" jdbcType="INTEGER" property="retry"/>
         <result column="send_time" jdbcType="TIMESTAMP" property="sendTime"/>
         <result column="ack_time" jdbcType="TIMESTAMP" property="ackTime"/>
         <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
         <result column="gmt_modify" jdbcType="TIMESTAMP" property="gmtModify"/>
     </resultMap>
 
-    <sql id="generalInsertColumns">
-        id, reply_id, counter_id, session_id, type, body, send_time, ack_time, gmt_create, gmt_modify
-    </sql>
-
-    <sql id="generalSelectColumns">
-        id, reply_id, counter_id, session_id, type, body, send_time, ack_time
+    <sql id="generalColumns">
+        id, counter_id, session_id, uid, direction, type, body, retry, send_time, ack_time, gmt_create, gmt_modify
     </sql>
 
     <insert id="save" parameterType="cn.edu.xmu.sy.ext.domain.MessageDO">
-        insert into tbl_message(<include refid="generalInsertColumns"/>)
-        values(#{id}, #{replyId}, #{counterId}, #{sessionId}, #{type}, #{body}, #{sendTime}, #{ackTime},
-        #{gmtCreate}, #{gmtModify})
+        insert into tbl_message(<include refid="generalColumns"/>)
+        values(#{id}, #{counterId}, #{sessionId}, #{uid}, #{direction}, #{type}, #{body}, #{retry}, #{sendTime},
+        #{ackTime}, #{gmtCreate}, #{gmtModify})
     </insert>
 
     <insert id="saveBatch" parameterType="cn.edu.xmu.sy.ext.domain.MessageDO">
-        insert into tbl_message(<include refid="generalInsertColumns"/>)
+        insert into tbl_message(<include refid="generalColumns"/>)
         values
         <foreach collection="list" item="item" separator=",">
-            (#{item.id}, #{item.replyId}, #{item.counterId}, #{item.sessionId}, #{item.type}, #{item.body},
-            #{item.sendTime}, #{item.ackTime}, #{item.gmtCreate}, #{item.gmtModify})
+            (#{item.id}, #{item.counterId}, #{item.sessionId}, #{item.uid}, #{item.direction}, #{item.type},
+            #{item.body}, #{item.retry}, #{item.sendTime}, #{item.ackTime}, #{item.gmtCreate}, #{item.gmtModify})
         </foreach>
     </insert>
 
     <update id="updateById" parameterType="cn.edu.xmu.sy.ext.domain.MessageDO">
         update tbl_message
         set gmt_modify = #{gmtModify}
-        <if test="replyId != null">
-            , reply_id = #{replyId}
-        </if>
         <if test="counterId != null">
             , counter_id = #{counterId}
         </if>
         <if test="sessionId != null">
             , session_id = #{sessionId}
         </if>
+        <if test="uid != null">
+            , uid = #{uid}
+        </if>
+        <if test="direction != null">
+            , direction = #{direction}
+        </if>
         <if test="type != null">
             , type = #{type}
         </if>
         <if test="body != null">
             , body = #{body}
+        </if>
+        <if test="retry != null">
+            , retry = #{retry}
         </if>
         <if test="sendTime != null">
             , send_time = #{sendTime}
@@ -71,82 +75,53 @@
         where id = #{id} and is_delete = 0
     </update>
 
-    <update id="removeByCounterId" parameterType="java.lang.Long">
+    <update id="removeByCounterId">
         update tbl_message set is_delete = 1
         where counter_id = #{counterId} and is_delete = 0
     </update>
-    <update id="removeBySessionId" parameterType="java.lang.Long">
+
+    <update id="removeBySessionId">
         update tbl_message set is_delete = 1
-        where session_id = #{sessionId} and is_delete = 0
+        where counter_id = #{counterId} and session_id = #{sessionId} and is_delete = 0
     </update>
 
     <select id="getById" parameterType="java.lang.Long" resultMap="messageMap">
         select
-        <include refid="generalSelectColumns"/>
+        <include refid="generalColumns"/>
         from tbl_message
         where id = #{id} and is_delete = 0
         limit 1
     </select>
 
-    <select id="getByReplyId" parameterType="java.lang.Long" resultMap="messageMap">
+    <select id="getByUid" parameterType="java.lang.Long" resultMap="messageMap">
         select
-        <include refid="generalSelectColumns"/>
+        <include refid="generalColumns"/>
         from tbl_message
-        where reply_id = #{replyId} and is_delete = 0
-        limit 1
+        where uid = #{uid} and is_delete = 0
+        <if test="direction != null">
+            and direction = #{direction}
+        </if>
     </select>
 
-    <select id="getByCounterId" parameterType="java.lang.Long" resultMap="messageMap">
+    <select id="listByUid" resultMap="messageMap">
         select
-        <include refid="generalSelectColumns"/>
+        <include refid="generalColumns"/>
         from tbl_message
-        where counter_id = #{counterId} and is_delete = 0
-    </select>
-
-    <select id="getBySessionId" parameterType="java.lang.Long" resultMap="messageMap">
-        select
-        <include refid="generalSelectColumns"/>
-        from tbl_message
-        where session_id = #{sessionId} and is_delete = 0
-    </select>
-
-    <select id="listByReplyId" parameterType="java.lang.Long" resultMap="messageMap">
-        select
-        <include refid="generalSelectColumns"/>
-        from tbl_message
-        where is_delete = 0 and reply_id in
-        <foreach collection="list" item="item" open="(" close=")" separator=",">
+        where uid in
+        <foreach collection="uids" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
-    </select>
-
-    <select id="listByCounterId" parameterType="java.lang.Long" resultMap="messageMap">
-        select
-        <include refid="generalSelectColumns"/>
-        from tbl_message
-        where counter_id in
-        <foreach collection="list" item="item" open="(" close=")" separator=",">
-            #{item}
-        </foreach>
-        and is_delete = 0
-    </select>
-
-    <select id="listBySessionId" parameterType="java.lang.Long" resultMap="messageMap">
-        select
-        <include refid="generalSelectColumns"/>
-        from tbl_message
-        where session_id in
-        <foreach collection="list" item="item" open="(" close=")" separator=",">
-            #{item}
-        </foreach>
+        <if test="direction != null">
+            and direction = #{direction}
+        </if>
         and is_delete = 0
     </select>
 
     <select id="countByParam" parameterType="cn.edu.xmu.sy.ext.param.MessageQueryParam" resultType="java.lang.Long">
         select count(1)
         from tbl_message
-        <!--只查询下发的消息(reply_id = 0)，回复部分需二次查询-->
-        where is_delete = 0 and reply_id = 0
+        <!--只查询发送的消息，接收的消息需要二次查询-->
+        where direction = 0 and is_delete = 0
         <if test="type != null">
             and type = #{type}
         </if>
@@ -166,9 +141,9 @@
 
     <select id="listByParam" parameterType="cn.edu.xmu.sy.ext.param.MessageQueryParam" resultMap="messageMap">
         select
-        <include refid="generalSelectColumns"/>
+        <include refid="generalColumns"/>
         from tbl_message
-        where is_delete = 0 and reply_id = 0
+        where direction > 0 and is_delete = 0
         <if test="type != null">
             and type = #{type}
         </if>

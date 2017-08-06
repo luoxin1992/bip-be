@@ -6,35 +6,27 @@
     <resultMap id="resourceMap" type="cn.edu.xmu.sy.ext.domain.ResourceDO">
         <result column="id" jdbcType="BIGINT" property="id"/>
         <result column="type" jdbcType="VARCHAR" property="type"/>
-        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="tag" jdbcType="VARCHAR" property="tag"/>
         <result column="filename" jdbcType="VARCHAR" property="filename"/>
         <result column="md5" jdbcType="VARCHAR" property="md5"/>
         <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
         <result column="gmt_modify" jdbcType="TIMESTAMP" property="gmtModify"/>
     </resultMap>
 
-    <sql id="generalInsertColumns">
-        id, type, name, filename, md5, gmt_create, gmt_modify
-    </sql>
-
-    <sql id="generalSelectColumns">
-        id, type, name, filename, md5
-    </sql>
-
-    <sql id="selectWithTimestampColumns">
-        id, type, name, filename, md5, gmt_modify
+    <sql id="generalColumns">
+        id, type, tag, filename, md5, gmt_create, gmt_modify
     </sql>
 
     <insert id="save" parameterType="cn.edu.xmu.sy.ext.domain.ResourceDO">
-        insert into tbl_resource(<include refid="generalInsertColumns"/>)
-        values(#{id}, #{type}, #{name}, #{filename}, #{md5}, #{gmtCreate}, #{gmtModify})
+        insert into tbl_resource(<include refid="generalColumns"/>)
+        values(#{id}, #{type}, #{tag}, #{filename}, #{md5}, #{gmtCreate}, #{gmtModify})
     </insert>
 
     <insert id="saveBatch" parameterType="cn.edu.xmu.sy.ext.domain.ResourceDO">
-        insert into tbl_resource(<include refid="generalInsertColumns"/>)
+        insert into tbl_resource(<include refid="generalColumns"/>)
         values
         <foreach collection="list" item="item" separator=",">
-            (#{item.id}, #{item.type}, #{item.name}, #{item.filename}, #{item.md5},
+            (#{item.id}, #{item.type}, #{item.tag}, #{item.filename}, #{item.md5},
             #{item.gmtCreate}, #{item.gmtModify})
         </foreach>
     </insert>
@@ -45,8 +37,8 @@
         <if test="type != null">
             , type = #{type}
         </if>
-        <if test="name != null">
-            , name = #{name}
+        <if test="tag != null">
+            , tag = #{tag}
         </if>
         <if test="filename != null">
             , filename = #{filename}
@@ -64,40 +56,42 @@
 
     <select id="getById" parameterType="java.lang.Long" resultMap="resourceMap">
         select
-        <include refid="generalSelectColumns"/>
+        <include refid="generalColumns"/>
         from tbl_resource
         where id = #{id} and is_delete = 0
         limit 1
     </select>
 
-    <select id="countAll" parameterType="java.lang.String" resultType="java.lang.Long">
+    <select id="getByType" parameterType="java.lang.String" resultMap="resourceMap">
+        select
+        <include refid="generalColumns"/>
+        from tbl_resource
+        where type = #{type} and is_delete = 0
+    </select>
+
+    <select id="getByTag" resultMap="resourceMap">
+        select
+        <include refid="generalColumns"/>
+        from tbl_resource
+        where type = #{type} and tag = #{tag} and is_delete = 0
+        limit 1
+    </select>
+
+    <select id="countByParam" parameterType="cn.edu.xmu.sy.ext.param.ResourceQueryParam" resultType="java.lang.Long">
         select count(1)
         from tbl_resource
         where is_delete = 0
-        <if test="type != null">
-            and type = #{type}
+        <if test="period != null">
+            and gmt_modify >= #{period.start} and #{period.end} >= gmt_modify
         </if>
-    </select>
-
-    <select id="listByPaging" resultMap="resourceMap">
-        select
-        <include refid="generalSelectColumns"/>
-        from tbl_resource
-        where is_delete = 0
-        <if test="type != null">
-            and type = #{type}
-        </if>
-        <if test="offset != null">
-            limit ${offset}, ${rows}
-        </if>
-        <if test="offset == null">
-            limit ${rows}
+        <if test="search.keyword != null">
+            and match(name) against (#{search.keyword} in boolean mode)
         </if>
     </select>
 
     <select id="listByParam" parameterType="cn.edu.xmu.sy.ext.param.ResourceQueryParam" resultMap="resourceMap">
         select
-        <include refid="selectWithTimestampColumns"/>
+        <include refid="generalColumns"/>
         from tbl_resource
         where is_delete = 0
         <if test="period != null">
@@ -117,22 +111,22 @@
         </if>
     </select>
 
-    <select id="countByParam" parameterType="cn.edu.xmu.sy.ext.param.ResourceQueryParam" resultType="java.lang.Long">
+    <select id="countAll" resultType="java.lang.Long">
         select count(1)
         from tbl_resource
         where is_delete = 0
-        <if test="period != null">
-            and gmt_modify >= #{period.start} and #{period.end} >= gmt_modify
-        </if>
-        <if test="search.keyword != null">
-            and match(name) against (#{search.keyword} in boolean mode)
-        </if>
     </select>
 
-    <select id="getIdByTypeAndName" resultType="java.lang.Long">
-        select id
+    <select id="listAll" resultMap="resourceMap">
+        select
+        <include refid="generalColumns"/>
         from tbl_resource
-        where type = #{type} and name = #{name} and is_delete = 0
-        limit 1
+        where is_delete = 0
+        <if test="offset != null">
+            limit ${offset}, ${rows}
+        </if>
+        <if test="offset == null">
+            limit ${rows}
+        </if>
     </select>
 </mapper>

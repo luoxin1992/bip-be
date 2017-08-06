@@ -28,13 +28,15 @@ public interface ResourceMapper {
 
     ResourceDO getById(Long id);
 
-    Long countAll(@Param("type") String type);
+    List<ResourceDO> getByType(String type);
 
-    List<ResourceDO> listByPaging(@Param("type") String type, @Param("offset") Long offset, @Param("rows") Integer rows);
-
-    List<ResourceDO> listByParam(ResourceQueryParam param);
+    ResourceDO getByTag(@Param("type") String type, @Param("tag") String tag);
 
     Long countByParam(ResourceQueryParam param);
 
-    Long getIdByTypeAndName(@Param("type") String type, @Param("name") String name);
+    List<ResourceDO> listByParam(ResourceQueryParam param);
+
+    Long countAll();
+
+    List<ResourceDO> listAll(@Param("offset") Long offset, @Param("rows") Integer rows);
 }

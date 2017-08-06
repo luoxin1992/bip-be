@@ -27,7 +27,7 @@ public interface LogMapper {
 
     LogDO getById(Long id);
 
-    List<LogDO> listByParam(LogQueryParam param);
-
     Long countByParam(LogQueryParam param);
+
+    List<LogDO> listByParam(LogQueryParam param);
 }

@@ -13,21 +13,17 @@
         <result column="gmt_modify" jdbcType="TIMESTAMP" property="gmtModify"/>
     </resultMap>
 
-    <sql id="generalInsertColumns">
+    <sql id="generalColumns">
         id, number, name, mac, ip, gmt_create, gmt_modify
     </sql>
 
-    <sql id="generalSelectColumns">
-        id, number, name, mac, ip
-    </sql>
-
     <insert id="save" parameterType="cn.edu.xmu.sy.ext.domain.CounterDO">
-        insert into tbl_counter(<include refid="generalInsertColumns"/>)
+        insert into tbl_counter(<include refid="generalColumns"/>)
         values(#{id}, #{number}, #{name}, #{mac}, #{ip}, #{gmtCreate}, #{gmtModify})
     </insert>
 
     <insert id="saveBatch" parameterType="cn.edu.xmu.sy.ext.domain.CounterDO">
-        insert into tbl_counter(<include refid="generalInsertColumns"/>)
+        insert into tbl_counter(<include refid="generalColumns"/>)
         values
         <foreach collection="list" item="item" separator=",">
             (#{item.id}, #{item.number}, #{item.name}, #{item.mac}, #{item.ip}, #{item.gmtCreate}, #{item.gmtModify})
@@ -59,14 +55,50 @@
 
     <select id="getById" parameterType="java.lang.Long" resultMap="counterMap">
         select
-        <include refid="generalSelectColumns"/>
+        <include refid="generalColumns"/>
         from tbl_counter
         where id = #{id} and is_delete = 0
     </select>
 
+    <select id="getByNumber" parameterType="java.lang.String" resultMap="counterMap">
+        select
+        <include refid="generalColumns"/>
+        from tbl_counter
+        where number = #{number} and is_delete = 0
+        limit 1
+    </select>
+
+    <select id="getByMacAndIp" resultMap="counterMap">
+        select
+        <include refid="generalColumns"/>
+        from tbl_counter
+        where mac = #{mac} and ip = #{ip} and is_delete = 0
+        limit 1
+    </select>
+
+    <select id="listById" parameterType="java.lang.Long" resultMap="counterMap">
+        select
+        <include refid="generalColumns"/>
+        from tbl_counter
+        where id in
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and is_delete = 0
+    </select>
+
+    <select id="countByParam" parameterType="cn.edu.xmu.sy.ext.param.CounterQueryParam" resultType="java.lang.Long">
+        select count(1)
+        from tbl_counter
+        where is_delete = 0
+        <if test="search.keyword != null">
+            and match(number, name, ip) against(#{search.keyword} in boolean mode)
+        </if>
+    </select>
+
     <select id="listByParam" parameterType="cn.edu.xmu.sy.ext.param.CounterQueryParam" resultMap="counterMap">
         select
-        <include refid="generalSelectColumns"/>
+        <include refid="generalColumns"/>
         from tbl_counter
         where is_delete = 0
         <if test="search.keyword != null">
@@ -83,47 +115,22 @@
         </if>
     </select>
 
-    <select id="countByParam" parameterType="cn.edu.xmu.sy.ext.param.CounterQueryParam" resultType="java.lang.Long">
+    <select id="countAll" resultType="java.lang.Long">
         select count(1)
         from tbl_counter
         where is_delete = 0
-        <if test="search.keyword != null">
-            and match(number, name, ip) against(#{search.keyword} in boolean mode)
-        </if>
     </select>
 
-    <select id="getByMacAndIp" resultMap="counterMap">
+    <select id="listAll" resultMap="counterMap">
         select
-        <include refid="generalSelectColumns"/>
+        <include refid="generalColumns"/>
         from tbl_counter
         where is_delete = 0
-        <if test="mac != null and ip != null">
-            and mac = #{mac} and ip = #{ip}
+        <if test="offset != null">
+            limit ${offset}, ${rows}
         </if>
-        limit 1
-    </select>
-
-    <select id="getIdByMacOrIp" resultType="java.lang.Long">
-        select id
-        from tbl_counter
-        where is_delete = 0
-        <!--查询条件是MAC或IP匹配其一，但两者均不能为空-->
-        <if test="mac != null and ip != null">
-            and (mac = #{mac} or ip = #{ip})
+        <if test="offset == null">
+            limit ${rows}
         </if>
-        <if test="exclude != null">
-            and id != #{exclude}
-        </if>
-        limit 1
-    </select>
-
-    <select id="getIdByNumber" resultType="java.lang.Long">
-        select id
-        from tbl_counter
-        where number = #{number} and is_delete = 0
-        <if test="exclude != null">
-            and id != #{exclude}
-        </if>
-        limit 1
     </select>
 </mapper>
