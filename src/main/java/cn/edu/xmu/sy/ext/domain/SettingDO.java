@@ -14,17 +14,17 @@ import cn.com.lx1992.lib.base.domain.BaseDO;
  */
 public class SettingDO extends BaseDO {
     /**
-     * 父类ID
+     * 父ID
      */
-    @FieldComment("父类ID")
-    private Long parent;
+    @FieldComment("父ID")
+    private Long parentId;
     /**
-     * 属性名
+     * 键
      */
     @FieldComment("键")
     private String key;
     /**
-     * 属性值
+     * 值
      */
     @FieldComment("值")
     private String value;
@@ -38,18 +38,13 @@ public class SettingDO extends BaseDO {
      */
     @FieldComment("描述")
     private String description;
-    /**
-     * 备注
-     */
-    @FieldComment("备注")
-    private String remark;
 
-    public Long getParent() {
-        return parent;
+    public Long getParentId() {
+        return parentId;
     }
 
-    public void setParent(Long parent) {
-        this.parent = parent;
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
     }
 
     public String getKey() {
@@ -82,13 +77,5 @@ public class SettingDO extends BaseDO {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark;
     }
 }

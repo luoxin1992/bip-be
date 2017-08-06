@@ -17,11 +17,6 @@ import java.time.LocalDateTime;
  */
 public class MessageDO extends BaseDO {
     /**
-     * 回复消息ID
-     */
-    @FieldComment("回复消息ID")
-    private Long replyId;
-    /**
      * 窗口ID
      */
     @FieldComment("窗口ID")
@@ -32,6 +27,16 @@ public class MessageDO extends BaseDO {
     @FieldComment("会话ID")
     private Long sessionId;
     /**
+     * UID
+     */
+    @FieldComment("UID")
+    private Long uid;
+    /**
+     * 方向
+     */
+    @FieldComment("方向")
+    private Integer direction;
+    /**
      * 类型
      */
     @FieldComment("类型")
@@ -41,6 +46,11 @@ public class MessageDO extends BaseDO {
      */
     @FieldComment("消息体")
     private String body;
+    /**
+     * 重试次数
+     */
+    @FieldComment("重试次数")
+    private Integer retry;
     /**
      * 发送时间
      */
@@ -53,14 +63,6 @@ public class MessageDO extends BaseDO {
     @FieldComment("确认时间")
     @CompareIgnore
     private LocalDateTime ackTime;
-
-    public Long getReplyId() {
-        return replyId;
-    }
-
-    public void setReplyId(Long replyId) {
-        this.replyId = replyId;
-    }
 
     public Long getCounterId() {
         return counterId;
@@ -78,6 +80,22 @@ public class MessageDO extends BaseDO {
         this.sessionId = sessionId;
     }
 
+    public Long getUid() {
+        return uid;
+    }
+
+    public void setUid(Long uid) {
+        this.uid = uid;
+    }
+
+    public Integer getDirection() {
+        return direction;
+    }
+
+    public void setDirection(Integer direction) {
+        this.direction = direction;
+    }
+
     public String getType() {
         return type;
     }
@@ -92,6 +110,14 @@ public class MessageDO extends BaseDO {
 
     public void setBody(String body) {
         this.body = body;
+    }
+
+    public Integer getRetry() {
+        return retry;
+    }
+
+    public void setRetry(Integer retry) {
+        this.retry = retry;
     }
 
     public LocalDateTime getSendTime() {

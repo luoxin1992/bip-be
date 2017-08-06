@@ -20,10 +20,10 @@ public class ResourceDO extends BaseDO {
     @FieldComment("类型")
     private String type;
     /**
-     * 名称
+     * 标签
      */
-    @FieldComment("名称")
-    private String name;
+    @FieldComment("标签")
+    private String tag;
     /**
      * 文件名
      */
@@ -44,12 +44,12 @@ public class ResourceDO extends BaseDO {
         this.type = type;
     }
 
-    public String getName() {
-        return name;
+    public String getTag() {
+        return tag;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 
     public String getFilename() {

@@ -22,19 +22,19 @@ public class FingerprintDO extends BaseDO {
     @FieldComment("用户ID")
     private Long userId;
     /**
-     * 手指名称
+     * UID
      */
-    @FieldComment("手指名称")
+    @FieldComment("UID")
+    private Integer uid;
+    /**
+     * 手指
+     */
+    @FieldComment("手指")
     private String finger;
     /**
-     * UUID
+     * 模板
      */
-    @FieldComment("UUID")
-    private String uuid;
-    /**
-     * 指纹模板
-     */
-    @FieldComment("指纹模板")
+    @FieldComment("模板")
     private String template;
     /**
      * 登记时间
@@ -43,9 +43,9 @@ public class FingerprintDO extends BaseDO {
     @CompareIgnore
     private LocalDateTime enrollTime;
     /**
-     * (最后)辨识时间
+     * 最后辨识时间
      */
-    @FieldComment("(最后)辨识时间")
+    @FieldComment("最后辨识时间")
     @CompareIgnore
     private LocalDateTime identifyTime;
 
@@ -57,20 +57,20 @@ public class FingerprintDO extends BaseDO {
         this.userId = userId;
     }
 
+    public Integer getUid() {
+        return uid;
+    }
+
+    public void setUid(Integer uid) {
+        this.uid = uid;
+    }
+
     public String getFinger() {
         return finger;
     }
 
     public void setFinger(String finger) {
         this.finger = finger;
-    }
-
-    public String getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
     }
 
     public String getTemplate() {
