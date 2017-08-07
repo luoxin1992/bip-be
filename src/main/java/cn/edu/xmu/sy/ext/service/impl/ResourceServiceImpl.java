@@ -5,24 +5,24 @@ package cn.edu.xmu.sy.ext.service.impl;
 
 import cn.com.lx1992.lib.base.result.BaseListResult;
 import cn.com.lx1992.lib.base.result.BasePagingResult;
+import cn.com.lx1992.lib.cat.annotation.CatTransaction;
 import cn.com.lx1992.lib.constant.CommonConstant;
+import cn.com.lx1992.lib.util.DigestUtil;
 import cn.com.lx1992.lib.util.POJOCompareUtil;
 import cn.com.lx1992.lib.util.POJOConvertUtil;
-import cn.edu.xmu.sy.ext.config.ServletConfigItem;
+import cn.edu.xmu.sy.ext.disconf.ServletConfigItem;
 import cn.edu.xmu.sy.ext.domain.ResourceDO;
 import cn.edu.xmu.sy.ext.exception.BizException;
 import cn.edu.xmu.sy.ext.mapper.ResourceMapper;
 import cn.edu.xmu.sy.ext.meta.BizResultEnum;
 import cn.edu.xmu.sy.ext.meta.ResourceTypeEnum;
-import cn.edu.xmu.sy.ext.param.ResourceCreateParam;
-import cn.edu.xmu.sy.ext.param.ResourceModifyParam;
 import cn.edu.xmu.sy.ext.param.ResourceQueryParam;
-import cn.edu.xmu.sy.ext.result.ResourceListSimpleResult;
+import cn.edu.xmu.sy.ext.result.ResourceListResult;
 import cn.edu.xmu.sy.ext.result.ResourceQueryResult;
+import cn.edu.xmu.sy.ext.result.ResourceQuerySimpleResult;
 import cn.edu.xmu.sy.ext.service.LogService;
 import cn.edu.xmu.sy.ext.service.ResourceService;
-import cn.edu.xmu.sy.ext.service.TtsService;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,40 +40,49 @@ import java.util.stream.Collectors;
  * @author luoxin
  * @version 2017-3-27
  */
+@CatTransaction
 @Service
 public class ResourceServiceImpl implements ResourceService {
     private final Logger logger = LoggerFactory.getLogger(ResourceServiceImpl.class);
 
     @Autowired
     private LogService logService;
-    @Autowired
-    private TtsService ttsService;
 
     @Autowired
     private ResourceMapper resourceMapper;
 
-    @Autowired
-    private ServletConfigItem servletConfigItem;
+    private ServletConfigItem servletConfig;
 
     @Override
-    public BaseListResult<ResourceListSimpleResult> listSimple() {
-        String contextPath = servletConfigItem.getContextPath();
-        String uriPrefix = (StringUtils.isEmpty(contextPath) || CommonConstant.SLASH_STRING.equals(contextPath)) ?
-                CommonConstant.SLASH_STRING : CommonConstant.SLASH_STRING + contextPath + CommonConstant.SLASH_STRING;
+    public BaseListResult<ResourceListResult> list() {
+        Long count = resourceMapper.countAll();
+        if (count == 0) {
+            logger.warn("resource list result is empty");
+            return new BaseListResult<>();
+        }
 
-        List<ResourceDO> domains = listAllByTypeRaw(null);
-        List<ResourceListSimpleResult> results = domains.stream()
-                .map(domain -> {
-                    ResourceListSimpleResult result = POJOConvertUtil.convert(domain, ResourceListSimpleResult.class);
-                    result.setUri(uriPrefix + domain.getType() + CommonConstant.SLASH_STRING + domain.getFilename());
-                    return result;
-                })
-                .collect(Collectors.toList());
+        Integer rows = 100;
+        Integer pages = Math.toIntExact(count % rows == 0 ? count / rows : count / rows + 1);
+        logger.info("resource list contain {} result(s) and divide to {} page(s)", count, pages);
 
-        BaseListResult<ResourceListSimpleResult> resResult = new BaseListResult<>();
-        resResult.setTotal(results.size());
-        resResult.setList(results);
-        return resResult;
+        List<ResourceListResult> all = new ArrayList<>();
+        for (int i = 0; i < pages; i++) {
+            List<ResourceDO> domains = resourceMapper.listAll((long) (i * rows), rows);
+            List<ResourceListResult> results = domains.stream()
+                    .map(domain -> {
+                        ResourceListResult result = POJOConvertUtil.convert(domain, ResourceListResult.class);
+                        result.setUrl(buildUrl(domain.getType(), domain.getFilename()));
+                        return result;
+                    })
+                    .collect(Collectors.toList());
+            all.addAll(results);
+        }
+        logger.info("list all {} resource(s)", all.size());
+
+        BaseListResult<ResourceListResult> result = new BaseListResult<>();
+        result.setTotal(all.size());
+        result.setList(all);
+        return result;
     }
 
     @Override
@@ -84,21 +93,17 @@ public class ResourceServiceImpl implements ResourceService {
             return new BasePagingResult<>();
         }
 
-        String contextPath = servletConfigItem.getContextPath();
-        String uriPrefix = (StringUtils.isEmpty(contextPath) || CommonConstant.SLASH_STRING.equals(contextPath)) ?
-                CommonConstant.SLASH_STRING : CommonConstant.SLASH_STRING + contextPath + CommonConstant.SLASH_STRING;
-
         List<ResourceDO> domains = resourceMapper.listByParam(param);
         List<ResourceQueryResult> results = domains.stream()
                 .map((domain) -> {
                     ResourceQueryResult result = POJOConvertUtil.convert(domain, ResourceQueryResult.class);
                     result.setType(ResourceTypeEnum.getDescriptionByType(domain.getType()));
-                    result.setUri(uriPrefix + domain.getType() + CommonConstant.SLASH_STRING + domain.getFilename());
+                    result.setUrl(buildUrl(domain.getType(), domain.getFilename()));
                     result.setTimestamp(domain.getGmtModify());
                     return result;
                 })
                 .collect(Collectors.toList());
-        logger.info("query {}/{} resource(s)", results.size(), count);
+        logger.info("query {} of {} resource(s)", results.size(), count);
 
         BasePagingResult<ResourceQueryResult> result = new BasePagingResult<>();
         result.setTotal(count);
@@ -107,35 +112,75 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     @Override
+    public List<ResourceQuerySimpleResult> queryByType(String type) {
+        List<ResourceDO> domains = resourceMapper.getByType(type);
+        if (CollectionUtils.isEmpty(domains)) {
+            logger.warn("resource query by type {} result is empty", type);
+            return Collections.emptyList();
+        }
+
+        logger.info("query {} resource(s) with type {}", domains.size(), type);
+        return domains.stream()
+                .map((domain) -> {
+                    ResourceQuerySimpleResult result = POJOConvertUtil.convert(domain, ResourceQuerySimpleResult.class);
+                    result.setUrl(buildUrl(domain.getType(), domain.getFilename()));
+                    return result;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<ResourceQuerySimpleResult> queryByTag(String type, String tag) {
+        ResourceDO domain = resourceMapper.getByTag(type, tag);
+        if (domain == null) {
+            logger.warn("resource with type {} and tag {} not exist", type, tag);
+            return Optional.empty();
+        }
+
+        ResourceQuerySimpleResult result = POJOConvertUtil.convert(domain, ResourceQuerySimpleResult.class);
+        result.setUrl(buildUrl(domain.getType(), domain.getFilename()));
+        return Optional.of(result);
+    }
+
+    @Override
     @Transactional
-    public void create(ResourceCreateParam param) {
-        ResourceDO domain = POJOConvertUtil.convert(param, ResourceDO.class);
+    public void create(String type, String tag, String filename) {
+        ResourceDO domain = new ResourceDO();
+        domain.setType(type);
+        domain.setTag(tag);
+        domain.setFilename(filename);
+        domain.setMd5(DigestUtil.getFileMD5(buildPath(type, filename)));
+
         if (resourceMapper.save(domain) != CommonConstant.SAVE_DOMAIN_SUCCESSFUL) {
             logger.error("create resource {} failed", domain.getId());
             throw new BizException(BizResultEnum.RESOURCE_CREATE_ERROR);
         }
 
-        logService.logResourceCreate(domain.getId(), domain.getName(), domain.getFilename());
-        logger.info("create resource {} successfully", domain.getId());
+        logService.logResourceCreate(domain.getId(), domain.getTag(), domain.getFilename());
+        logger.info("create resource {}", domain.getId());
     }
 
     @Override
     @Transactional
-    public void modify(ResourceModifyParam param) {
-        ResourceDO before = resourceMapper.getById(param.getId());
+    public void modify(Long id, String filename) {
+        ResourceDO before = resourceMapper.getById(id);
         if (before == null) {
-            logger.error("resource {} not exist", param.getId());
-            throw new BizException(BizResultEnum.RESOURCE_NOT_EXIST, param.getId());
+            logger.error("resource {} not exist", id);
+            throw new BizException(BizResultEnum.RESOURCE_NOT_EXIST, id);
         }
 
-        ResourceDO after = POJOConvertUtil.convert(param, ResourceDO.class);
+        ResourceDO after = new ResourceDO();
+        after.setId(id);
+        after.setFilename(filename);
+        after.setMd5(DigestUtil.getFileMD5(buildPath(before.getType(), filename)));
+
         if (resourceMapper.updateById(after) != CommonConstant.UPDATE_DOMAIN_SUCCESSFUL) {
             logger.error("modify resource {} failed", after.getId());
             throw new BizException(BizResultEnum.RESOURCE_MODIFY_ERROR);
         }
 
         logService.logResourceModify(after.getId(), POJOCompareUtil.compare(ResourceDO.class, before, after));
-        logger.info("modify resource {} successfully", after.getId());
+        logger.info("modify resource {}", after.getId());
     }
 
     @Override
@@ -147,88 +192,29 @@ public class ResourceServiceImpl implements ResourceService {
         }
 
         logService.logResourceDelete(id);
-        logger.info("delete resource {} successfully", id);
-    }
-
-    @Override
-    public Optional<Long> getIdByTypeAndName(String type, String name) {
-        return Optional.ofNullable(resourceMapper.getIdByTypeAndName(type, name));
-    }
-
-    @Override
-    public List<String> getUriByTypeAndName(ResourceTypeEnum type, List<String> names) {
-        List<String> uris = new ArrayList<>();
-
-        names.forEach(name -> {
-            Long id = resourceMapper.getIdByTypeAndName(type.getType(), name);
-            if (id == null) {
-                //请求的资源未找到时，图片资源将抛出异常，声音资源将自动合成
-                switch (type) {
-                    case IMAGE:
-                        logger.error("image resource {} not exist", name);
-                        throw new BizException(BizResultEnum.RESOURCE_NAME_NOT_EXIST, name);
-                    case VOICE:
-                        String path = ttsService.ttsSync(null, name, false);
-                        String filename = path.substring(path.lastIndexOf(File.separatorChar) + 1);
-                        uris.add(buildUri(type.getType(), filename));
-                        break;
-                }
-            } else {
-                ResourceDO domain = resourceMapper.getById(id);
-                uris.add(buildUri(domain.getType(), domain.getFilename()));
-            }
-        });
-        return uris;
-    }
-
-    @Override
-    public void rebuildAllVoice() {
-        List<ResourceDO> domains = listAllByTypeRaw(ResourceTypeEnum.VOICE.getType());
-        List<String> names = domains.stream()
-                .map(ResourceDO::getName)
-                .collect(Collectors.toList());
-
-        logger.info("{} resource(s) will rebuild", names.size());
-        ttsService.ttsBatchAsync(null, names, true);
+        logger.info("delete resource {}", id);
     }
 
     /**
-     * 查询全部资源，可根据类型过滤，内部实现分页，返回原生Domain
-     *
-     * @param type 类型
-     * @return 查询结果
-     */
-    private List<ResourceDO> listAllByTypeRaw(String type) {
-        Long count = resourceMapper.countAll(type);
-        if (count == 0) {
-            logger.warn("resource list all result is empty");
-            return Collections.emptyList();
-        }
-
-        Integer rows = 100;
-        Integer pages = Math.toIntExact(count % rows == 0 ? count / rows : count / rows + 1);
-        logger.info("resource list all contain {} result(s) and divide to {} page(s)", count, pages);
-
-        List<ResourceDO> allDomains = new ArrayList<>();
-        for (int i = 0; i < pages; i++) {
-            List<ResourceDO> domains = resourceMapper.listByPaging(type, (long) (i * rows), rows);
-            allDomains.addAll(domains);
-        }
-        logger.info("list all {} resource(s) with type {}", allDomains.size(), type);
-        return allDomains;
-    }
-
-    /**
-     * 根据资源文件的类型和文件名构建访问其的URI
+     * 由类型和文件名构造其访问URL
      *
      * @param type     类型
      * @param filename 文件名
-     * @return URI
+     * @return URL
      */
-    private String buildUri(String type, String filename) {
-        String contextPath = servletConfigItem.getContextPath();
-        String uriPrefix = (StringUtils.isEmpty(contextPath) || CommonConstant.SLASH_STRING.equals(contextPath)) ?
-                CommonConstant.EMPTY_STRING : contextPath + CommonConstant.SLASH_STRING;
-        return uriPrefix + type + CommonConstant.SLASH_STRING + filename;
+    private String buildUrl(String type, String filename) {
+        //不需要返回上下文路径
+        return CommonConstant.SLASH_STRING + type + CommonConstant.SLASH_STRING + filename;
+    }
+
+    /**
+     * 由类型和文件名构造其访问路径
+     *
+     * @param type     类型
+     * @param filename 文件名
+     * @return 访问路径
+     */
+    private String buildPath(String type, String filename) {
+        return servletConfig.getDocumentRoot() + File.separatorChar + type + File.separatorChar + filename;
     }
 }

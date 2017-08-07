@@ -19,6 +19,10 @@ import javax.validation.constraints.NotNull;
  */
 public class ResourceQueryParam extends BaseParam {
     /**
+     * 资源类型
+     */
+    private String type;
+    /**
      * 搜索参数
      */
     @NotNull
@@ -36,6 +40,14 @@ public class ResourceQueryParam extends BaseParam {
     @NotNull
     @Valid
     private BasePagingParam paging;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 
     public BaseSearchParam getSearch() {
         return search;

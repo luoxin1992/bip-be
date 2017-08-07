@@ -25,13 +25,13 @@ public class ResourceQueryResult extends BaseResult {
      */
     private String type;
     /**
-     * 名称
+     * 标签
      */
-    private String name;
+    private String tag;
     /**
-     * URI
+     * URL
      */
-    private String uri;
+    private String url;
     /**
      * MD5
      */
@@ -58,20 +58,20 @@ public class ResourceQueryResult extends BaseResult {
         this.type = type;
     }
 
-    public String getName() {
-        return name;
+    public String getTag() {
+        return tag;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 
-    public String getUri() {
-        return uri;
+    public String getUrl() {
+        return url;
     }
 
-    public void setUri(String uri) {
-        this.uri = uri;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public String getMd5() {

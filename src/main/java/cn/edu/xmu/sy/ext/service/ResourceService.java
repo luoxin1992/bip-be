@@ -5,12 +5,10 @@ package cn.edu.xmu.sy.ext.service;
 
 import cn.com.lx1992.lib.base.result.BaseListResult;
 import cn.com.lx1992.lib.base.result.BasePagingResult;
-import cn.edu.xmu.sy.ext.meta.ResourceTypeEnum;
-import cn.edu.xmu.sy.ext.param.ResourceCreateParam;
-import cn.edu.xmu.sy.ext.param.ResourceModifyParam;
 import cn.edu.xmu.sy.ext.param.ResourceQueryParam;
-import cn.edu.xmu.sy.ext.result.ResourceListSimpleResult;
+import cn.edu.xmu.sy.ext.result.ResourceListResult;
 import cn.edu.xmu.sy.ext.result.ResourceQueryResult;
+import cn.edu.xmu.sy.ext.result.ResourceQuerySimpleResult;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +25,7 @@ public interface ResourceService {
      *
      * @return 查询结果
      */
-    BaseListResult<ResourceListSimpleResult> listSimple();
+    BaseListResult<ResourceListResult> list();
 
     /**
      * 查询资源
@@ -38,48 +36,43 @@ public interface ResourceService {
     BasePagingResult<ResourceQueryResult> query(ResourceQueryParam param);
 
     /**
-     * 新增资源
+     * 根据类型查询资源
      *
-     * @param param 创建参数
+     * @param type 类型
+     * @return 查询结果
      */
-    void create(ResourceCreateParam param);
+    List<ResourceQuerySimpleResult> queryByType(String type);
+
+    /**
+     * 根据标签查询资源
+     *
+     * @param type 类型
+     * @param tag  标签
+     * @return 查询结果
+     */
+    Optional<ResourceQuerySimpleResult> queryByTag(String type, String tag);
+
+    /**
+     * 创建资源
+     *
+     * @param type     类型
+     * @param tag      标签
+     * @param filename 文件名
+     */
+    void create(String type, String tag, String filename);
 
     /**
      * 修改资源
      *
-     * @param param 修改参数
+     * @param id       ID
+     * @param filename 文件名
      */
-    void modify(ResourceModifyParam param);
+    void modify(Long id, String filename);
 
     /**
      * 删除资源
      *
-     * @param id 资源ID
+     * @param id ID
      */
     void delete(Long id);
-
-    /**
-     * 根据类型和名称查询资源ID
-     *
-     * @param type 类型
-     * @param name 名称
-     * @return 资源ID(可选值)
-     */
-    Optional<Long> getIdByTypeAndName(String type, String name);
-
-    /**
-     * 根据类型和名称批量查询资源，并构造访问其的URI
-     * 若请求资源不存在，voice会自动执行tts，image将抛出异常
-     *
-     * @param type  类型
-     * @param names 名称
-     * @return URIs
-     */
-    List<String> getUriByTypeAndName(ResourceTypeEnum type, List<String> names);
-
-    /**
-     * 重建所有语音资源
-     * 当修改了语音合成参数时调用
-     */
-    void rebuildAllVoice();
 }

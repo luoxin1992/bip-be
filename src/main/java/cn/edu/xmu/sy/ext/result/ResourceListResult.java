@@ -6,12 +6,12 @@ package cn.edu.xmu.sy.ext.result;
 import cn.com.lx1992.lib.base.result.BaseResult;
 
 /**
- * 查询全部资源Result(简版结果)
+ * 查询全部资源Result
  *
  * @author luoxin
  * @version 2017-3-27
  */
-public class ResourceListSimpleResult extends BaseResult {
+public class ResourceListResult extends BaseResult {
     /**
      * ID
      */
@@ -21,9 +21,9 @@ public class ResourceListSimpleResult extends BaseResult {
      */
     private String type;
     /**
-     * URI
+     * URL
      */
-    private String uri;
+    private String url;
     /**
      * MD5
      */
@@ -45,12 +45,12 @@ public class ResourceListSimpleResult extends BaseResult {
         this.type = type;
     }
 
-    public String getUri() {
-        return uri;
+    public String getUrl() {
+        return url;
     }
 
-    public void setUri(String uri) {
-        this.uri = uri;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public String getMd5() {
