@@ -30,7 +30,7 @@ public class FingerprintQueryResult extends BaseResult {
     @JsonFormat(pattern = DateTimeConstant.DATETIME_PATTERN_WITH_BAR)
     private LocalDateTime enrollTime;
     /**
-     * (最后)辨识时间
+     * 最后辨识时间
      */
     @JsonFormat(pattern = DateTimeConstant.DATETIME_PATTERN_WITH_BAR)
     private LocalDateTime identifyTime;

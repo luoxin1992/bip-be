@@ -6,27 +6,27 @@ package cn.edu.xmu.sy.ext.result;
 import cn.com.lx1992.lib.base.result.BaseResult;
 
 /**
- * 查询全部指纹模型Result
+ * 查询指纹模型Result
  *
  * @author luoxin
  * @version 2017-5-9
  */
-public class FingerprintTemplateListResult extends BaseResult {
+public class FingerprintListTemplateResult extends BaseResult {
     /**
-     * UUID
+     * UID
      */
-    private String uuid;
+    private Integer uid;
     /**
      * 指纹模型
      */
     private String template;
 
-    public String getUuid() {
-        return uuid;
+    public Integer getUid() {
+        return uid;
     }
 
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
+    public void setUid(Integer uid) {
+        this.uid = uid;
     }
 
     public String getTemplate() {

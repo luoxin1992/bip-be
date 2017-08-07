@@ -9,12 +9,12 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 /**
- * 查询全部可用手指名称Param
+ * 查询可用手指名称Param
  *
  * @author luoxin
  * @version 2017-5-16
  */
-public class FingerprintFingerListParam extends BaseParam {
+public class FingerprintListFingerParam extends BaseParam {
     /**
      * 用户ID
      */

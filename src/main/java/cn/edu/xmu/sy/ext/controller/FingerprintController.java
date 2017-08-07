@@ -6,12 +6,12 @@ package cn.edu.xmu.sy.ext.controller;
 import cn.com.lx1992.lib.base.meta.BaseResultEnum;
 import cn.com.lx1992.lib.base.response.BaseResponse;
 import cn.com.lx1992.lib.base.result.BaseListResult;
-import cn.edu.xmu.sy.ext.param.FingerprintDeleteByUserParam;
 import cn.edu.xmu.sy.ext.param.FingerprintDeleteParam;
-import cn.edu.xmu.sy.ext.param.FingerprintFingerListParam;
+import cn.edu.xmu.sy.ext.param.FingerprintListFingerParam;
 import cn.edu.xmu.sy.ext.param.FingerprintModifyParam;
-import cn.edu.xmu.sy.ext.result.FingerprintFingerListResult;
-import cn.edu.xmu.sy.ext.result.FingerprintTemplateListResult;
+import cn.edu.xmu.sy.ext.param.FingerprintQueryParam;
+import cn.edu.xmu.sy.ext.result.FingerprintListFingerResult;
+import cn.edu.xmu.sy.ext.result.FingerprintQueryResult;
 import cn.edu.xmu.sy.ext.service.FingerprintService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,6 +26,7 @@ import javax.validation.Valid;
  *
  * @author luoxin
  * @version 2017-5-9
+ * @apiDefine fingerprint 指纹API
  */
 @RestController
 @RequestMapping("/api/v1/fingerprint")
@@ -34,27 +35,60 @@ public class FingerprintController {
     private FingerprintService fingerprintService;
 
     /**
-     * @apiDefine fingerprint 指纹API
+     * @api {POST} /api/v1/fingerprint/list/finger 查询可用手指
+     * @apiName list-finger
+     * @apiGroup fingerprint
+     * @apiVersion 1.0.0
+     *
+     * @apiParam {Number} userId 用户ID
+     *
+     * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
+     * @apiSuccess {String} message 提示信息
+     * @apiSuccess {Object} result 具体结果
+     * @apiSuccess {Array}  result.fingers 手指名称
      */
     @RequestMapping(value = "/list/finger", method = RequestMethod.POST)
-    public BaseResponse<FingerprintFingerListResult> listFinger() {
-        FingerprintFingerListResult result = fingerprintService.listFinger();
+    public BaseResponse<FingerprintListFingerResult> listFinger(@RequestBody @Valid FingerprintListFingerParam param) {
+        FingerprintListFingerResult result = fingerprintService.listFinger(param);
         return new BaseResponse<>(result);
     }
 
-    @RequestMapping(value = "/list/finger/usable", method = RequestMethod.POST)
-    public BaseResponse<FingerprintFingerListResult> listFingerUsable(@RequestBody @Valid
-                                                                              FingerprintFingerListParam param) {
-        FingerprintFingerListResult result = fingerprintService.listFingerUsable(param);
+    /**
+     * @api {POST} /api/v1/fingerprint/query 查询指纹
+     * @apiName query
+     * @apiGroup fingerprint
+     * @apiVersion 1.0.0
+     *
+     * @apiParam {Number} userId 用户ID
+     *
+     * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
+     * @apiSuccess {String} message 提示信息
+     * @apiSuccess {Object} result 具体结果
+     * @apiSuccess {Number} result.total 总记录数
+     * @apiSuccess {Array}  result.list 查询结果
+     * @apiSuccess {Number} result.list.id 指纹ID
+     * @apiSuccess {String} result.list.finger 手指名称
+     * @apiSuccess {String} result.list.enrollTime 登记时间
+     * @apiSuccess {String} result.list.identifyTime 最后辨识时间
+     */
+    @RequestMapping(value = "/query", method = RequestMethod.POST)
+    public BaseResponse<BaseListResult<FingerprintQueryResult>> query(@RequestBody @Valid FingerprintQueryParam param) {
+        BaseListResult<FingerprintQueryResult> result = fingerprintService.query(param);
         return new BaseResponse<>(result);
     }
 
-    @RequestMapping(value = "/list/template", method = RequestMethod.POST)
-    public BaseResponse<BaseListResult<FingerprintTemplateListResult>> listTemplate() {
-        BaseListResult<FingerprintTemplateListResult> result = fingerprintService.listTemplate();
-        return new BaseResponse<>(result);
-    }
-
+    /**
+     * @api {POST} /api/v1/fingerprint/modify 编辑指纹
+     * @apiName modify
+     * @apiGroup fingerprint
+     * @apiVersion 1.0.0
+     *
+     * @apiParam {Number} id 指纹ID
+     * @apiParam {String} finger 手指名称
+     *
+     * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
+     * @apiSuccess {String} message 提示信息
+     */
     @RequestMapping(value = "/modify", method = RequestMethod.POST)
     public BaseResponse modify(@RequestBody @Valid FingerprintModifyParam param) {
         fingerprintService.modify(param);
@@ -74,13 +108,7 @@ public class FingerprintController {
      */
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public BaseResponse delete(@RequestBody @Valid FingerprintDeleteParam param) {
-        fingerprintService.delete(param.getId());
-        return new BaseResponse(BaseResultEnum.OK);
-    }
-
-    @RequestMapping(value = "/delete/user", method = RequestMethod.POST)
-    public BaseResponse deleteByUser(@RequestBody @Valid FingerprintDeleteByUserParam param) {
-        fingerprintService.deleteByUser(param.getUserId());
+        fingerprintService.delete(param);
         return new BaseResponse(BaseResultEnum.OK);
     }
 }

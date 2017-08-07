@@ -13,7 +13,7 @@ import java.util.List;
  * @author luoxin
  * @version 2017-5-11
  */
-public class FingerprintFingerListResult extends BaseResult {
+public class FingerprintListFingerResult extends BaseResult {
     /**
      * 手指名称
      */
