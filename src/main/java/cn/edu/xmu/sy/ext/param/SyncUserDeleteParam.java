@@ -9,20 +9,18 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 /**
- * 创建(同步)用户Param
+ * 同步删除用户Param
  *
  * @author luoxin
  * @version 2017-3-17
  */
-public class UserSyncCreateParam extends BaseParam {
+public class SyncUserDeleteParam extends BaseParam {
+    /**
+     * 用户编号
+     */
     @NotNull
     @Size(min = 1, max = 16)
     private String number;
-    @NotNull
-    @Size(min = 1, max = 32)
-    private String name;
-    @Size(min = 1, max = 128)
-    private String photo;
 
     public String getNumber() {
         return number;
@@ -30,21 +28,5 @@ public class UserSyncCreateParam extends BaseParam {
 
     public void setNumber(String number) {
         this.number = number;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPhoto() {
-        return photo;
-    }
-
-    public void setPhoto(String photo) {
-        this.photo = photo;
     }
 }

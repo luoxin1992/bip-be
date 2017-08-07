@@ -9,29 +9,29 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 /**
- * 编辑(同步)用户Param
+ * 同步编辑用户Param
  *
  * @author luoxin
  * @version 2017-3-17
  */
-public class UserSyncModifyParam extends BaseParam {
-    private Long id;
+public class SyncUserModifyParam extends BaseParam {
+    /**
+     * 用户编号
+     */
     @NotNull
     @Size(min = 1, max = 16)
     private String number;
+    /**
+     * 用户姓名
+     */
     @NotNull
     @Size(min = 1, max = 32)
     private String name;
+    /**
+     * 用户照片
+     */
     @Size(min = 1, max = 128)
     private String photo;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getNumber() {
         return number;

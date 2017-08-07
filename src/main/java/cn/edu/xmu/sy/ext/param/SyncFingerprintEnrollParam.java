@@ -9,24 +9,24 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 /**
- * 删除(同步)用户Param
+ * 同步新增指纹Param
  *
  * @author luoxin
  * @version 2017-3-17
  */
-public class UserSyncDeleteParam extends BaseParam {
-    private Long id;
+public class SyncFingerprintEnrollParam extends BaseParam {
+    /**
+     * 用户编号
+     */
     @NotNull
     @Size(min = 1, max = 16)
     private String number;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    /**
+     * 指纹模板
+     */
+    @NotNull
+    @Size(min = 1, max = 3072)
+    private String template;
 
     public String getNumber() {
         return number;
@@ -34,5 +34,13 @@ public class UserSyncDeleteParam extends BaseParam {
 
     public void setNumber(String number) {
         this.number = number;
+    }
+
+    public String getTemplate() {
+        return template;
+    }
+
+    public void setTemplate(String template) {
+        this.template = template;
     }
 }
