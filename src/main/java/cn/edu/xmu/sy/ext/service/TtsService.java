@@ -3,8 +3,6 @@
  */
 package cn.edu.xmu.sy.ext.service;
 
-import cn.edu.xmu.sy.ext.param.TtsTaskParam;
-
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -19,40 +17,36 @@ public interface TtsService {
     /**
      * 异步合成
      *
-     * @param param    任务参数(可选)
      * @param content  合成内容
      * @param override 覆盖队列中的相同任务
-     * @return 合成文件路径
+     * @return 获取合成文件名future
      */
-    CompletableFuture<String> ttsAsync(TtsTaskParam param, String content, boolean override);
+    CompletableFuture<String> ttsAsync(String content, boolean override);
 
     /**
      * 同步合成
      *
-     * @param param    任务参数(可选)
      * @param content  合成内容
      * @param override 覆盖队列中的相同任务
-     * @return 合成文件路径
+     * @return 合成文件名
      */
-    String ttsSync(TtsTaskParam param, String content, boolean override);
+    String ttsSync(String content, boolean override);
 
     /**
      * 异步批量合成
      *
-     * @param param    任务参数(可选)
      * @param contents 合成内容
      * @param override 覆盖队列中的相同任务
-     * @return 合成文件路径
+     * @return 获取合成文件名future
      */
-    List<CompletableFuture<String>> ttsBatchAsync(TtsTaskParam param, List<String> contents, boolean override);
+    List<CompletableFuture<String>> ttsBatchAsync(List<String> contents, boolean override);
 
     /**
      * 同步批量合成
      *
-     * @param param    任务参数(可选)
      * @param contents 合成内容
      * @param override 覆盖队列中的相同任务
-     * @return 合成文件路径
+     * @return 合成文件名
      */
-    List<String> ttsBatchSync(TtsTaskParam param, List<String> contents, boolean override);
+    List<String> ttsBatchSync(List<String> contents, boolean override);
 }

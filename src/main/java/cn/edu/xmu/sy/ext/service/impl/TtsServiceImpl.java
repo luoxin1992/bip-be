@@ -3,17 +3,16 @@
  */
 package cn.edu.xmu.sy.ext.service.impl;
 
-import cn.com.lx1992.lib.util.DigestUtil;
+import cn.com.lx1992.lib.cat.annotation.CatTransaction;
 import cn.com.lx1992.lib.util.UUIDUtil;
-import cn.edu.xmu.sy.ext.config.NlsConfigItem;
-import cn.edu.xmu.sy.ext.config.ServletConfigItem;
+import cn.edu.xmu.sy.ext.disconf.NlsConfigItem;
+import cn.edu.xmu.sy.ext.disconf.ServletConfigItem;
+import cn.edu.xmu.sy.ext.dto.TtsTaskParamDTO;
 import cn.edu.xmu.sy.ext.exception.BizException;
 import cn.edu.xmu.sy.ext.meta.BizResultEnum;
 import cn.edu.xmu.sy.ext.meta.ResourceTypeEnum;
 import cn.edu.xmu.sy.ext.meta.SettingEnum;
-import cn.edu.xmu.sy.ext.param.ResourceCreateParam;
-import cn.edu.xmu.sy.ext.param.ResourceModifyParam;
-import cn.edu.xmu.sy.ext.param.TtsTaskParam;
+import cn.edu.xmu.sy.ext.result.ResourceQuerySimpleResult;
 import cn.edu.xmu.sy.ext.service.ResourceService;
 import cn.edu.xmu.sy.ext.service.SettingService;
 import cn.edu.xmu.sy.ext.service.TtsService;
@@ -38,7 +37,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -48,6 +46,7 @@ import java.util.stream.Collectors;
  * @author luoxin
  * @version 2017-4-21
  */
+@CatTransaction
 @Service
 public class TtsServiceImpl implements TtsService {
     private final Logger logger = LoggerFactory.getLogger(TtsServiceImpl.class);
@@ -58,114 +57,148 @@ public class TtsServiceImpl implements TtsService {
     private ResourceService resourceService;
 
     @Autowired
-    private ServletConfigItem servletConfigItem;
+    private ServletConfigItem servletConfig;
     @Autowired
-    private NlsConfigItem nlsConfigItem;
+    private NlsConfigItem nlsConfig;
 
-    private NlsClient nlsClient;
-    private ExecutorService taskExecutor;
-    private Map<String, CompletableFuture<String>> taskMap;
+    private NlsClient client;
+    private ExecutorService executor;
+    private Map<String, CompletableFuture<String>> queue;
 
     @PostConstruct
-    public void initial() {
-        nlsClient = new NlsClient();
-        nlsClient.init();
-        logger.info("initial nls sdk");
+    private void initialize() {
+        client = new NlsClient();
+        client.init();
+        logger.info("initialize nls sdk");
 
-        //taskExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        taskExecutor = Executors.newCachedThreadPool();
-        taskMap = new ConcurrentHashMap<>();
+        queue = new ConcurrentHashMap<>();
+        executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     }
 
     @PreDestroy
-    public void destroy() {
-        taskExecutor.shutdown();
-        try {
-            logger.info("wait for tts executor shutdown");
-            if (!taskExecutor.awaitTermination(nlsConfigItem.getExecutorShutdownTimeout(), TimeUnit.SECONDS)) {
-                logger.warn("shutdown timeout. some tasks may be lost");
-            }
-        } catch (InterruptedException ignored) {
-        }
-        logger.info("destroy tts executor");
+    private void destroy() throws InterruptedException {
+        executor.shutdown();
+        executor.awaitTermination(180, TimeUnit.SECONDS);
 
-        nlsClient.close();
+        client.close();
         logger.info("destroy nls sdk");
     }
 
     @Override
-    public CompletableFuture<String> ttsAsync(TtsTaskParam param, String content, boolean override) {
-        if (param == null) {
-            param = createTaskParam();
-        }
-        TtsTaskParam finalParam = param;
-        //检查相同合成内容的任务是否已在Map中
-        //若有覆盖标志，则尝试取消原任务后添加新任务；否则直接返回已有Future避免重复执行
-        if (taskMap.containsKey(content)) {
-            logger.warn("task {} already in the async list", content);
-            if (override) {
-                logger.warn("force cancel tts task {}", content);
-                taskMap.remove(content).cancel(false);
-            } else {
-                return taskMap.get(content);
-            }
-        }
-        //提交异步任务，Future放入Map中并返回
-        CompletableFuture<String> future = CompletableFuture
-                .supplyAsync(() -> this.executeTtsTask(finalParam, content), taskExecutor)
-                .whenComplete((result, exception) -> {
-                    try {
-                        writeBackDb(content, result, exception == null);
-                    } finally {
-                        taskMap.remove(content);
-                    }
-                });
-        taskMap.put(content, future);
-        return future;
+    public CompletableFuture<String> ttsAsync(String content, boolean override) {
+        TtsTaskParamDTO param = createTaskParam();
+        return prepareTask(param, content, override);
     }
 
     @Override
-    public String ttsSync(TtsTaskParam param, String content, boolean override) {
-        try {
-            return ttsAsync(param, content, override).get();
-        } catch (InterruptedException | ExecutionException e) {
-            if (e.getCause() instanceof BizException) {
-                throw (BizException) e.getCause();
-            } else {
-                logger.error("tts unknown error", e);
-                throw new BizException(BizResultEnum.TTS_UNKNOWN_ERROR);
-            }
-        }
+    public String ttsSync(String content, boolean override) {
+        return ttsAsync(content, override).join();
     }
 
     @Override
-    public List<CompletableFuture<String>> ttsBatchAsync(TtsTaskParam param, List<String> contents, boolean override) {
+    public List<CompletableFuture<String>> ttsBatchAsync(List<String> contents, boolean override) {
         //批量提交任务时Param可复用
-        if (param == null) {
-            param = createTaskParam();
-        }
-        TtsTaskParam finalParam = param;
+        TtsTaskParamDTO param = createTaskParam();
         return contents.stream()
-                .map((content) -> this.ttsAsync(finalParam, content, override))
+                .map(content -> this.prepareTask(param, content, override))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<String> ttsBatchSync(TtsTaskParam param, List<String> contents, boolean override) {
-        return contents.stream()
-                .map((content) -> this.ttsSync(param, content, override))
+    public List<String> ttsBatchSync(List<String> contents, boolean override) {
+        return ttsBatchAsync(contents, override).stream()
+                .map(CompletableFuture::join)
                 .collect(Collectors.toList());
     }
 
     /**
+     * 准备TTS任务
+     *
+     * @param param    任务参数
+     * @param content  合成内容
+     * @param override 覆盖标识
+     * @return 任务future
+     */
+    private CompletableFuture<String> prepareTask(TtsTaskParamDTO param, String content, boolean override) {
+        //查询有无可复用的任务
+        CompletableFuture<String> future = checkTaskExistOrCancel(content, override);
+        if (future != null) {
+            return future;
+        }
+        //提交异步任务，Future放入队列中并返回
+        future = CompletableFuture
+                .supplyAsync(() -> this.executeTask(param, content), executor)
+                .whenComplete((result, exception) -> {
+                    queue.remove(content);
+                    saveResult(content, result, exception == null);
+                });
+        queue.put(content, future);
+        return future;
+    }
+
+    /**
+     * 从设置服务取TTS配置，构建任务参数
+     *
+     * @return TTS任务参数
+     */
+    private TtsTaskParamDTO createTaskParam() {
+        TtsTaskParamDTO param = new TtsTaskParamDTO();
+        //NUS模式
+        String nus = settingService.getValueByKeyOrDefault(SettingEnum.TTS_NUS);
+        param.setNus(Integer.parseInt(nus));
+        //语音采样率
+        String sampleRate = settingService.getValueByKeyOrDefault(SettingEnum.TTS_SAMPLE_RATE);
+        param.setSampleRate(sampleRate);
+        //语音格式类型
+        String encodeType = settingService.getValueByKeyOrDefault(SettingEnum.TTS_ENCODE_TYPE);
+        param.setEncodeType(encodeType);
+        //发音人
+        String voice = settingService.getValueByKeyOrDefault(SettingEnum.TTS_VOICE);
+        param.setVoice(voice);
+        //合成音量
+        String volume = settingService.getValueByKeyOrDefault(SettingEnum.TTS_VOLUME);
+        param.setVolume(Integer.parseInt(volume));
+        //合成语调
+        String pitchRate = settingService.getValueByKeyOrDefault(SettingEnum.TTS_PITCH_RATE);
+        param.setPitchRate(Integer.parseInt(pitchRate));
+        //合成语速
+        String speechRate = settingService.getValueByKeyOrDefault(SettingEnum.TTS_SPEECH_RATE);
+        param.setSpeechRate(Integer.parseInt(speechRate));
+        return param;
+    }
+
+    /**
+     * 检查队列中是否已有相同合成内容的任务
+     * 若override=true，则尝试取消原任务，再添加新任务；否则直接返回已有Future，避免重复执行
+     * 实际测试被取消的任务仍会执行，但无法获取结果(CancelException)
+     *
+     * @param content  合成内容
+     * @param override 覆盖标识
+     * @return 已有Future，null表示无此任务待执行
+     */
+    private CompletableFuture<String> checkTaskExistOrCancel(String content, boolean override) {
+        if (!queue.containsKey(content)) {
+            //队列中没有此任务
+            return null;
+        }
+        if (override) {
+            queue.remove(content).cancel(false);
+            logger.info("force cancel tts task {}", content);
+            return null;
+        } else {
+            logger.info("tts task {} already in async queue", content);
+            return queue.get(content);
+        }
+    }
+
+    /**
      * 执行TTS任务
-     * 耗时操作需在新线程中执行
      *
      * @param param   任务参数
      * @param content 合成内容
-     * @return 执行结果
+     * @return 合成文件名
      */
-    private String executeTtsTask(TtsTaskParam param, String content) {
+    private String executeTask(TtsTaskParamDTO param, String content) {
         //设置NLS请求参数
         NlsRequest request = new NlsRequest();
         request.setTtsEncodeType(param.getEncodeType());
@@ -176,14 +209,14 @@ public class TtsServiceImpl implements TtsService {
         request.setTtsPitchRate(param.getPitchRate());
         request.setTtsRequest(content, param.getSampleRate());
         //NlsRequest囊括了平台全部智能语音交互业务，先设置要使用的业务，然后才能授权，否则报错
-        request.setAppKey(nlsConfigItem.getAppKey());
-        request.authorize(nlsConfigItem.getAccessKeyId(), nlsConfigItem.getAccessKeySecret());
+        request.setAppKey(nlsConfig.getAppKey());
+        request.authorize(nlsConfig.getAccessKeyId(), nlsConfig.getAccessKeySecret());
 
         //执行TTS任务
-        String outputPath = createOutputPath(param.getEncodeType());
+        String outputPath = buildOutputPath(param.getEncodeType());
         try (FileOutputStream fos = new FileOutputStream(outputPath)) {
-            logger.info("tts start, from text {} to file {}", content, outputPath);
-            NlsFuture future = nlsClient.createNlsFuture(request, new NlsListenerImpl());
+            logger.info("tts task start, from text {} to file {}", content, outputPath);
+            NlsFuture future = client.createNlsFuture(request, new NlsListenerImpl());
             byte[] buffer;
             //read方法内部hard-coding限制至多10秒超时返回
             while ((buffer = future.read()) != null) {
@@ -193,7 +226,7 @@ public class TtsServiceImpl implements TtsService {
             //1. onOperationFailed在netty的worker线程上回调，但抛出异常时State会变为FAILED
             //2. 若onMessageReceived回调后任务失败，不会再回调onOperationFailed，也需要通过State进一步判断
             if (!(NlsSession.State.FINISHED.equals(future.getSession().getState()))) {
-                logger.error("tts state {} error", future.getSession().getState());
+                logger.error("tts task state {} error", future.getSession().getState());
                 throw new BizException(BizResultEnum.TTS_STATE_ERROR);
             }
         } catch (BizException e) {
@@ -206,45 +239,7 @@ public class TtsServiceImpl implements TtsService {
             logger.error("tts sdk error", e);
             throw new BizException(BizResultEnum.TTS_SDK_ERROR);
         }
-        return outputPath;
-    }
-
-    /**
-     * 从设置服务取TTS配置，构建任务参数
-     *
-     * @return SDK参数
-     */
-    private TtsTaskParam createTaskParam() {
-        TtsTaskParam param = new TtsTaskParam();
-        //NUS模式
-        String nus = settingService.getValueByKeyOptional(SettingEnum.TTS_NUS.getKey())
-                .orElse(SettingEnum.TTS_NUS.getDefaultValue());
-        param.setNus(Integer.parseInt(nus));
-        //语音采样率
-        String sampleRate = settingService.getValueByKeyOptional(SettingEnum.TTS_SAMPLE_RATE.getKey())
-                .orElse(SettingEnum.TTS_SAMPLE_RATE.getDefaultValue());
-        param.setSampleRate(sampleRate);
-        //语音格式类型
-        String encodeType = settingService.getValueByKeyOptional(SettingEnum.TTS_ENCODE_TYPE.getKey())
-                .orElse(SettingEnum.TTS_ENCODE_TYPE.getDefaultValue());
-        param.setEncodeType(encodeType);
-        //发音人
-        String voice = settingService.getValueByKeyOptional(SettingEnum.TTS_VOICE.getKey())
-                .orElse(SettingEnum.TTS_VOICE.getDefaultValue());
-        param.setVoice(voice);
-        //合成音量
-        String volume = settingService.getValueByKeyOptional(SettingEnum.TTS_VOLUME.getKey())
-                .orElse(SettingEnum.TTS_VOLUME.getDefaultValue());
-        param.setVolume(Integer.parseInt(volume));
-        //合成语调
-        String pitchRate = settingService.getValueByKeyOptional(SettingEnum.TTS_PITCH_RATE.getKey())
-                .orElse(SettingEnum.TTS_PITCH_RATE.getDefaultValue());
-        param.setPitchRate(Integer.parseInt(pitchRate));
-        //合成语速
-        String speechRate = settingService.getValueByKeyOptional(SettingEnum.TTS_SPEECH_RATE.getKey())
-                .orElse(SettingEnum.TTS_SPEECH_RATE.getDefaultValue());
-        param.setSpeechRate(Integer.parseInt(speechRate));
-        return param;
+        return getFilename(outputPath);
     }
 
     /**
@@ -253,42 +248,45 @@ public class TtsServiceImpl implements TtsService {
      * @param encodeType 编码类型
      * @return 完整输出路径
      */
-    private String createOutputPath(String encodeType) {
-        String outputDir = servletConfigItem.getDocumentRoot() + File.separatorChar;
+    private String buildOutputPath(String encodeType) {
+        String outputDir = servletConfig.getDocumentRoot() + File.separatorChar;
         String filename = UUIDUtil.randomUUID() + '.' + encodeType;
         return outputDir + ResourceTypeEnum.VOICE.getType() + File.separatorChar + filename;
     }
 
     /**
+     * 从输出路径取文件名
+     * 即最后一个路径分隔符后面部分
+     *
+     * @param outputPath 输出路径
+     * @return 文件名
+     */
+    private String getFilename(String outputPath) {
+        return outputPath.substring(outputPath.lastIndexOf(File.separatorChar) + 1);
+    }
+
+    /**
      * 将任务执行结果写回数据库
      *
-     * @param content 合成内容
-     * @param path    输出路径
-     * @param success 成功标记(未抛出异常)
+     * @param content  合成内容
+     * @param filename 输出文件名
+     * @param success  成功标记(未抛出异常)
      */
-    private void writeBackDb(String content, String path, boolean success) {
-        Optional<Long> id = resourceService.getIdByTypeAndName(ResourceTypeEnum.VOICE.getType(), content);
-        if (id.isPresent()) {
-            //原本已存在的语音：新语音合成成功：更新记录；合成失败：删除记录(下次用到时重新尝试合成)
+    private void saveResult(String content, String filename, boolean success) {
+        Optional<ResourceQuerySimpleResult> result =
+                resourceService.queryByTag(ResourceTypeEnum.VOICE.getType(), content);
+
+        if (result.isPresent()) {
+            //原本已存在的语音：新语音合成成功：更新记录；合成失败：删除记录(下次使用时重新尝试合成)
             if (success) {
-                ResourceModifyParam param = new ResourceModifyParam();
-                param.setId(id.get());
-                //文件名即输出路径最后一个路径分隔符后面部分
-                param.setFilename(path.substring(path.lastIndexOf(File.separatorChar) + 1));
-                param.setMd5(DigestUtil.getFileMD5(path));
-                resourceService.modify(param);
+                resourceService.modify(result.get().getId(), filename);
             } else {
-                resourceService.delete(id.get());
+                resourceService.delete(result.get().getId());
             }
         } else {
-            //原本不存在的语音：新语音合成成功：新增记录
+            //原本不存在的语音：新语音合成成功：创建记录
             if (success) {
-                ResourceCreateParam param = new ResourceCreateParam();
-                param.setType(ResourceTypeEnum.VOICE.getType());
-                param.setName(content);
-                param.setFilename(path.substring(path.lastIndexOf(File.separatorChar) + 1));
-                param.setMd5(DigestUtil.getFileMD5(path));
-                resourceService.create(param);
+                resourceService.create(ResourceTypeEnum.VOICE.getType(), content, filename);
             }
         }
     }
@@ -300,7 +298,7 @@ public class TtsServiceImpl implements TtsService {
 
         @Override
         public void onOperationFailed(NlsEvent nlsEvent) {
-            logger.error("operation failed method callback: {}", nlsEvent.getErrorMessage());
+            logger.warn("operation failed method callback: {}", nlsEvent.getErrorMessage());
         }
 
         @Override
