@@ -26,7 +26,7 @@ public enum LogEnum {
     COUNTER_DELETE("删除窗口", "删除了ID为{0,number,#}的窗口"),
     //会话日志
     SESSION_CREATE("新增会话", "新增了ID为{0,number,#}的会话[窗口ID''{1,number,#}'', Token''{2}'']"),
-    SESSION_STATUS_UPDATE("修改会话", "ID为{0,number,#}的会话状态变更为''{1}''[Token''{2}'']"),
+    SESSION_STATUS_UPDATE("修改会话状态", "ID为{0,number,#}的会话状态变更为''{1}''[Token''{2}'']"),
     SESSION_DELETE_BY_COUNTER("删除会话", "删除了窗口{0,number,#}的全部会话"),
     //消息日志
     MESSAGE_SEND("发送消息", "发送了ID为{0,number,#}的消息[窗口ID''{1,number,#}'', 会话ID''{2,number,#}'', 消息UID''{3,number,#}'', 类型''{4}'', 长度''{5}'']"),
@@ -37,7 +37,13 @@ public enum LogEnum {
     //资源日志
     RESOURCE_CREATE("新增资源", "新增了ID为{0,number,#}的资源[标签''{1}'', 文件名''{2}'']"),
     RESOURCE_MODIFY("修改资源", "修改了ID为{0,number,#}的资源[{1}]"),
-    RESOURCE_DELETE("删除资源", "删除了ID为{0,number,#}的资源"),;
+    RESOURCE_DELETE("删除资源", "删除了ID为{0,number,#}的资源"),
+    //数据同步日志
+    SYNC_USER_CREATE("同步新增用户", "通过第三方数据同步新增了编号为{0}的用户"),
+    SYNC_USER_MODIFY("同步修改用户", "通过第三方数据同步修改了编号为{0}的用户"),
+    SYNC_USER_DELETE("同步删除用户", "通过第三方数据同步删除了编号为{0}的用户"),
+    SYNC_FINGERPRINT_ENROLL("同步登记指纹", "通过第三方数据同步为编号为{0}的用户登记了指纹"),
+    SYNC_FINGERPRINT_DELETE("同步删除指纹", "通过第三方数据同步为编号为{0}的用户删除了指纹"),;
 
     private String type;
     private String content;

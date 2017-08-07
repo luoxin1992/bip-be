@@ -244,6 +244,46 @@ public class LogServiceImpl implements LogService {
         createLog(type, content);
     }
 
+    @Override
+    @Transactional
+    public void logSyncUserCreate(String userNumber) {
+        String type = LogEnum.SYNC_USER_CREATE.getType();
+        String content = MessageFormat.format(LogEnum.SYNC_USER_CREATE.getContent(), userNumber);
+        createLog(type, content);
+    }
+
+    @Override
+    @Transactional
+    public void logSyncUserModify(String userNumber) {
+        String type = LogEnum.SYNC_USER_MODIFY.getType();
+        String content = MessageFormat.format(LogEnum.SYNC_USER_MODIFY.getContent(), userNumber);
+        createLog(type, content);
+    }
+
+    @Override
+    @Transactional
+    public void logSyncUserDelete(String userNumber) {
+        String type = LogEnum.SYNC_USER_DELETE.getType();
+        String content = MessageFormat.format(LogEnum.SYNC_USER_DELETE.getContent(), userNumber);
+        createLog(type, content);
+    }
+
+    @Override
+    @Transactional
+    public void logSyncFingerprintEnroll(String userNumber) {
+        String type = LogEnum.SYNC_FINGERPRINT_ENROLL.getType();
+        String content = MessageFormat.format(LogEnum.SYNC_FINGERPRINT_ENROLL.getContent(), userNumber);
+        createLog(type, content);
+    }
+
+    @Override
+    @Transactional
+    public void logSyncFingerprintDelete(String userNumber) {
+        String type = LogEnum.SYNC_FINGERPRINT_DELETE.getType();
+        String content = MessageFormat.format(LogEnum.SYNC_FINGERPRINT_DELETE.getContent(), userNumber);
+        createLog(type, content);
+    }
+
     /**
      * 构造修改型日志内容
      *

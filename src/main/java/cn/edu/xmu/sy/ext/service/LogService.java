@@ -209,4 +209,39 @@ public interface LogService {
      * @param resourceId 资源ID
      */
     void logResourceDelete(Long resourceId);
+
+    /**
+     * 记录“同步新增用户”日志
+     *
+     * @param userNumber 用户编号
+     */
+    void logSyncUserCreate(String userNumber);
+
+    /**
+     * 记录“同步修改用户”日志
+     *
+     * @param userNumber 用户编号
+     */
+    void logSyncUserModify(String userNumber);
+
+    /**
+     * 记录“同步删除用户”日志
+     *
+     * @param userNumber 用户编号
+     */
+    void logSyncUserDelete(String userNumber);
+
+    /**
+     * 记录“同步登记指纹”日志
+     *
+     * @param userNumber 用户编号
+     */
+    void logSyncFingerprintEnroll(String userNumber);
+
+    /**
+     * 记录“同步删除指纹”日志
+     *
+     * @param userNumber 用户编号
+     */
+    void logSyncFingerprintDelete(String userNumber);
 }
