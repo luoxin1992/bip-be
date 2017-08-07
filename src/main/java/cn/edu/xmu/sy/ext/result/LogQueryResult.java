@@ -21,7 +21,7 @@ public class LogQueryResult extends BaseResult {
      */
     private Long id;
     /**
-     * 类别
+     * 类型
      */
     private String type;
     /**
