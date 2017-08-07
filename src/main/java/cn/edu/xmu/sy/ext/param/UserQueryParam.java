@@ -17,9 +17,15 @@ import javax.validation.constraints.NotNull;
  * @version 2017-3-11
  */
 public class UserQueryParam extends BaseParam {
+    /**
+     * 搜索参数
+     */
     @NotNull
     @Valid
     private BaseSearchParam search;
+    /**
+     * 分页参数
+     */
     @NotNull
     @Valid
     private BasePagingParam paging;

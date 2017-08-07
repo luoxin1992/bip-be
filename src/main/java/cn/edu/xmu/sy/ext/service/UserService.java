@@ -28,34 +28,31 @@ public interface UserService {
     BasePagingResult<UserQueryResult> query(UserQueryParam param);
 
     /**
-     * 根据ID查询用户编号
+     * 根据编号查询
      *
-     * @param id 用户ID
-     * @return 查询结果(可选值)
+     * @param number 用户编号
+     * @return 查询结果
      */
-    Optional<String> getNumberByIdOptional(Long id);
+    Optional<UserQueryResult> queryByNumber(String number);
 
     /**
      * 创建用户
      *
-     * @param param    创建参数
-     * @param fromSync 同步标记
+     * @param param 创建参数
      */
-    void create(UserCreateParam param, boolean fromSync);
+    void create(UserCreateParam param);
 
     /**
      * 修改用户
      *
-     * @param param    修改参数
-     * @param fromSync 同步标记
+     * @param param 修改参数
      */
-    void modify(UserModifyParam param, boolean fromSync);
+    void modify(UserModifyParam param);
 
     /**
      * 删除用户
      *
-     * @param param    删除参数
-     * @param fromSync 同步标记
+     * @param param 删除参数
      */
-    void delete(UserDeleteParam param, boolean fromSync);
+    void delete(UserDeleteParam param);
 }

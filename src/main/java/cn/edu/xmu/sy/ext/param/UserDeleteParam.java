@@ -7,7 +7,7 @@ import cn.com.lx1992.lib.base.param.BaseParam;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.Null;
 
 /**
  * 删除用户Param
@@ -19,8 +19,8 @@ public class UserDeleteParam extends BaseParam {
     @NotNull
     @Min(1)
     private Long id;
-    @Size(min = 1, max = 16)
-    private String number;
+    @Null
+    private Boolean fromSync;
 
     public Long getId() {
         return id;
@@ -30,11 +30,11 @@ public class UserDeleteParam extends BaseParam {
         this.id = id;
     }
 
-    public String getNumber() {
-        return number;
+    public Boolean getFromSync() {
+        return fromSync;
     }
 
-    public void setNumber(String number) {
-        this.number = number;
+    public void setFromSync(Boolean fromSync) {
+        this.fromSync = fromSync;
     }
 }

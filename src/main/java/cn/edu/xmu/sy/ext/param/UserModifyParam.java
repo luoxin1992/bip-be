@@ -7,6 +7,7 @@ import cn.com.lx1992.lib.base.param.BaseParam;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 
 /**
@@ -27,6 +28,8 @@ public class UserModifyParam extends BaseParam {
     private String name;
     @Size(min = 1, max = 128)
     private String photo;
+    @Null
+    private Boolean fromSync;
 
     public Long getId() {
         return id;
@@ -58,5 +61,13 @@ public class UserModifyParam extends BaseParam {
 
     public void setPhoto(String photo) {
         this.photo = photo;
+    }
+
+    public Boolean getFromSync() {
+        return fromSync;
+    }
+
+    public void setFromSync(Boolean fromSync) {
+        this.fromSync = fromSync;
     }
 }

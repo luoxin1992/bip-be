@@ -26,6 +26,7 @@ import javax.validation.Valid;
  *
  * @author luoxin
  * @version 2017-3-20
+ * @apiDefine user 用户API
  */
 @RestController
 @RequestMapping("/api/v1/user")
@@ -33,9 +34,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    /**
-     * @apiDefine user 用户API
-     */
     /**
      * @api {POST} /api/v1/user/query 查询用户
      * @apiName query
@@ -47,22 +45,21 @@ public class UserController {
      * @apiParam {Object} paging 分页参数
      * @apiParam {Number} [paging.now] 当前页码
      * @apiParam {Number} paging.size 分页长度
-     * @apiParam {Number} [paging.start] 起始记录
      *
      * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
      * @apiSuccess {String} message 提示信息
      * @apiSuccess {Object} result 具体结果
      * @apiSuccess {Number} result.total 总记录数
-     * @apiSuccess {Array} result.page 用户(分页)
+     * @apiSuccess {Array}  result.page 查询结果
      * @apiSuccess {Number} result.page.id 用户ID
      * @apiSuccess {String} result.page.number 编号
      * @apiSuccess {String} result.page.name 姓名
      * @apiSuccess {String} result.page.photo 照片(URL)
-     * @apiSuccess {Array} result.page.fingerprints 指纹
+     * @apiSuccess {Array}  result.page.fingerprints 指纹
      * @apiSuccess {Number} result.page.fingerprints.id 指纹ID
      * @apiSuccess {String} result.page.fingerprints.finger 手指名称
      * @apiSuccess {String} result.page.fingerprints.enrollTime 登记时间
-     * @apiSuccess {String} result.page.fingerprints.identifyTime (最后)辨识时间
+     * @apiSuccess {String} result.page.fingerprints.identifyTime 最后辨识时间
      */
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     public BaseResponse<BasePagingResult<UserQueryResult>> query(@RequestBody @Valid UserQueryParam param) {
@@ -72,7 +69,7 @@ public class UserController {
     }
 
     /**
-     * @api {POST} /api/v1/user/create 新增用户
+     * @api {POST} /api/v1/user/create 创建用户
      * @apiName create
      * @apiGroup user
      * @apiVersion 1.0.0
@@ -86,7 +83,9 @@ public class UserController {
      */
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     public BaseResponse create(@RequestBody @Valid UserCreateParam param) {
-        userService.create(param, false);
+        //同步标记，区别请求是否来自/sync/**接口
+        param.setFromSync(false);
+        userService.create(param);
         return new BaseResponse(BaseResultEnum.OK);
     }
 
@@ -106,7 +105,8 @@ public class UserController {
      */
     @RequestMapping(value = "/modify", method = RequestMethod.POST)
     public BaseResponse modify(@RequestBody @Valid UserModifyParam param) {
-        userService.modify(param, false);
+        param.setFromSync(false);
+        userService.modify(param);
         return new BaseResponse(BaseResultEnum.OK);
     }
 
@@ -123,7 +123,8 @@ public class UserController {
      */
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public BaseResponse delete(@RequestBody @Valid UserDeleteParam param) {
-        userService.delete(param, false);
+        param.setFromSync(false);
+        userService.delete(param);
         return new BaseResponse(BaseResultEnum.OK);
     }
 }
