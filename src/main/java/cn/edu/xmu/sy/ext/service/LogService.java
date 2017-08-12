@@ -135,10 +135,9 @@ public interface LogService {
      * 记录“修改会话状态”日志
      *
      * @param sessionId 会话ID
-     * @param token     会话Token
      * @param status    会话状态
      */
-    void logSessionUpdateStatus(Long sessionId, String token, String status);
+    void logSessionUpdateStatus(Long sessionId, String status);
 
     /**
      * 记录“删除会话”日志

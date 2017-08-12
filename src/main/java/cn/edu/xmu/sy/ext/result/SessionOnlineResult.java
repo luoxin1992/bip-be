@@ -16,10 +16,6 @@ public class SessionOnlineResult extends BaseResult {
      * Token
      */
     private String token;
-    /**
-     * 绑定的窗口
-     */
-    private CounterQuerySimpleResult counter;
 
     public String getToken() {
         return token;
@@ -27,13 +23,5 @@ public class SessionOnlineResult extends BaseResult {
 
     public void setToken(String token) {
         this.token = token;
-    }
-
-    public CounterQuerySimpleResult getCounter() {
-        return counter;
-    }
-
-    public void setCounter(CounterQuerySimpleResult counter) {
-        this.counter = counter;
     }
 }

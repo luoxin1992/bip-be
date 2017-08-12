@@ -3,6 +3,8 @@
  */
 package cn.edu.xmu.sy.ext.service.impl;
 
+import cn.com.lx1992.lib.base.result.BaseListResult;
+import cn.com.lx1992.lib.cat.annotation.CatTransaction;
 import cn.com.lx1992.lib.constant.CommonConstant;
 import cn.com.lx1992.lib.constant.DateTimeConstant;
 import cn.com.lx1992.lib.util.DateTimeUtil;
@@ -14,21 +16,18 @@ import cn.edu.xmu.sy.ext.exception.BizException;
 import cn.edu.xmu.sy.ext.mapper.SessionMapper;
 import cn.edu.xmu.sy.ext.meta.BizResultEnum;
 import cn.edu.xmu.sy.ext.meta.SessionStatusEnum;
-import cn.edu.xmu.sy.ext.param.CounterQueryBindParam;
-import cn.edu.xmu.sy.ext.param.SessionBatchQueryParam;
-import cn.edu.xmu.sy.ext.param.SessionCloseParam;
-import cn.edu.xmu.sy.ext.param.SessionLostClientParam;
-import cn.edu.xmu.sy.ext.param.SessionLostServerParam;
+import cn.edu.xmu.sy.ext.param.SessionKickParam;
 import cn.edu.xmu.sy.ext.param.SessionOfflineParam;
 import cn.edu.xmu.sy.ext.param.SessionOnlineParam;
 import cn.edu.xmu.sy.ext.param.SessionQueryParam;
 import cn.edu.xmu.sy.ext.result.CounterQuerySimpleResult;
 import cn.edu.xmu.sy.ext.result.SessionOnlineResult;
 import cn.edu.xmu.sy.ext.result.SessionQueryResult;
+import cn.edu.xmu.sy.ext.result.SessionQuerySimpleResult;
 import cn.edu.xmu.sy.ext.service.CounterService;
 import cn.edu.xmu.sy.ext.service.LogService;
-import cn.edu.xmu.sy.ext.service.MessageService;
 import cn.edu.xmu.sy.ext.service.SessionService;
+import cn.edu.xmu.sy.ext.service.WebSocketService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +46,7 @@ import java.util.stream.Collectors;
  * @author luoxin
  * @version 2017-3-24
  */
+@CatTransaction
 @Service
 public class SessionServiceImpl implements SessionService {
     private final Logger logger = LoggerFactory.getLogger(SessionServiceImpl.class);
@@ -54,7 +54,7 @@ public class SessionServiceImpl implements SessionService {
     @Autowired
     private CounterService counterService;
     @Autowired
-    private MessageService messageService;
+    private WebSocketService webSocketService;
     @Autowired
     private LogService logService;
 
@@ -64,180 +64,210 @@ public class SessionServiceImpl implements SessionService {
     @Override
     @Transactional
     public SessionOnlineResult online(SessionOnlineParam param) {
-        //查询绑定的窗口
-        CounterQuerySimpleResult counter = checkCounterBind(param);
         //不允许同一窗口多个客户端同时上线
-        checkOnlineSessionNotExist(counter.getId());
+        checkAnotherOnline(param.getCounterId());
         //生成Token
-        String token = generateToken(counter.getId());
+        String token = generateToken(param.getCounterId());
 
         //记录会话信息
         SessionDO domain = new SessionDO();
-        domain.setCounterId(counter.getId());
+        domain.setCounterId(param.getCounterId());
         domain.setToken(token);
         domain.setStatus(SessionStatusEnum.ONLINE.getStatus());
         domain.setOnlineTime(DateTimeUtil.getNow());
         if (sessionMapper.save(domain) != CommonConstant.SAVE_DOMAIN_SUCCESSFUL) {
-            logger.error("session {} for counter {} online failed", domain.getId(), counter.getId());
+            logger.error("session {} for counter {} online failed", domain.getId(), param.getCounterId());
             throw new BizException(BizResultEnum.SESSION_ONLINE_ERROR);
         }
 
-        //注册到Msg服务
-        messageService.sendTokenRegister(token);
-
-        logService.logSessionOnline(domain.getCounterId(), domain.getId(), domain.getToken());
-        logger.info("session {} for counter {} online successfully", domain.getId(), counter.getId());
+        logService.logSessionCreate(domain.getId(), domain.getCounterId(), domain.getToken());
+        logger.info("create session {} for counter {}", domain.getId(), param.getCounterId());
 
         SessionOnlineResult result = new SessionOnlineResult();
         result.setToken(token);
-        result.setCounter(counter);
         return result;
     }
 
     @Override
     @Transactional
     public void offline(SessionOfflineParam param) {
-        Long id = checkTokenExist(param.getToken());
-        checkSessionIsOnline(id);
-
-        //从消息服务解除注册
-        messageService.sendTokenUnregister(param.getToken());
-        //更新会话状态
-        updateSessionStatus(id, SessionStatusEnum.OFFLINE);
-
-        logService.logSessionOffline(id, param.getToken());
-        logger.info("session {} offline successfully", id);
+        SessionDO domain = getByToken(param.getToken());
+        checkStatusOnline(domain);
+        updateStatus(domain.getId(), SessionStatusEnum.OFFLINE);
     }
 
     @Override
     @Transactional
-    public void lostServer(SessionLostServerParam param) {
-        Long id = checkTokenExist(param.getToken());
-        checkSessionIsOnline(id);
-
-        updateSessionStatus(id, SessionStatusEnum.LOST_SERVER);
-
-        logService.logSessionLostServer(id, param.getToken());
-        logger.info("mark session {} status as server lost successfully", id);
+    public void kick(SessionKickParam param) {
+        SessionDO domain = getById(param.getId());
+        checkStatusOnline(domain);
+        updateStatus(param.getId(), SessionStatusEnum.KICK);
+        //强制关闭WebSocket连接
+        webSocketService.closeSession(domain.getToken());
     }
 
     @Override
     @Transactional
-    public void lostClient(SessionLostClientParam param) {
-        Long id = checkTokenExist(param.getToken());
-        checkSessionIsOnline(id);
-
-        updateSessionStatus(id, SessionStatusEnum.LOST_CLIENT);
-
-        logService.logSessionLostClient(id, param.getToken());
-        logger.info("mark session {} status as client lost successfully", id);
+    public void lost(String token) {
+        SessionDO domain = getByToken(token);
+        checkStatusOnline(domain);
+        updateStatus(domain.getId(), SessionStatusEnum.LOST);
     }
 
     @Override
-    @Transactional
-    public void close(SessionCloseParam param) {
-        checkSessionIsOnline(param.getId());
-
-        //TODO 发送关闭消息
-        updateSessionStatus(param.getId(), SessionStatusEnum.CLOSE);
-
-        logService.logSessionClose(param.getId());
-        logger.info("mark session {} status as close successfully", param.getId());
+    public void verify(String token) {
+        SessionDO domain = getByToken(token);
+        checkStatusOnline(domain);
     }
 
     @Override
-    public List<SessionQueryResult> query(SessionQueryParam param) {
-        List<SessionDO> domains = sessionMapper.getByParam(param);
+    public void deleteByCounter(Long counterId) {
+        List<SessionDO> domains = sessionMapper.getByCounterId(counterId, null);
+        if (CollectionUtils.isEmpty(domains)) {
+            logger.warn("no session for counter {}", counterId);
+            return;
+        }
+
+        //不能删除在线会话
+        domains.stream()
+                .filter(domain -> domain.getStatus() == SessionStatusEnum.ONLINE.getStatus())
+                .findAny()
+                .ifPresent(domain -> {
+                    logger.error("online session {} can not delete", domain.getId());
+                    throw new BizException(BizResultEnum.SESSION_DELETE_ONLINE);
+                });
+
+        if (sessionMapper.removeByCounterId(counterId) != domains.size()) {
+            logger.error("delete session for counter {} failed", counterId);
+            throw new BizException(BizResultEnum.SESSION_DELETE_ERROR);
+        }
+
+        logService.logSessionDeleteByCounter(counterId);
+        logger.info("delete {} session(s) for counter {}", domains.size(), counterId);
+    }
+
+    @Override
+    public BaseListResult<SessionQueryResult> query(SessionQueryParam param) {
+        //同一个窗口可能有非常多会话记录，查询时限制返回长度
+        List<SessionDO> domains = sessionMapper.getByCounterId(param.getCounterId(), param.getLimit());
         if (CollectionUtils.isEmpty(domains)) {
             logger.warn("session query result is empty");
-            return Collections.emptyList();
+            return new BaseListResult<>();
         }
 
+        List<SessionQueryResult> results = domains.stream()
+                .map(domain -> {
+                    SessionQueryResult result = POJOConvertUtil.convert(domain, SessionQueryResult.class);
+                    result.setStatus(SessionStatusEnum.getDescriptionByStatus(domain.getStatus()));
+                    return result;
+                })
+                .collect(Collectors.toList());
         logger.info("query {} session(s) for counter {}", domains.size(), param.getCounterId());
-        return domains.stream()
-                .map(domain -> {
-                    SessionQueryResult result = POJOConvertUtil.convert(domain, SessionQueryResult.class);
-                    result.setStatus(SessionStatusEnum.getDescriptionByStatus(domain.getStatus()));
-                    return result;
-                })
-                .collect(Collectors.toList());
-    }
 
-    @Override
-    public List<SessionQueryResult> queryBatch(SessionBatchQueryParam param) {
-        List<SessionDO> domains = sessionMapper.listByParam(param);
-        if (CollectionUtils.isEmpty(domains)) {
-            logger.warn("session batch query result is empty");
-            return Collections.emptyList();
-        }
-
-        logger.info("batch query {} session(s) for {} counter(s)", domains.size(), param.getCounterIds().size());
-        return domains.stream()
-                .map(domain -> {
-                    SessionQueryResult result = POJOConvertUtil.convert(domain, SessionQueryResult.class);
-                    result.setStatus(SessionStatusEnum.getDescriptionByStatus(domain.getStatus()));
-                    return result;
-                })
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public Map<Long, List<SessionQueryResult>> queryBatchAndGroup(SessionBatchQueryParam param) {
-        List<SessionQueryResult> sessions = queryBatch(param);
-        if (CollectionUtils.isEmpty(sessions)) {
-            return Collections.emptyMap();
-        }
-        return sessions.stream()
-                .collect(Collectors.groupingBy(SessionQueryResult::getCounterId, TreeMap::new, Collectors.toList()));
-    }
-
-    @Override
-    public Optional<Long> getOnlineIdByCounterIdOptional(Long counterId) {
-        return Optional.ofNullable(sessionMapper.getOnlineIdByCounterId(counterId));
-    }
-
-    @Override
-    public String getTokenById(Long id) {
-        SessionDO domain = sessionMapper.getById(id);
-        if (domain == null) {
-            logger.error("session {} not exist", id);
-            throw new BizException(BizResultEnum.SESSION_NOT_EXIST, id);
-        }
-        return domain.getToken();
-    }
-
-    /**
-     * 根据会话上线参数(MAC+IP)查询是否已绑定(存在)某个窗口
-     *
-     * @param param 上线参数
-     * @return 查询结果
-     */
-    private CounterQuerySimpleResult checkCounterBind(SessionOnlineParam param) {
-        CounterQuerySimpleResult result = counterService.querySimple(POJOConvertUtil.convert(param,
-                CounterQueryBindParam.class));
-        if (result == null) {
-            logger.error("counter with mac {} and ip {} unbind", param.getMac(), param.getIp());
-            throw new BizException(BizResultEnum.SESSION_COUNTER_UNBIND);
-        }
+        BaseListResult<SessionQueryResult> result = new BaseListResult<>();
+        result.setTotal(results.size());
+        result.setList(results);
         return result;
     }
 
+    @Override
+    public Optional<SessionQuerySimpleResult> queryOnline(Long counterId) {
+        //在线会话只可能是最新的一个会话
+        List<SessionDO> domains = sessionMapper.getByCounterId(counterId, 1);
+        if (CollectionUtils.isEmpty(domains)) {
+            return Optional.empty();
+        } else {
+            SessionDO domain = domains.get(0);
+            return Optional.ofNullable(domain.getStatus() == SessionStatusEnum.ONLINE.getStatus() ?
+                    POJOConvertUtil.convert(domain, SessionQuerySimpleResult.class) : null);
+        }
+    }
+
+    @Override
+    public SessionQuerySimpleResult queryIfOnline(Long sessionId) {
+        SessionDO domain = sessionMapper.getById(sessionId);
+        if (domain == null) {
+            logger.error("session {} not exist", sessionId);
+            throw new BizException(BizResultEnum.SESSION_NOT_EXIST, sessionId);
+        }
+        if (domain.getStatus() != SessionStatusEnum.ONLINE.getStatus()) {
+            logger.error("session {} token is no longer online", sessionId);
+            throw new BizException(BizResultEnum.SESSION_TOKEN_INVALIDATE, domain.getToken());
+        }
+        return POJOConvertUtil.convert(domain, SessionQuerySimpleResult.class);
+    }
+
+    @Override
+    public List<SessionQuerySimpleResult> queryAllOnline() {
+        List<CounterQuerySimpleResult> results = counterService.list().getList();
+        return results.stream()
+                .map(result -> queryOnline(result.getId()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<Long, SessionQueryResult> queryBatch(List<Long> sessionIds) {
+        if (CollectionUtils.isEmpty(sessionIds)) {
+            logger.warn("empty session id list in query param");
+            return Collections.emptyMap();
+        }
+
+        List<SessionDO> domains = sessionMapper.listById(sessionIds);
+        if (CollectionUtils.isEmpty(domains)) {
+            logger.warn("session batch query result is empty");
+            return Collections.emptyMap();
+        }
+
+        logger.info("batch query {} session(s)", domains.size());
+        return domains.stream()
+                .collect(Collectors.toMap(SessionDO::getId, domain -> {
+                    SessionQueryResult result = POJOConvertUtil.convert(domain, SessionQueryResult.class);
+                    result.setStatus(SessionStatusEnum.getDescriptionByStatus(domain.getStatus()));
+                    return result;
+                }));
+    }
+
+    @Override
+    public Map<Long, List<SessionQueryResult>> queryBatchAndGroup(List<Long> counterIds) {
+        if (CollectionUtils.isEmpty(counterIds)) {
+            logger.warn("empty counter id list in query param");
+            return Collections.emptyMap();
+        }
+
+        //批量查询时，每个窗口只会返回最新的1条会话记录
+        List<SessionDO> domains = sessionMapper.listByCounterId(counterIds);
+        if (CollectionUtils.isEmpty(domains)) {
+            logger.warn("session batch query by counter id result is empty");
+            return Collections.emptyMap();
+        }
+
+        logger.info("batch query {} session(s) for {} counter(s)", domains.size(), counterIds.size());
+        return domains.stream()
+                .collect(Collectors.groupingBy(SessionDO::getCounterId, TreeMap::new,
+                        Collectors.mapping(domain -> {
+                            SessionQueryResult result = POJOConvertUtil.convert(domain, SessionQueryResult.class);
+                            result.setStatus(SessionStatusEnum.getDescriptionByStatus(domain.getStatus()));
+                            return result;
+                        }, Collectors.toList())));
+    }
+
     /**
-     * 检查窗口是否不存在在线会话
+     * 检查窗口是否存在其他在线会话
      *
      * @param counterId 窗口ID
      */
-    private void checkOnlineSessionNotExist(Long counterId) {
-        Long id = sessionMapper.getOnlineIdByCounterId(counterId);
-        if (id != null) {
-            logger.error("another session {} is online for counter {}", id, counterId);
+    private void checkAnotherOnline(Long counterId) {
+        queryOnline(counterId).ifPresent(result -> {
+            logger.error("another session {} is online for counter {}", result.getId(), counterId);
             throw new BizException(BizResultEnum.SESSION_ANOTHER_ONLINE);
-        }
+        });
     }
 
     /**
      * 生成Token
-     * 规则：MD5(窗口ID+当前时间+盐)
+     * 规则：MD5(窗口ID+当前时间+短UUID)
      *
      * @param counterId 窗口ID
      * @return Token
@@ -249,44 +279,66 @@ public class SessionServiceImpl implements SessionService {
     }
 
     /**
-     * 检查会话Token是否存在
+     * 根据ID查询会话
      *
-     * @param token Token
-     * @return 会话ID
+     * @param id 会话ID
+     * @return 查询结果
      */
-    private Long checkTokenExist(String token) {
-        Long id = sessionMapper.getIdByToken(token);
-        if (id == null) {
-            logger.error("session with token {} not exist", token);
-            throw new BizException(BizResultEnum.SESSION_TOKEN_NOT_EXIST, token);
+    private SessionDO getById(Long id) {
+        SessionDO domain = sessionMapper.getById(id);
+        if (domain == null) {
+            logger.error("session {} not exist", id);
+            throw new BizException(BizResultEnum.SESSION_NOT_EXIST, id);
         }
-        return id;
+        return domain;
     }
 
     /**
-     * 检查会话是否在线
+     * 根据Token查询会话
      *
-     * @param id 会话ID
+     * @param token Token
+     * @return 查询结果
      */
-    private void checkSessionIsOnline(Long id) {
-        SessionDO domain = sessionMapper.getById(id);
+    private SessionDO getByToken(String token) {
+        SessionDO domain = sessionMapper.getByToken(token);
+        if (domain == null) {
+            logger.error("session with token {} not exist", token);
+            throw new BizException(BizResultEnum.SESSION_TOKEN_NOT_EXIST, token);
+        }
+        return domain;
+    }
+
+    /**
+     * 检查Session状态是否为在线
+     *
+     * @param domain 会话
+     */
+    private void checkStatusOnline(SessionDO domain) {
         if (domain.getStatus() != SessionStatusEnum.ONLINE.getStatus()) {
-            logger.error("session {] is not online", id);
-            throw new BizException(BizResultEnum.SESSION_NOT_ONLINE, id);
+            logger.warn("session {} status is {} instead of online", domain.getId(), domain.getStatus());
+            throw new BizException(BizResultEnum.SESSION_TOKEN_INVALIDATE, domain.getToken());
         }
     }
 
-    private void updateSessionStatus(Long id, SessionStatusEnum status) {
+    /**
+     * 更新会话状态
+     *
+     * @param id     会话ID
+     * @param status 会话状态
+     */
+    private void updateStatus(Long id, SessionStatusEnum status) {
         SessionDO domain = new SessionDO();
         domain.setId(id);
         domain.setStatus(status.getStatus());
-        //客户端请求离线、管理后台强制关闭都视为正常情况，记录当前时间
-        if (status == SessionStatusEnum.OFFLINE || status == SessionStatusEnum.CLOSE) {
-            domain.setOfflineTime(DateTimeUtil.getNow());
-        }
+        //更新后的状态均为无效状态，统一记录为离线时间
+        domain.setOfflineTime(DateTimeUtil.getNow());
+
         if (sessionMapper.updateById(domain) != CommonConstant.UPDATE_DOMAIN_SUCCESSFUL) {
-            logger.error("update session {} status to {} failed", id, status.getStatus());
+            logger.error("update session {} status to {} failed", domain.getId(), status.getStatus());
             throw new BizException(BizResultEnum.SESSION_UPDATE_STATUS_ERROR);
         }
+
+        logService.logSessionUpdateStatus(id, status.getDescription());
+        logger.info("update session {} status to {}", id, status.getStatus());
     }
 }

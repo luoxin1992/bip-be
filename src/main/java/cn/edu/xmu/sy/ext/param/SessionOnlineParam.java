@@ -4,11 +4,9 @@
 package cn.edu.xmu.sy.ext.param;
 
 import cn.com.lx1992.lib.base.param.BaseParam;
-import cn.com.lx1992.lib.constant.RegExpConstant;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 
 /**
  * 会话上线Param
@@ -18,33 +16,17 @@ import javax.validation.constraints.Size;
  */
 public class SessionOnlineParam extends BaseParam {
     /**
-     * MAC地址
+     * 窗口ID
      */
     @NotNull
-    @Size(min = 1, max = 32)
-    @Pattern(regexp = RegExpConstant.MAC_ADDRESS)
-    private String mac;
-    /**
-     * IP地址
-     */
-    @NotNull
-    @Size(min = 1, max = 16)
-    @Pattern(regexp = RegExpConstant.IP_ADDRESS)
-    private String ip;
+    @Min(1)
+    private Long counterId;
 
-    public String getMac() {
-        return mac;
+    public Long getCounterId() {
+        return counterId;
     }
 
-    public void setMac(String mac) {
-        this.mac = mac;
-    }
-
-    public String getIp() {
-        return ip;
-    }
-
-    public void setIp(String ip) {
-        this.ip = ip;
+    public void setCounterId(Long counterId) {
+        this.counterId = counterId;
     }
 }

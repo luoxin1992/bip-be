@@ -174,9 +174,9 @@ public class LogServiceImpl implements LogService {
 
     @Override
     @Transactional
-    public void logSessionUpdateStatus(Long sessionId, String token, String status) {
+    public void logSessionUpdateStatus(Long sessionId, String status) {
         String type = LogEnum.SESSION_STATUS_UPDATE.getType();
-        String content = MessageFormat.format(LogEnum.SESSION_STATUS_UPDATE.getContent(), sessionId, token, status);
+        String content = MessageFormat.format(LogEnum.SESSION_STATUS_UPDATE.getContent(), sessionId, status);
         createLog(type, content);
     }
 

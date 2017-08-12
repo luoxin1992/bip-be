@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
  */
 public class SessionQueryResult extends BaseResult {
     private Long id;
-    private Long counterId;
+    private String token;
     private String status;
     @JsonFormat(pattern = DateTimeConstant.DATETIME_PATTERN_WITH_BAR)
     private LocalDateTime onlineTime;
@@ -32,12 +32,12 @@ public class SessionQueryResult extends BaseResult {
         this.id = id;
     }
 
-    public Long getCounterId() {
-        return counterId;
+    public String getToken() {
+        return token;
     }
 
-    public void setCounterId(Long counterId) {
-        this.counterId = counterId;
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public String getStatus() {

@@ -13,12 +13,11 @@ import java.util.Optional;
  * @version 2017-3-24
  */
 public enum SessionStatusEnum {
+    UNKNOWN(-1, "未知"),
     ONLINE(1, "在线"),
     OFFLINE(2, "离线"),
-    LOST_SERVER(3, "服务端失联"),
-    LOST_CLIENT(4, "客户端失联"),
-    CLOSE(5, "关闭"),
-    UNKNOWN(999, "未知");
+    KICK(3, "强制下线"),
+    LOST(4, "失联");
 
     private int status;
     private String description;
@@ -38,7 +37,7 @@ public enum SessionStatusEnum {
 
     public static String getDescriptionByStatus(int status) {
         Optional<String> result = Arrays.stream(values())
-                .filter((value) -> value.status == status)
+                .filter(value -> value.status == status)
                 .map(SessionStatusEnum::getDescription)
                 .findFirst();
         return result.orElse(UNKNOWN.getDescription());

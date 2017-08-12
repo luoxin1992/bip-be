@@ -9,24 +9,24 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 /**
- * 删除用户全部指纹Param
+ * 会话强制离线Param
  *
  * @author luoxin
- * @version 2017-5-11
+ * @version 2017-5-14
  */
-public class FingerprintDeleteByUserParam extends BaseParam {
+public class SessionKickParam extends BaseParam {
     /**
-     * 用户ID
+     * 会话ID
      */
     @NotNull
     @Min(1)
-    private Long userId;
+    private Long id;
 
-    public Long getUserId() {
-        return userId;
+    public Long getId() {
+        return id;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setId(Long id) {
+        this.id = id;
     }
 }

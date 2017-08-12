@@ -26,7 +26,7 @@ public enum LogEnum {
     COUNTER_DELETE("删除窗口", "删除了ID为{0,number,#}的窗口"),
     //会话日志
     SESSION_CREATE("新增会话", "新增了ID为{0,number,#}的会话[窗口ID''{1,number,#}'', Token''{2}'']"),
-    SESSION_STATUS_UPDATE("修改会话状态", "ID为{0,number,#}的会话状态变更为''{1}''[Token''{2}'']"),
+    SESSION_STATUS_UPDATE("修改会话状态", "ID为{0,number,#}的会话状态变更为''{1}''"),
     SESSION_DELETE_BY_COUNTER("删除会话", "删除了窗口{0,number,#}的全部会话"),
     //消息日志
     MESSAGE_SEND("发送消息", "发送了ID为{0,number,#}的消息[窗口ID''{1,number,#}'', 会话ID''{2,number,#}'', 消息UID''{3,number,#}'', 类型''{4}'', 长度''{5}'']"),

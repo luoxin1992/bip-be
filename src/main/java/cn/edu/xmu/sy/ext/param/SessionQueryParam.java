@@ -4,7 +4,10 @@
 package cn.edu.xmu.sy.ext.param;
 
 import cn.com.lx1992.lib.base.param.BaseParam;
-import cn.com.lx1992.lib.base.param.BasePeriodParam;
+
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 /**
  * 查询会话Param
@@ -16,15 +19,13 @@ public class SessionQueryParam extends BaseParam {
     /**
      * 窗口ID
      */
+    @NotNull
+    @Min(1)
     private Long counterId;
-    /**
-     * 会话状态
-     */
-    private Integer status;
-    /**
-     * 时间参数
-     */
-    private BasePeriodParam period;
+    @NotNull
+    @Min(1)
+    @Max(100)
+    private Integer limit;
 
     public Long getCounterId() {
         return counterId;
@@ -34,19 +35,11 @@ public class SessionQueryParam extends BaseParam {
         this.counterId = counterId;
     }
 
-    public Integer getStatus() {
-        return status;
+    public Integer getLimit() {
+        return limit;
     }
 
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    public BasePeriodParam getPeriod() {
-        return period;
-    }
-
-    public void setPeriod(BasePeriodParam period) {
-        this.period = period;
+    public void setLimit(Integer limit) {
+        this.limit = limit;
     }
 }
