@@ -7,6 +7,9 @@ import cn.com.lx1992.lib.base.result.BaseResult;
 
 /**
  * 查询窗口简版Result
+ * <p>
+ * 查询全部
+ * 查询绑定
  *
  * @author luoxin
  * @version 2017-5-14

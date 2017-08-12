@@ -3,16 +3,18 @@
  */
 package cn.edu.xmu.sy.ext.service;
 
+import cn.com.lx1992.lib.base.result.BaseListResult;
 import cn.com.lx1992.lib.base.result.BasePagingResult;
 import cn.edu.xmu.sy.ext.param.CounterCreateParam;
 import cn.edu.xmu.sy.ext.param.CounterDeleteParam;
 import cn.edu.xmu.sy.ext.param.CounterModifyParam;
-import cn.edu.xmu.sy.ext.param.CounterQueryParam;
 import cn.edu.xmu.sy.ext.param.CounterQueryBindParam;
+import cn.edu.xmu.sy.ext.param.CounterQueryParam;
 import cn.edu.xmu.sy.ext.result.CounterQueryResult;
 import cn.edu.xmu.sy.ext.result.CounterQuerySimpleResult;
 
-import java.util.Optional;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 窗口Service
@@ -43,6 +45,13 @@ public interface CounterService {
     void delete(CounterDeleteParam param);
 
     /**
+     * 查询全部窗口
+     *
+     * @return 查询结果
+     */
+    BaseListResult<CounterQuerySimpleResult> list();
+
+    /**
      * 查询窗口信息
      *
      * @param param 查询参数
@@ -51,18 +60,18 @@ public interface CounterService {
     BasePagingResult<CounterQueryResult> query(CounterQueryParam param);
 
     /**
-     * 根据MAC地址和IP地址查询简版窗口信息
+     * 根据MAC地址和IP地址查询绑定的窗口信息
      *
      * @param param 查询参数
      * @return 查询结果
      */
-    CounterQuerySimpleResult querySimple(CounterQueryBindParam param);
+    CounterQuerySimpleResult queryBind(CounterQueryBindParam param);
 
     /**
-     * 根据编号查询窗口ID
+     * 批量查询窗口，映射出窗口ID
      *
-     * @param number 编号
-     * @return 窗口ID(可选值)
+     * @param counterIds 窗口ID
+     * @return 查询结果
      */
-    Optional<Long> getIdByNumberOptional(String number);
+    Map<Long, CounterQueryResult> queryBatch(List<Long> counterIds);
 }
