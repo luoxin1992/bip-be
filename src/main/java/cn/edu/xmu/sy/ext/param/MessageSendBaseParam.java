@@ -20,13 +20,13 @@ public class MessageSendBaseParam extends BaseParam {
      */
     @NotNull
     @Min(1)
-    private Long sendTo;
+    private Long target;
 
-    public Long getSendTo() {
-        return sendTo;
+    public Long getTarget() {
+        return target;
     }
 
-    public void setSendTo(Long sendTo) {
-        this.sendTo = sendTo;
+    public void setTarget(Long target) {
+        this.target = target;
     }
 }

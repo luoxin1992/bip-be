@@ -3,17 +3,15 @@
  */
 package cn.edu.xmu.sy.ext.param;
 
-import cn.com.lx1992.lib.base.param.BaseParam;
-
 import javax.validation.constraints.Size;
 
 /**
- * 业务受理失败 消息发送Param
+ * 业务受理成功 消息发送Param
  *
  * @author luoxin
  * @version 2017-4-28
  */
-public class MessageSendBusinessFailureParam extends BaseParam {
+public class MessageSendGeneralBusinessSuccessParam extends MessageSendBaseParam {
     /**
      * 附加信息
      */

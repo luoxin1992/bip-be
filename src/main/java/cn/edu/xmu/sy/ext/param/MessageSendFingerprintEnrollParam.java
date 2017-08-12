@@ -3,9 +3,9 @@
  */
 package cn.edu.xmu.sy.ext.param;
 
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 /**
  * 指纹登记 消息发送Param
@@ -15,23 +15,24 @@ import javax.validation.constraints.Size;
  */
 public class MessageSendFingerprintEnrollParam extends MessageSendBaseParam {
     /**
-     * 用户ID
+     * 用户(ID)
      */
     @Min(1)
-    private Long userId;
+    private Long user;
     /**
      * 手指
      */
     @NotNull
-    @Size(max = 9)
+    @Min(0)
+    @Max(9)
     private Integer finger;
 
-    public Long getUserId() {
-        return userId;
+    public Long getUser() {
+        return user;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setUser(Long user) {
+        this.user = user;
     }
 
     public Integer getFinger() {

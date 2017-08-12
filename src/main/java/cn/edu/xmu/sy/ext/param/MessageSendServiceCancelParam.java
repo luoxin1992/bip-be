@@ -4,10 +4,10 @@
 package cn.edu.xmu.sy.ext.param;
 
 /**
- * 指纹辨识成功 消息发送Param
+ * 取消服务 消息发送Param
  *
  * @author luoxin
  * @version 2017-4-28
  */
-public class MessageSendFingerprintIdentifySuccessParam extends MessageSendBaseParam {
+public class MessageSendServiceCancelParam extends MessageSendBaseParam {
 }

@@ -6,12 +6,12 @@ package cn.edu.xmu.sy.ext.param;
 import javax.validation.constraints.Size;
 
 /**
- * 业务受理成功 消息发送Param
+ * 业务受理失败 消息发送Param
  *
  * @author luoxin
  * @version 2017-4-28
  */
-public class MessageSendBusinessSuccessParam extends MessageSendBaseParam {
+public class MessageSendGeneralBusinessFailureParam extends MessageSendBaseParam {
     /**
      * 附加信息
      */
