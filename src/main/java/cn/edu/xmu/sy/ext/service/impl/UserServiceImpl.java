@@ -80,9 +80,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserQueryResult queryById(Long id) {
+        UserDO domain = userMapper.getById(id);
+        if (domain == null) {
+            logger.error("user {} not exist", id);
+            throw new BizException(BizResultEnum.USER_NOT_EXIST, id);
+        }
+        return POJOConvertUtil.convert(domain, UserQueryResult.class);
+    }
+
+    @Override
     public Optional<UserQueryResult> queryByNumber(String number) {
         UserDO domain = userMapper.getByNumber(number);
-        return domain != null ? Optional.of(POJOConvertUtil.convert(domain, UserQueryResult.class)) : Optional.empty();
+        return Optional.ofNullable(domain != null ? POJOConvertUtil.convert(domain, UserQueryResult.class) : null);
     }
 
     @Transactional

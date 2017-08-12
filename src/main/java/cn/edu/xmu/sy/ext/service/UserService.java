@@ -28,6 +28,14 @@ public interface UserService {
     BasePagingResult<UserQueryResult> query(UserQueryParam param);
 
     /**
+     * 根据ID查询
+     *
+     * @param id 用户ID
+     * @return 查询结果
+     */
+    UserQueryResult queryById(Long id);
+
+    /**
      * 根据编号查询
      *
      * @param number 用户编号
