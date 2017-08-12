@@ -63,6 +63,12 @@ public class MessageDO extends BaseDO {
     @FieldComment("确认时间")
     @CompareIgnore
     private LocalDateTime ackTime;
+    /**
+     * 接收时间
+     */
+    @FieldComment("接收时间")
+    @CompareIgnore
+    private LocalDateTime receiveTime;
 
     public Long getCounterId() {
         return counterId;
@@ -134,5 +140,13 @@ public class MessageDO extends BaseDO {
 
     public void setAckTime(LocalDateTime ackTime) {
         this.ackTime = ackTime;
+    }
+
+    public LocalDateTime getReceiveTime() {
+        return receiveTime;
+    }
+
+    public void setReceiveTime(LocalDateTime receiveTime) {
+        this.receiveTime = receiveTime;
     }
 }

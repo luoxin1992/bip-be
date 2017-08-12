@@ -30,7 +30,7 @@ public class FingerprintDO extends BaseDO {
      * 手指
      */
     @FieldComment("手指")
-    private String finger;
+    private Integer finger;
     /**
      * 模板
      */
@@ -65,11 +65,11 @@ public class FingerprintDO extends BaseDO {
         this.uid = uid;
     }
 
-    public String getFinger() {
+    public Integer getFinger() {
         return finger;
     }
 
-    public void setFinger(String finger) {
+    public void setFinger(Integer finger) {
         this.finger = finger;
     }
 

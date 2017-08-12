@@ -14,18 +14,20 @@
         <result column="retry" jdbcType="INTEGER" property="retry"/>
         <result column="send_time" jdbcType="TIMESTAMP" property="sendTime"/>
         <result column="ack_time" jdbcType="TIMESTAMP" property="ackTime"/>
+        <result column="receive_time" jdbcType="TIMESTAMP" property="receiveTime"/>
         <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
         <result column="gmt_modify" jdbcType="TIMESTAMP" property="gmtModify"/>
     </resultMap>
 
     <sql id="generalColumns">
-        id, counter_id, session_id, uid, direction, type, body, retry, send_time, ack_time, gmt_create, gmt_modify
+        id, counter_id, session_id, uid, direction, type, body, retry, send_time, ack_time, receive_time, gmt_create,
+        gmt_modify
     </sql>
 
     <insert id="save" parameterType="cn.edu.xmu.sy.ext.domain.MessageDO">
         insert into tbl_message(<include refid="generalColumns"/>)
         values(#{id}, #{counterId}, #{sessionId}, #{uid}, #{direction}, #{type}, #{body}, #{retry}, #{sendTime},
-        #{ackTime}, #{gmtCreate}, #{gmtModify})
+        #{ackTime}, #{receiveTime}, #{gmtCreate}, #{gmtModify})
     </insert>
 
     <insert id="saveBatch" parameterType="cn.edu.xmu.sy.ext.domain.MessageDO">
@@ -33,7 +35,8 @@
         values
         <foreach collection="list" item="item" separator=",">
             (#{item.id}, #{item.counterId}, #{item.sessionId}, #{item.uid}, #{item.direction}, #{item.type},
-            #{item.body}, #{item.retry}, #{item.sendTime}, #{item.ackTime}, #{item.gmtCreate}, #{item.gmtModify})
+            #{item.body}, #{item.retry}, #{item.sendTime}, #{item.ackTime}, #{item.receiveTime}, #{item.gmtCreate},
+            #{item.gmtModify})
         </foreach>
     </insert>
 
@@ -66,6 +69,9 @@
         </if>
         <if test="ackTime != null">
             , ack_time = #{ackTime}
+        </if>
+        <if test="receiveTime != null">
+            , receive_time = #{receiveTime}
         </if>
         where id = #{id} and is_delete = 0
     </update>

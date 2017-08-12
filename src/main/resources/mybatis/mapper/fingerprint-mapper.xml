@@ -7,7 +7,7 @@
         <result column="id" jdbcType="BIGINT" property="id"/>
         <result column="user_id" jdbcType="BIGINT" property="userId"/>
         <result column="uid" jdbcType="INTEGER" property="uid"/>
-        <result column="finger" jdbcType="VARCHAR" property="finger"/>
+        <result column="finger" jdbcType="INTEGER" property="code"/>
         <result column="template" jdbcType="VARCHAR" property="template"/>
         <result column="enroll_time" jdbcType="TIMESTAMP" property="enrollTime"/>
         <result column="identify_time" jdbcType="TIMESTAMP" property="identifyTime"/>
@@ -44,7 +44,7 @@
             , uid = #{uid}
         </if>
         <if test="finger != null">
-            , finger = #{finger}
+            , finger = #{code}
         </if>
         <if test="template != null">
             , template = #{template}
