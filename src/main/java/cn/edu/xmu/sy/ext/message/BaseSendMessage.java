@@ -15,40 +15,16 @@ import java.util.List;
  * @author luoxin
  * @version 2017-5-19
  */
-public class BaseSendMessage {
-    /**
-     * UID
-     */
-    private Long uid;
-    /**
-     * 类型
-     */
-    private String type;
+public class BaseSendMessage extends BaseMessage {
     /**
      * 资源
      */
     private List<Resource> resources;
 
     BaseSendMessage(MessageTypeEnum type) {
-        this.uid = UIDGenerateUtil.Standard.nextId();
-        this.type = type.getType();
-        this.resources = new ArrayList<>();
-    }
-
-    public Long getUid() {
-        return uid;
-    }
-
-    public void setUid(Long uid) {
-        this.uid = uid;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
+        setUid(UIDGenerateUtil.Standard.nextId());
+        setType(type.getType());
+        setResources(new ArrayList<>());
     }
 
     public List<Resource> getResources() {

@@ -5,6 +5,7 @@ package cn.edu.xmu.sy.ext.message;
 
 import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,6 +24,10 @@ public class FingerprintEnrollMessage extends BaseSendMessage {
      */
     private Integer times;
     /**
+     * 手指
+     */
+    private Integer finger;
+    /**
      * 超时时间
      */
     private Integer timeout;
@@ -33,6 +38,7 @@ public class FingerprintEnrollMessage extends BaseSendMessage {
 
     public FingerprintEnrollMessage() {
         super(MessageTypeEnum.FINGERPRINT_ENROLL);
+        this.extras = new ArrayList<>();
     }
 
     public Long getUser() {
@@ -49,6 +55,14 @@ public class FingerprintEnrollMessage extends BaseSendMessage {
 
     public void setTimes(Integer times) {
         this.times = times;
+    }
+
+    public Integer getFinger() {
+        return finger;
+    }
+
+    public void setFinger(Integer finger) {
+        this.finger = finger;
     }
 
     public Integer getTimeout() {

@@ -5,6 +5,7 @@ package cn.edu.xmu.sy.ext.message;
 
 import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,6 +26,7 @@ public class FingerprintIdentifyMessage extends BaseSendMessage {
 
     public FingerprintIdentifyMessage() {
         super(MessageTypeEnum.FINGERPRINT_IDENTIFY);
+        this.extras = new ArrayList<>();
     }
 
     public Integer getTimeout() {
