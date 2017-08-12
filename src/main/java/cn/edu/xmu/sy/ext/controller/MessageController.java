@@ -7,17 +7,16 @@ import cn.com.lx1992.lib.base.meta.BaseResultEnum;
 import cn.com.lx1992.lib.base.response.BaseResponse;
 import cn.com.lx1992.lib.base.result.BasePagingResult;
 import cn.com.lx1992.lib.util.PagingUtil;
-import cn.edu.xmu.sy.ext.param.MessageBusinessFailureParam;
-import cn.edu.xmu.sy.ext.param.MessageBusinessPauseParam;
-import cn.edu.xmu.sy.ext.param.MessageBusinessProcessParam;
-import cn.edu.xmu.sy.ext.param.MessageBusinessResumeParam;
-import cn.edu.xmu.sy.ext.param.MessageBusinessSuccessParam;
-import cn.edu.xmu.sy.ext.param.MessageCloseParam;
-import cn.edu.xmu.sy.ext.param.MessageFingerprintEnrollParam;
-import cn.edu.xmu.sy.ext.param.MessageFingerprintIdentifyParam;
 import cn.edu.xmu.sy.ext.param.MessageQueryParam;
-import cn.edu.xmu.sy.ext.param.MessageReplyParam;
-import cn.edu.xmu.sy.ext.result.MessageFingerprintIdentifyResult;
+import cn.edu.xmu.sy.ext.param.MessageSendGeneralBusinessFailureParam;
+import cn.edu.xmu.sy.ext.param.MessageSendGeneralBusinessParam;
+import cn.edu.xmu.sy.ext.param.MessageSendServiceCancelParam;
+import cn.edu.xmu.sy.ext.param.MessageSendServicePauseParam;
+import cn.edu.xmu.sy.ext.param.MessageSendServiceResumeParam;
+import cn.edu.xmu.sy.ext.param.MessageSendGeneralBusinessSuccessParam;
+import cn.edu.xmu.sy.ext.param.MessageSendFingerprintEnrollParam;
+import cn.edu.xmu.sy.ext.param.MessageSendFingerprintIdentifyParam;
+import cn.edu.xmu.sy.ext.param.MessageSendUpdateUserInfoParam;
 import cn.edu.xmu.sy.ext.result.MessageQueryResult;
 import cn.edu.xmu.sy.ext.result.MessageTypeListResult;
 import cn.edu.xmu.sy.ext.service.MessageService;
@@ -34,6 +33,7 @@ import javax.validation.Valid;
  *
  * @author luoxin
  * @version 2017-4-28
+ * @apiDefine message 消息API
  */
 @RestController
 @RequestMapping("/api/v1/message")
@@ -42,7 +42,15 @@ public class MessageController {
     private MessageService messageService;
 
     /**
-     * @apiDefine message 消息API
+     * @api {POST} /api/v1/message/list/type 查询全部消息类型
+     * @apiName list-type
+     * @apiGroup message
+     * @apiVersion 1.0.0
+     *
+     * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
+     * @apiSuccess {String} message 提示信息
+     * @apiSuccess {Object} result 具体结果
+     * @apiSuccess {Array}  result.types 消息类型
      */
     @RequestMapping(value = "/list/type", method = RequestMethod.POST)
     public BaseResponse<MessageTypeListResult> listType() {
@@ -65,25 +73,37 @@ public class MessageController {
      * @apiParam {Object} paging 分页参数
      * @apiParam {NUmber} [paging.now] 当前页码
      * @apiParam {Number} paging.size 分页长度
-     * @apiParam {Number} [paging.start] 起始记录
      *
      * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
      * @apiSuccess {String} message 提示信息
      * @apiSuccess {Object} result 具体结果
      * @apiSuccess {Number} result.total 总记录数
-     * @apiSuccess {Array} result.page 消息(分页)
+     * @apiSuccess {Array}  result.page 查询结果
      * @apiSuccess {Number} result.page.id 消息ID
-     * @apiSuccess {Number} result.page.counterId 窗口ID
-     * @apiSuccess {Number} result.page.sessionId 会话ID
+     * @apiSuccess {Number} result.page.counter 窗口信息
+     * @apiSuccess {Number} result.page.counter.id 窗口ID
+     * @apiSuccess {String} result.page.counter.number 编号
+     * @apiSuccess {String} result.page.counter.name 名称
+     * @apiSuccess {String} result.page.counter.mac MAC地址
+     * @apiSuccess {String} result.page.counter.ip IP地址
+     * @apiSuccess {Number} result.page.session 会话信息
+     * @apiSuccess {String} result.page.session.id 会话ID
+     * @apiSuccess {String} result.page.session.token Token
+     * @apiSuccess {String} result.page.session.status 状态
+     * @apiSuccess {String} result.page.session.onlineTime 上线时间
+     * @apiSuccess {String} result.page.session.offlineTime 下线时间
+     * @apiSuccess {Number} result.page.uid UID
      * @apiSuccess {String} result.page.type 类型
      * @apiSuccess {String} result.page.body 内容
+     * @apiSuccess {Number} result.page.retry 重试次数
      * @apiSuccess {String} result.page.sendTime 发送时间
      * @apiSuccess {String} result.page.ackTime 确认时间
      * @apiSuccess {Object} result.page.reply 消息回复
      * @apiSuccess {Number} result.page.reply.id 消息ID
+     * @apiSuccess {String} result.page.reply.type 消息类型
      * @apiSuccess {String} result.page.reply.body 消息体
-     * @apiSuccess {String} result.page.reply.sendTime 发送时间
-     * @apiSuccess {String} result.page.reply.ackTime 确认时间
+     * @apiSuccess {Number} result.page.reply.retry 重试次数
+     * @apiSuccess {String} result.page.reply.receiveTime 接收时间
      */
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     public BaseResponse<BasePagingResult<MessageQueryResult>> query(MessageQueryParam param) {
@@ -93,100 +113,107 @@ public class MessageController {
     }
 
     /**
-     * @api {POST} /api/v1/message/business/pause 发送“暂停服务”消息
-     * @apiName business-pause
+     * @api {POST} /api/v1/message/service/pause 发送“暂停服务”消息
+     * @apiName service-pause
      * @apiGroup message
      * @apiVersion 1.0.0
      *
-     * @apiParam {Object} sendTo 消息接收目标
-     * @apiParam {Number} [sendTo.id] 窗口ID
-     * @apiParam {String} [sendTo.number] 窗口编号
+     * @apiParam {Number} target 消息发送目标(接收窗口ID)
      *
      * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
      * @apiSuccess {String} message 提示信息
      */
-    @RequestMapping(value = "/business/pause", method = RequestMethod.POST)
-    public BaseResponse sendBusinessPause(@RequestBody @Valid MessageBusinessPauseParam param) {
-        messageService.sendBusinessPause(param);
+    @RequestMapping(value = "/service/pause", method = RequestMethod.POST)
+    public BaseResponse sendServicePause(@RequestBody @Valid MessageSendServicePauseParam param) {
+        messageService.sendServicePause(param);
         return new BaseResponse(BaseResultEnum.OK);
     }
 
     /**
-     * @api {POST} /api/v1/message/business/resume 发送“恢复服务”消息
-     * @apiName business-resume
+     * @api {POST} /api/v1/message/service/resume 发送“恢复服务”消息
+     * @apiName service-resume
      * @apiGroup message
      * @apiVersion 1.0.0
      *
-     * @apiParam {Object} sendTo 消息接收目标
-     * @apiParam {Number} [sendTo.id] 窗口ID
-     * @apiParam {String} [sendTo.number] 窗口编号
+     * @apiParam {Number} target 消息发送目标(接收窗口ID)
      *
      * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
      * @apiSuccess {String} message 提示信息
      */
-    @RequestMapping(value = "/business/resume", method = RequestMethod.POST)
-    public BaseResponse sendBusinessResume(@RequestBody @Valid MessageBusinessResumeParam param) {
-        messageService.sendBusinessResume(param);
+    @RequestMapping(value = "/service/resume", method = RequestMethod.POST)
+    public BaseResponse sendServiceResume(@RequestBody @Valid MessageSendServiceResumeParam param) {
+        messageService.sendServiceResume(param);
         return new BaseResponse(BaseResultEnum.OK);
     }
 
     /**
-     * @api {POST} /api/v1/message/business/process 发送“业务正在受理”消息
-     * @apiName business-process
+     * @api {POST} /api/v1/message/service/cancel 发送“取消服务”消息
+     * @apiName service-cancel
      * @apiGroup message
      * @apiVersion 1.0.0
      *
-     * @apiParam {Object} sendTo 消息接收目标
-     * @apiParam {Number} [sendTo.id] 窗口ID
-     * @apiParam {String} [sendTo.number] 窗口编号
+     * @apiParam {Number} target 消息发送目标(接收窗口ID)
+     *
+     * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
+     * @apiSuccess {String} message 提示信息
+     */
+    @RequestMapping(value = "/service/cancel", method = RequestMethod.POST)
+    public BaseResponse sendServiceCancel(@RequestBody @Valid MessageSendServiceCancelParam param) {
+        messageService.sendServiceCancel(param);
+        return new BaseResponse(BaseResultEnum.OK);
+    }
+
+    /**
+     * @api {POST} /api/v1/message/general/business 发送“一般业务”消息
+     * @apiName general-business
+     * @apiGroup message
+     * @apiVersion 1.0.0
+     *
+     * @apiParam {Number} target 消息发送目标(接收窗口ID)
      * @apiParam {String} [extra] 附加信息
      *
      * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
      * @apiSuccess {String} message 提示信息
      */
-    @RequestMapping(value = "/business/process", method = RequestMethod.POST)
-    public BaseResponse sendBusinessProcess(@RequestBody @Valid MessageBusinessProcessParam param) {
-        messageService.sendBusinessProcess(param);
+    @RequestMapping(value = "/general/business", method = RequestMethod.POST)
+    public BaseResponse sendGeneralBusiness(@RequestBody @Valid MessageSendGeneralBusinessParam param) {
+        messageService.sendGeneralBusiness(param);
         return new BaseResponse(BaseResultEnum.OK);
     }
 
     /**
-     * @api {POST} /api/v1/message/business/success 发送“业务受理成功”消息
-     * @apiName business-success
+     * @api {POST} /api/v1/message/general/business/success 发送“一般业务成功”消息
+     * @apiName general-business-success
      * @apiGroup message
      * @apiVersion 1.0.0
      *
-     * @apiParam {Object} sendTo 消息接收目标
-     * @apiParam {Number} [sendTo.id] 窗口ID
-     * @apiParam {String} [sendTo.number] 窗口编号
+     * @apiParam {Number} target 消息发送目标(接收窗口ID)
      * @apiParam {String} [extra] 附加信息
      *
      * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
      * @apiSuccess {String} message 提示信息
      */
-    @RequestMapping(value = "/business/success", method = RequestMethod.POST)
-    public BaseResponse sendBusinessSuccess(@RequestBody @Valid MessageBusinessSuccessParam param) {
-        messageService.sendBusinessSuccess(param);
+    @RequestMapping(value = "/general/business/success", method = RequestMethod.POST)
+    public BaseResponse sendGeneralBusinessSuccess(@RequestBody @Valid MessageSendGeneralBusinessSuccessParam param) {
+        messageService.sendGeneralBusinessSuccess(param);
         return new BaseResponse(BaseResultEnum.OK);
     }
 
     /**
-     * @api {POST} /api/v1/message/business/failure 发送“业务受理失败”消息
-     * @apiName business-failure
+     * @api {POST} /api/v1/message/general/business/failure 发送“一般业务失败”消息
+     * @apiName general-business-failure
      * @apiGroup message
      * @apiVersion 1.0.0
      *
-     * @apiParam {Object} sendTo 消息接收目标
-     * @apiParam {Number} [sendTo.id] 窗口ID
-     * @apiParam {String} [sendTo.number] 窗口编号
+     * @apiParam {Number} target 消息发送目标(接收窗口ID)
      * @apiParam {String} [extra] 附加信息
      *
      * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
      * @apiSuccess {String} message 提示信息
      */
-    @RequestMapping(value = "/business/failure", method = RequestMethod.POST)
-    public BaseResponse sendBusinessFailure(@RequestBody @Valid MessageBusinessFailureParam param) {
-        messageService.sendBusinessFailure(param);
+    @RequestMapping(value = "/general/business/failure", method = RequestMethod.POST)
+    public BaseResponse sendBusinessFailure(@RequestBody @Valid MessageSendGeneralBusinessFailureParam param) {
+        messageService.sendGeneralBusinessFailure(param);
         return new BaseResponse(BaseResultEnum.OK);
     }
 
@@ -196,81 +223,53 @@ public class MessageController {
      * @apiGroup message
      * @apiVersion 1.0.0
      *
-     * @apiParam {Object} sendTo 消息接收目标
-     * @apiParam {Number} [sendTo.id] 窗口ID
-     * @apiParam {String} [sendTo.number] 窗口编号
-     * @apiParam {Number} [id] 用户ID
-     * @apiParam {String} [number] 用户编号
-     * @apiParam {String} finger 手指名称
+     * @apiParam {Number} target 消息发送目标(接收窗口ID)
+     * @apiParam {Number} user 用户(ID)
+     * @apiParam {Number} finger 手指
      *
      * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
      * @apiSuccess {String} message 提示信息
      */
     @RequestMapping(value = "/fingerprint/enroll", method = RequestMethod.POST)
-    public BaseResponse sendFingerprintEnroll(@RequestBody @Valid MessageFingerprintEnrollParam param) {
+    public BaseResponse sendFingerprintEnroll(@RequestBody @Valid MessageSendFingerprintEnrollParam param) {
         messageService.sendFingerprintEnroll(param);
         return new BaseResponse(BaseResultEnum.OK);
     }
-
+    
     /**
      * @api {POST} /api/v1/message/fingerprint/identify 发送“指纹辨识”消息
      * @apiName fingerprint-identify
      * @apiGroup message
      * @apiVersion 1.0.0
      *
-     * @apiParam {Object} sendTo 消息接收目标
-     * @apiParam {Number} [sendTo.id] 窗口ID
-     * @apiParam {String} [sendTo.number] 窗口编号
+     * @apiParam {Number} target 消息发送目标(接收窗口ID)
      *
      * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
      * @apiSuccess {String} message 提示信息
-     * @apiSuccess {Object} result 具体结果
-     * @apiSuccess {String} result.number 编号
-     * @apiSuccess {String} result.name 姓名
-     * @apiSuccess {String} result.photo 照片(URL)
      */
     @RequestMapping(value = "/fingerprint/identify", method = RequestMethod.POST)
-    public BaseResponse<MessageFingerprintIdentifyResult> sendFingerprintIdentify(
-            @RequestBody @Valid MessageFingerprintIdentifyParam param) {
-        MessageFingerprintIdentifyResult result = messageService.sendFingerprintIdentify(param);
-        return new BaseResponse<>(result);
-    }
-
-    /**
-     * @api {POST} /api/v1/message/close 发送“关闭客户端”消息
-     * @apiName close
-     * @apiGroup message
-     * @apiVersion 1.0.0
-     *
-     * @apiParam {Object} sendTo 消息接收目标
-     * @apiParam {Number} [sendTo.id] 窗口ID
-     * @apiParam {String} [sendTo.number] 窗口编号
-     *
-     * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
-     * @apiSuccess {String} message 提示信息
-     */
-    @RequestMapping(value = "/close", method = RequestMethod.POST)
-    public BaseResponse sendClose(@RequestBody @Valid MessageCloseParam param) {
-        messageService.sendClose(param);
+    public BaseResponse sendFingerprintIdentify(@RequestBody @Valid MessageSendFingerprintIdentifyParam param) {
+        messageService.sendFingerprintIdentify(param);
         return new BaseResponse(BaseResultEnum.OK);
     }
-
+    
     /**
-     * @api {POST} /api/v1/message/reply 接收消息回复
-     * @apiName reply
+     * @api {POST} /api/v1/message/update/user 发送“更新用户信息”消息
+     * @apiName update-user
      * @apiGroup message
      * @apiVersion 1.0.0
      *
-     * @apiParam {Number} id 消息ID
-     * @apiParam {String} body 消息体
-     * @apiParam {String} timestamp 时间戳(yyyyMMddHHmmss)
+     * @apiParam {Number} target 消息发送目标(接收窗口ID)
+     * @apiParam {String} number 编号
+     * @apiParam {String} name 姓名
+     * @apiParam {String} photo 照片(URL)
      *
      * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
      * @apiSuccess {String} message 提示信息
      */
-    @RequestMapping(value = "/reply", method = RequestMethod.POST)
-    public BaseResponse receiveReply(@RequestBody @Valid MessageReplyParam param) {
-        messageService.receiveReply(param);
+    @RequestMapping(value = "/update/user/info", method = RequestMethod.POST)
+    public BaseResponse sendUpdateUserInfo(@RequestBody @Valid MessageSendUpdateUserInfoParam param) {
+        messageService.sendUpdateUserInfo(param);
         return new BaseResponse(BaseResultEnum.OK);
     }
 }

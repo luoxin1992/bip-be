@@ -6,6 +6,7 @@ package cn.edu.xmu.sy.ext.result;
 import cn.com.lx1992.lib.base.result.BaseResult;
 import cn.com.lx1992.lib.constant.DateTimeConstant;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDateTime;
 
@@ -17,17 +18,31 @@ import java.time.LocalDateTime;
  */
 public class MessageQueryResult extends BaseResult {
     /**
-     * 消息ID
+     * ID
      */
     private Long id;
     /**
      * 窗口ID
      */
+    @JsonIgnore
     private Long counterId;
+    /**
+     * 窗口信息
+     */
+    private CounterQueryResult counter;
     /**
      * 会话ID
      */
+    @JsonIgnore
     private Long sessionId;
+    /**
+     * 会话信息
+     */
+    private SessionQueryResult session;
+    /**
+     * 消息ID
+     */
+    private Long uid;
     /**
      * 类型
      */
@@ -36,6 +51,10 @@ public class MessageQueryResult extends BaseResult {
      * 消息体
      */
     private String body;
+    /**
+     * 重试次数
+     */
+    private Integer retry;
     /**
      * 发送时间
      */
@@ -67,12 +86,36 @@ public class MessageQueryResult extends BaseResult {
         this.counterId = counterId;
     }
 
+    public CounterQueryResult getCounter() {
+        return counter;
+    }
+
+    public void setCounter(CounterQueryResult counter) {
+        this.counter = counter;
+    }
+
     public Long getSessionId() {
         return sessionId;
     }
 
     public void setSessionId(Long sessionId) {
         this.sessionId = sessionId;
+    }
+
+    public SessionQueryResult getSession() {
+        return session;
+    }
+
+    public void setSession(SessionQueryResult session) {
+        this.session = session;
+    }
+
+    public Long getUid() {
+        return uid;
+    }
+
+    public void setUid(Long uid) {
+        this.uid = uid;
     }
 
     public String getType() {
@@ -89,6 +132,14 @@ public class MessageQueryResult extends BaseResult {
 
     public void setBody(String body) {
         this.body = body;
+    }
+
+    public Integer getRetry() {
+        return retry;
+    }
+
+    public void setRetry(Integer retry) {
+        this.retry = retry;
     }
 
     public LocalDateTime getSendTime() {

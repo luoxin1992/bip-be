@@ -5,7 +5,6 @@ package cn.edu.xmu.sy.ext.meta;
 
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * 消息类型枚举
@@ -15,6 +14,7 @@ import java.util.Optional;
  */
 public enum MessageTypeEnum {
     UNKNOWN(null, "未知"),
+    ACK("ack", "确认"),
     //发送的消息
     SERVICE_PAUSE("service-pause", "暂停服务"),
     SERVICE_RESUME("service-resume", "恢复服务"),
@@ -32,7 +32,6 @@ public enum MessageTypeEnum {
     UPDATE_COUNTER_INFO("update-counter-info", "更新窗口信息"),
     UPDATE_USER_INFO("update-user-info", "更新用户信息"),
     //接收的消息
-    ACK("ack", "确认"),
     FINGERPRINT_ENROLL_REPLY("fingerprint-enroll-reply", "指纹登记回复"),
     FINGERPRINT_IDENTIFY_REPLY("fingerprint-identify-reply", "指纹辨识回复"),;
 
@@ -52,11 +51,14 @@ public enum MessageTypeEnum {
         return description;
     }
 
-    public static String getDescriptionByType(String type) {
-        Optional<String> result = Arrays.stream(values())
+    public static MessageTypeEnum getByType(String type) {
+        return Arrays.stream(values())
                 .filter(value -> Objects.equals(value.type, type))
-                .map(MessageTypeEnum::getDescription)
-                .findFirst();
-        return result.orElse(UNKNOWN.getDescription());
+                .findFirst()
+                .orElse(UNKNOWN);
+    }
+
+    public static String getDescriptionByType(String type) {
+        return getByType(type).description;
     }
 }

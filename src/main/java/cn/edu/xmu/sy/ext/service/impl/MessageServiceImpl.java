@@ -3,61 +3,66 @@
  */
 package cn.edu.xmu.sy.ext.service.impl;
 
-import cn.com.lx1992.lib.base.constant.BaseFieldNameConstant;
-import cn.com.lx1992.lib.base.meta.BaseResultEnum;
 import cn.com.lx1992.lib.base.result.BasePagingResult;
+import cn.com.lx1992.lib.cat.annotation.CatTransaction;
 import cn.com.lx1992.lib.constant.CommonConstant;
 import cn.com.lx1992.lib.constant.RegExpConstant;
 import cn.com.lx1992.lib.util.DateTimeUtil;
 import cn.com.lx1992.lib.util.HttpUtils;
 import cn.com.lx1992.lib.util.JsonUtil;
 import cn.com.lx1992.lib.util.POJOConvertUtil;
-import cn.edu.xmu.sy.ext.config.DependencyConfigItem;
-import cn.edu.xmu.sy.ext.constant.MessageResourceNameConstant;
+import cn.edu.xmu.sy.ext.constant.FingerprintConstant;
+import cn.edu.xmu.sy.ext.constant.MessageResourceConstant;
 import cn.edu.xmu.sy.ext.domain.MessageDO;
+import cn.edu.xmu.sy.ext.dto.FingerprintIdentifyCallbackDTO;
 import cn.edu.xmu.sy.ext.exception.BizException;
+import cn.edu.xmu.sy.ext.job.MessageResendJob;
 import cn.edu.xmu.sy.ext.mapper.MessageMapper;
+import cn.edu.xmu.sy.ext.message.AckMessage;
 import cn.edu.xmu.sy.ext.message.BaseMessage;
-import cn.edu.xmu.sy.ext.message.BaseMessageResource;
-import cn.edu.xmu.sy.ext.message.BusinessPauseMessage;
-import cn.edu.xmu.sy.ext.message.BusinessProcessMessage;
-import cn.edu.xmu.sy.ext.message.BusinessResumeMessage;
-import cn.edu.xmu.sy.ext.message.CloseMessage;
-import cn.edu.xmu.sy.ext.message.CounterInfoMessage;
+import cn.edu.xmu.sy.ext.message.BaseReceiveMessage;
+import cn.edu.xmu.sy.ext.message.BaseSendMessage;
+import cn.edu.xmu.sy.ext.message.FingerprintEnrollFailureMessage;
 import cn.edu.xmu.sy.ext.message.FingerprintEnrollMessage;
 import cn.edu.xmu.sy.ext.message.FingerprintEnrollReplyMessage;
 import cn.edu.xmu.sy.ext.message.FingerprintEnrollSuccessMessage;
 import cn.edu.xmu.sy.ext.message.FingerprintIdentifyFailureMessage;
 import cn.edu.xmu.sy.ext.message.FingerprintIdentifyMessage;
 import cn.edu.xmu.sy.ext.message.FingerprintIdentifyReplyMessage;
-import cn.edu.xmu.sy.ext.message.FingerprintIdentifyTimeoutMessage;
-import cn.edu.xmu.sy.ext.message.UserInfoMessage;
+import cn.edu.xmu.sy.ext.message.FingerprintIdentifySuccessMessage;
+import cn.edu.xmu.sy.ext.message.GeneralBusinessFailureMessage;
+import cn.edu.xmu.sy.ext.message.GeneralBusinessMessage;
+import cn.edu.xmu.sy.ext.message.GeneralBusinessSuccessMessage;
+import cn.edu.xmu.sy.ext.message.ServiceCancelMessage;
+import cn.edu.xmu.sy.ext.message.ServicePauseMessage;
+import cn.edu.xmu.sy.ext.message.ServiceResumeMessage;
+import cn.edu.xmu.sy.ext.message.UpdateCompanyInfoMessage;
+import cn.edu.xmu.sy.ext.message.UpdateCounterInfoMessage;
+import cn.edu.xmu.sy.ext.message.UpdateUserInfoMessage;
 import cn.edu.xmu.sy.ext.meta.BizResultEnum;
+import cn.edu.xmu.sy.ext.meta.FingerprintFingerEnum;
+import cn.edu.xmu.sy.ext.meta.MessageDirectionEnum;
 import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
 import cn.edu.xmu.sy.ext.meta.ResourceTypeEnum;
 import cn.edu.xmu.sy.ext.meta.SettingEnum;
-import cn.edu.xmu.sy.ext.param.FingerprintEnrollParam;
-import cn.edu.xmu.sy.ext.param.FingerprintIdentifyParam;
-import cn.edu.xmu.sy.ext.param.MessageBusinessFailureParam;
-import cn.edu.xmu.sy.ext.param.MessageBusinessPauseParam;
-import cn.edu.xmu.sy.ext.param.MessageBusinessProcessParam;
-import cn.edu.xmu.sy.ext.param.MessageBusinessResumeParam;
-import cn.edu.xmu.sy.ext.param.MessageBusinessSuccessParam;
-import cn.edu.xmu.sy.ext.param.MessageCloseParam;
-import cn.edu.xmu.sy.ext.param.MessageCounterInfoParam;
-import cn.edu.xmu.sy.ext.param.MessageFingerprintEnrollParam;
-import cn.edu.xmu.sy.ext.param.MessageFingerprintIdentifyParam;
 import cn.edu.xmu.sy.ext.param.MessageQueryParam;
-import cn.edu.xmu.sy.ext.param.MessageReplyParam;
-import cn.edu.xmu.sy.ext.param.MessageSendRemoteParam;
-import cn.edu.xmu.sy.ext.param.MessageSendToParam;
-import cn.edu.xmu.sy.ext.param.MessageTokenRegisterRemoteParam;
-import cn.edu.xmu.sy.ext.param.MessageTokenUnregisterRemoteParam;
-import cn.edu.xmu.sy.ext.param.MessageUserInfoParam;
-import cn.edu.xmu.sy.ext.result.MessageFingerprintIdentifyResult;
+import cn.edu.xmu.sy.ext.param.MessageSendFingerprintEnrollParam;
+import cn.edu.xmu.sy.ext.param.MessageSendFingerprintIdentifyParam;
+import cn.edu.xmu.sy.ext.param.MessageSendGeneralBusinessFailureParam;
+import cn.edu.xmu.sy.ext.param.MessageSendGeneralBusinessParam;
+import cn.edu.xmu.sy.ext.param.MessageSendGeneralBusinessSuccessParam;
+import cn.edu.xmu.sy.ext.param.MessageSendServiceCancelParam;
+import cn.edu.xmu.sy.ext.param.MessageSendServicePauseParam;
+import cn.edu.xmu.sy.ext.param.MessageSendServiceResumeParam;
+import cn.edu.xmu.sy.ext.param.MessageSendUpdateUserInfoParam;
+import cn.edu.xmu.sy.ext.result.CounterQueryResult;
 import cn.edu.xmu.sy.ext.result.MessageQueryResult;
 import cn.edu.xmu.sy.ext.result.MessageReplyQueryResult;
 import cn.edu.xmu.sy.ext.result.MessageTypeListResult;
+import cn.edu.xmu.sy.ext.result.ResourceQuerySimpleResult;
+import cn.edu.xmu.sy.ext.result.SessionQueryResult;
+import cn.edu.xmu.sy.ext.result.SessionQuerySimpleResult;
+import cn.edu.xmu.sy.ext.result.UserQueryResult;
 import cn.edu.xmu.sy.ext.service.CounterService;
 import cn.edu.xmu.sy.ext.service.FingerprintService;
 import cn.edu.xmu.sy.ext.service.LogService;
@@ -65,8 +70,9 @@ import cn.edu.xmu.sy.ext.service.MessageService;
 import cn.edu.xmu.sy.ext.service.ResourceService;
 import cn.edu.xmu.sy.ext.service.SessionService;
 import cn.edu.xmu.sy.ext.service.SettingService;
+import cn.edu.xmu.sy.ext.service.TtsService;
 import cn.edu.xmu.sy.ext.service.UserService;
-import com.fasterxml.jackson.databind.JsonNode;
+import cn.edu.xmu.sy.ext.service.WebSocketService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -76,14 +82,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -91,6 +94,7 @@ import java.util.stream.Stream;
  * @author luoxin
  * @version 2017-4-28
  */
+@CatTransaction
 @Service
 public class MessageServiceImpl implements MessageService {
     private final Logger logger = LoggerFactory.getLogger(MessageServiceImpl.class);
@@ -104,19 +108,20 @@ public class MessageServiceImpl implements MessageService {
     @Autowired
     private SessionService sessionService;
     @Autowired
+    private WebSocketService webSocketService;
+    @Autowired
     private SettingService settingService;
     @Autowired
     private ResourceService resourceService;
     @Autowired
     private LogService logService;
+    @Autowired
+    private TtsService ttsService;
+    @Autowired
+    private MessageResendJob messageResendJob;
 
     @Autowired
     private MessageMapper messageMapper;
-
-    @Autowired
-    private DependencyConfigItem dependencyConfigItem;
-
-    private Map<Long, CountDownLatch> pendingMessageLatchMap = new ConcurrentHashMap<>();
 
     @Override
     public MessageTypeListResult listType() {
@@ -124,6 +129,7 @@ public class MessageServiceImpl implements MessageService {
                 .filter(value -> value != MessageTypeEnum.UNKNOWN)
                 .map(MessageTypeEnum::getDescription)
                 .collect(Collectors.toList());
+        logger.info("list {} message type(s)", types.size());
 
         MessageTypeListResult result = new MessageTypeListResult();
         result.setTypes(types);
@@ -139,21 +145,18 @@ public class MessageServiceImpl implements MessageService {
         }
 
         List<MessageDO> domains = messageMapper.listByParam(param);
-
-        List<Long> ids = domains.stream()
-                .map(MessageDO::getId)
-                .collect(Collectors.toList());
-        Map<Long, MessageReplyQueryResult> replies = batchQueryReplyAndMap(ids);
-
         List<MessageQueryResult> results = domains.stream()
                 .map(domain -> {
                     MessageQueryResult result = POJOConvertUtil.convert(domain, MessageQueryResult.class);
-                    result.setType(MessageTypeEnum.getDescriptionByType(domain.getType()));
+                    result.setType(MessageTypeEnum.getDescriptionByType(result.getType()));
                     return result;
                 })
-                .peek(result -> result.setReply(replies.get(result.getId())))
                 .collect(Collectors.toList());
-        logger.info("query {}/{} message(s)", domains.size(), count);
+
+        appendCounterQueryResult(results);
+        appendSessionQueryResult(results);
+        appendReplyQueryResult(results);
+        logger.info("query {} of {} message(s)", domains.size(), count);
 
         BasePagingResult<MessageQueryResult> result = new BasePagingResult<>();
         result.setTotal(count);
@@ -161,689 +164,770 @@ public class MessageServiceImpl implements MessageService {
         return result;
     }
 
-    @Override
-    @Transactional
-    public void sendTokenRegister(String token) {
-        MessageTokenRegisterRemoteParam param = new MessageTokenRegisterRemoteParam();
-        param.setToken(token);
-        JsonNode response = callRemote(dependencyConfigItem.getApiMsgTokenRegister(), JsonUtil.toJson(param));
+    /**
+     * 向消息查询结果中追加窗口查询结果
+     *
+     * @param results 消息查询结果
+     */
+    private void appendCounterQueryResult(List<MessageQueryResult> results) {
+        List<Long> counterIds = results.stream()
+                .map(MessageQueryResult::getCounterId)
+                .collect(Collectors.toList());
 
-        int code = response.get(BaseFieldNameConstant.CODE).asInt();
-        if (code != BaseResultEnum.OK.getCode()) {
-            logger.error("register token to remote get error {}", code);
-            throw new BizException(BizResultEnum.MESSAGE_REMOTE_SERVICE_ERROR, code);
+        Map<Long, CounterQueryResult> counters = counterService.queryBatch(counterIds);
+        results.forEach(result -> result.setCounter(counters.get(result.getCounterId())));
+    }
+
+    /**
+     * 向消息查询结果中追加会话查询结果
+     *
+     * @param results 消息查询结果
+     */
+    private void appendSessionQueryResult(List<MessageQueryResult> results) {
+        List<Long> sessionIds = results.stream()
+                .map(MessageQueryResult::getSessionId)
+                .collect(Collectors.toList());
+
+        Map<Long, SessionQueryResult> sessions = sessionService.queryBatch(sessionIds);
+        results.forEach(result -> result.setSession(sessions.get(result.getSessionId())));
+    }
+
+    /**
+     * 向消息查询结果中追加回复查询结果
+     *
+     * @param results 消息查询结果
+     */
+    private void appendReplyQueryResult(List<MessageQueryResult> results) {
+        List<Long> uids = results.stream()
+                .map(MessageQueryResult::getUid)
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(uids)) {
+            logger.warn("empty uid list in query param");
+            return;
         }
-    }
 
-    @Override
-    @Transactional
-    public void sendTokenUnregister(String token) {
-        MessageTokenUnregisterRemoteParam param = new MessageTokenUnregisterRemoteParam();
-        param.setToken(token);
-        JsonNode response = callRemote(dependencyConfigItem.getApiMsgTokenRegister(), JsonUtil.toJson(param));
-
-        int code = response.get(BaseFieldNameConstant.CODE).asInt();
-        if (code != BaseResultEnum.OK.getCode()) {
-            logger.error("unregister token to remote get error {}", code);
-            throw new BizException(BizResultEnum.MESSAGE_REMOTE_SERVICE_ERROR, code);
+        List<MessageDO> domains = messageMapper.listByUid(uids, MessageDirectionEnum.RECEIVE.getDirection());
+        if (CollectionUtils.isEmpty(domains)) {
+            logger.warn("message list by uid result is empty");
+            return;
         }
+
+        Map<Long, MessageReplyQueryResult> replies = domains.stream()
+                .map(reply -> POJOConvertUtil.convert(reply, MessageReplyQueryResult.class))
+                .collect(Collectors.toMap(MessageReplyQueryResult::getId, reply -> reply));
+        results.forEach(result -> result.setReply(replies.get(result.getSessionId())));
     }
 
     @Override
     @Transactional
-    public void sendBusinessPause(MessageBusinessPauseParam param) {
-        BusinessPauseMessage message = new BusinessPauseMessage();
-        //TODO 暂停服务和恢复服务有无图像资源？
-        message.setResource(buildResource(MessageResourceNameConstant.IMAGE_BUSINESS_PAUSE,
-                MessageResourceNameConstant.VOICE_BUSINESS_PAUSE));
+    public void deleteByCounter(Long counterId) {
+        List<MessageDO> domains = messageMapper.getByCounterId(counterId);
+        if (CollectionUtils.isEmpty(domains)) {
+            logger.warn("no message for counter {}", counterId);
+            return;
+        }
 
-        Long sessionId = getSendToSession(param.getSendTo());
-        Long messageId = createMessage(param.getSendTo().getId(), sessionId, message);
+        if (messageMapper.removeByCounterId(counterId) != domains.size()) {
+            logger.error("delete message for counter {} failed", counterId);
+            throw new BizException(BizResultEnum.MESSAGE_DELETE_ERROR);
+        }
 
-        String token = sessionService.getTokenById(sessionId);
+        logService.logMessageDeleteByCounter(counterId);
+        logger.info("delete message for counter {}", counterId);
+    }
+
+    //发送消息处理逻辑
+    //-----------------------------------------------------------------------
+    @Override
+    @Transactional
+    public void sendServicePause(MessageSendServicePauseParam param) {
+        SessionQuerySimpleResult session = getTargetSession(param.getTarget());
+
+        ServicePauseMessage message = new ServicePauseMessage();
+        message.getResources().add(
+                buildResource(null, MessageResourceConstant.VOICE_SERVICE_PAUSE));
+
         String body = JsonUtil.toJson(message);
-        sendRemote(token, messageId, body);
-
-        logService.logMessageSend(messageId, param.getSendTo().getId(), sessionId,
-                MessageTypeEnum.BUSINESS_PAUSE.getDescription(), body.length());
-        logger.info("send business pause message {} successful", messageId);
+        Long id = createSend(param.getTarget(), session.getId(), message.getUid(),
+                MessageTypeEnum.SERVICE_PAUSE, body);
+        sendAndScheduleRetry(id, session.getToken(), body);
     }
 
     @Override
     @Transactional
-    public void sendBusinessResume(MessageBusinessResumeParam param) {
-        BusinessResumeMessage message = new BusinessResumeMessage();
-        message.setResource(buildResource(MessageResourceNameConstant.IMAGE_BUSINESS_RESUME,
-                MessageResourceNameConstant.VOICE_BUSINESS_RESUME));
+    public void sendServiceResume(MessageSendServiceResumeParam param) {
+        SessionQuerySimpleResult session = getTargetSession(param.getTarget());
 
-        Long sessionId = getSendToSession(param.getSendTo());
-        Long messageId = createMessage(param.getSendTo().getId(), sessionId, message);
+        ServiceResumeMessage message = new ServiceResumeMessage();
+        message.getResources().add(
+                buildResource(null, MessageResourceConstant.VOICE_SERVICE_RESUME));
 
-        String token = sessionService.getTokenById(sessionId);
         String body = JsonUtil.toJson(message);
-        sendRemote(token, messageId, body);
-
-        logService.logMessageSend(messageId, param.getSendTo().getId(), sessionId,
-                MessageTypeEnum.BUSINESS_RESUME.getDescription(), body.length());
-        logger.info("send business resume message {} successful", messageId);
+        Long id = createSend(param.getTarget(), session.getId(), message.getUid(),
+                MessageTypeEnum.SERVICE_RESUME, body);
+        sendAndScheduleRetry(id, session.getToken(), body);
     }
 
     @Override
     @Transactional
-    public void sendBusinessProcess(MessageBusinessProcessParam param) {
+    public void sendServiceCancel(MessageSendServiceCancelParam param) {
+        SessionQuerySimpleResult session = getTargetSession(param.getTarget());
+
+        ServiceCancelMessage message = new ServiceCancelMessage();
+        message.getResources().add(
+                buildResource(null, MessageResourceConstant.VOICE_SERVICE_CANCEL));
+
+        String body = JsonUtil.toJson(message);
+        Long id = createSend(param.getTarget(), session.getId(), message.getUid(),
+                MessageTypeEnum.SERVICE_CANCEL, body);
+        sendAndScheduleRetry(id, session.getToken(), body);
+    }
+
+    @Override
+    @Transactional
+    public void sendGeneralBusiness(MessageSendGeneralBusinessParam param) {
+        SessionQuerySimpleResult session = getTargetSession(param.getTarget());
         boolean hasExtra = !StringUtils.isEmpty(param.getExtra());
 
-        BusinessProcessMessage message = new BusinessProcessMessage();
-        message.setExtra(hasExtra ? param.getExtra() : null);
-        message.setResource(buildResource(MessageResourceNameConstant.IMAGE_BUSINESS_PROCESS,
-                hasExtra ? param.getExtra() : MessageResourceNameConstant.VOICE_BUSINESS_PROCESS));
+        GeneralBusinessMessage message = new GeneralBusinessMessage();
+        message.setTimeout(param.getTimeout());
 
-        Long sessionId = getSendToSession(param.getSendTo());
-        Long messageId = createMessage(param.getSendTo().getId(), sessionId, message);
+        //index=0 等待结果
+        message.getExtras().add(hasExtra ? param.getExtra() : MessageResourceConstant.EXTRA_GENERAL_BUSINESS);
+        message.getResources().add(
+                buildResource(MessageResourceConstant.IMAGE_GENERAL_BUSINESS,
+                        hasExtra ? param.getExtra() : MessageResourceConstant.VOICE_GENERAL_BUSINESS));
+        //index=1 超时
+        message.getExtras().add(MessageResourceConstant.EXTRA_GENERAL_BUSINESS_TIMEOUT);
+        message.getResources().add(
+                buildResource(MessageResourceConstant.IMAGE_GENERAL_BUSINESS_TIMEOUT,
+                        MessageResourceConstant.VOICE_GENERAL_BUSINESS_TIMEOUT));
 
-        String token = sessionService.getTokenById(sessionId);
         String body = JsonUtil.toJson(message);
-        sendRemote(token, messageId, body);
-
-        logService.logMessageSend(messageId, param.getSendTo().getId(), sessionId,
-                MessageTypeEnum.BUSINESS_PROCESS.getDescription(), body.length());
-        logger.info("send business process message {} successful", messageId);
+        Long id = createSend(param.getTarget(), session.getId(), message.getUid(),
+                MessageTypeEnum.GENERAL_BUSINESS, body);
+        sendAndScheduleRetry(id, session.getToken(), body);
     }
 
     @Override
     @Transactional
-    public void sendBusinessSuccess(MessageBusinessSuccessParam param) {
+    public void sendGeneralBusinessSuccess(MessageSendGeneralBusinessSuccessParam param) {
+        SessionQuerySimpleResult session = getTargetSession(param.getTarget());
         boolean hasExtra = !StringUtils.isEmpty(param.getExtra());
 
-        BusinessProcessMessage message = new BusinessProcessMessage();
-        message.setExtra(hasExtra ? param.getExtra() : null);
-        message.setResource(buildResource(MessageResourceNameConstant.IMAGE_BUSINESS_SUCCESS,
-                hasExtra ? param.getExtra() : MessageResourceNameConstant.VOICE_BUSINESS_SUCCESS));
+        GeneralBusinessSuccessMessage message = new GeneralBusinessSuccessMessage();
+        message.setExtra(hasExtra ? param.getExtra() : MessageResourceConstant.EXTRA_GENERAL_BUSINESS_SUCCESS);
+        message.getResources().add(
+                buildResource(MessageResourceConstant.IMAGE_GENERAL_BUSINESS_SUCCESS,
+                        hasExtra ? param.getExtra() : MessageResourceConstant.VOICE_GENERAL_BUSINESS_SUCCESS));
 
-        Long sessionId = getSendToSession(param.getSendTo());
-        Long messageId = createMessage(param.getSendTo().getId(), sessionId, message);
-
-        String token = sessionService.getTokenById(sessionId);
         String body = JsonUtil.toJson(message);
-        sendRemote(token, messageId, body);
-
-        logService.logMessageSend(messageId, param.getSendTo().getId(), sessionId,
-                MessageTypeEnum.BUSINESS_SUCCESS.getDescription(), body.length());
-        logger.info("send business success message {} successful", messageId);
+        Long id = createSend(param.getTarget(), session.getId(), message.getUid(),
+                MessageTypeEnum.GENERAL_BUSINESS_SUCCESS, body);
+        sendAndScheduleRetry(id, session.getToken(), body);
     }
 
     @Override
     @Transactional
-    public void sendBusinessFailure(MessageBusinessFailureParam param) {
+    public void sendGeneralBusinessFailure(MessageSendGeneralBusinessFailureParam param) {
+        SessionQuerySimpleResult session = getTargetSession(param.getTarget());
         boolean hasExtra = !StringUtils.isEmpty(param.getExtra());
 
-        BusinessProcessMessage message = new BusinessProcessMessage();
-        message.setExtra(hasExtra ? param.getExtra() : null);
-        message.setResource(buildResource(MessageResourceNameConstant.IMAGE_BUSINESS_FAILURE,
-                hasExtra ? param.getExtra() : MessageResourceNameConstant.VOICE_BUSINESS_FAILURE));
+        GeneralBusinessFailureMessage message = new GeneralBusinessFailureMessage();
+        message.setExtra(hasExtra ? param.getExtra() : MessageResourceConstant.EXTRA_GENERAL_BUSINESS_FAILURE);
+        message.getResources().add(
+                buildResource(MessageResourceConstant.IMAGE_GENERAL_BUSINESS_FAILURE,
+                        hasExtra ? param.getExtra() : MessageResourceConstant.VOICE_GENERAL_BUSINESS_FAILURE));
 
-        Long sessionId = getSendToSession(param.getSendTo());
-        Long messageId = createMessage(param.getSendTo().getId(), sessionId, message);
-
-        String token = sessionService.getTokenById(sessionId);
         String body = JsonUtil.toJson(message);
-        sendRemote(token, messageId, body);
-
-        logService.logMessageSend(messageId, param.getSendTo().getId(), sessionId,
-                MessageTypeEnum.BUSINESS_FAILURE.getDescription(), body.length());
-        logger.info("send business failure message {} successful", messageId);
+        Long id = createSend(param.getTarget(), session.getId(), message.getUid(),
+                MessageTypeEnum.GENERAL_BUSINESS_FAILURE, body);
+        sendAndScheduleRetry(id, session.getToken(), body);
     }
 
     @Override
     @Transactional
-    public void sendFingerprintEnroll(MessageFingerprintEnrollParam param) {
-        String times = settingService.getValueByKeyOptional(SettingEnum.FINGERPRINT_ENROLL_TIMES.getKey())
-                .orElse(SettingEnum.FINGERPRINT_ENROLL_TIMES.getDefaultValue());
-        //设置不同的指纹采集次数，下发的资源不同
-        List<BaseMessageResource> resources = new ArrayList<>();
-        switch (times) {
-            case "1":
-                resources.add(buildResource(MessageResourceNameConstant.IMAGE_FINGERPRINT_ENROLL_1_1,
-                        MessageResourceNameConstant.VOICE_FINGERPRINT_ENROLL_1_1));
-                break;
-            case "2":
-                resources.add(buildResource(MessageResourceNameConstant.IMAGE_FINGERPRINT_ENROLL_1_2,
-                        MessageResourceNameConstant.VOICE_FINGERPRINT_ENROLL_1_2));
-                resources.add(buildResource(MessageResourceNameConstant.IMAGE_FINGERPRINT_ENROLL_2_2,
-                        MessageResourceNameConstant.VOICE_FINGERPRINT_ENROLL_2_2));
-                break;
-            case "3":
-                resources.add(buildResource(MessageResourceNameConstant.IMAGE_FINGERPRINT_ENROLL_1_3,
-                        MessageResourceNameConstant.VOICE_FINGERPRINT_ENROLL_1_3));
-                resources.add(buildResource(MessageResourceNameConstant.IMAGE_FINGERPRINT_ENROLL_2_3,
-                        MessageResourceNameConstant.VOICE_FINGERPRINT_ENROLL_2_3));
-                resources.add(buildResource(MessageResourceNameConstant.IMAGE_FINGERPRINT_ENROLL_3_3,
-                        MessageResourceNameConstant.VOICE_FINGERPRINT_ENROLL_3_3));
-                break;
-            case "4":
-                resources.add(buildResource(MessageResourceNameConstant.IMAGE_FINGERPRINT_ENROLL_1_4,
-                        MessageResourceNameConstant.VOICE_FINGERPRINT_ENROLL_1_4));
-                resources.add(buildResource(MessageResourceNameConstant.IMAGE_FINGERPRINT_ENROLL_2_4,
-                        MessageResourceNameConstant.VOICE_FINGERPRINT_ENROLL_2_4));
-                resources.add(buildResource(MessageResourceNameConstant.IMAGE_FINGERPRINT_ENROLL_3_4,
-                        MessageResourceNameConstant.VOICE_FINGERPRINT_ENROLL_3_4));
-                resources.add(buildResource(MessageResourceNameConstant.IMAGE_FINGERPRINT_ENROLL_4_4,
-                        MessageResourceNameConstant.VOICE_FINGERPRINT_ENROLL_4_4));
-                break;
-        }
+    public void sendFingerprintEnroll(MessageSendFingerprintEnrollParam param) {
+        SessionQuerySimpleResult session = getTargetSession(param.getTarget());
+
+        String timeout = settingService.getValueByKeyOrDefault(SettingEnum.FINGERPRINT_ENROLL_TIMEOUT);
+        String times = settingService.getValueByKeyOrDefault(SettingEnum.FINGERPRINT_ENROLL_TIMES);
+        //此finger变量为手指名称
+        String finger = FingerprintFingerEnum.getByCode(param.getFinger()).getName();
 
         FingerprintEnrollMessage message = new FingerprintEnrollMessage();
+        message.setUser(param.getUser());
         message.setTimes(Integer.valueOf(times));
-        message.setResources(resources);
+        message.setFinger(param.getFinger());
+        message.setTimeout(Integer.valueOf(timeout));
 
-        Long sessionId = getSendToSession(param.getSendTo());
-        Long messageId = createMessage(param.getSendTo().getId(), sessionId, message);
-
-        String token = sessionService.getTokenById(sessionId);
-        String body = JsonUtil.toJson(message);
-        sendRemote(token, messageId, body);
-
-        logService.logMessageSend(messageId, param.getSendTo().getId(), sessionId,
-                MessageTypeEnum.FINGERPRINT_IDENTIFY.getDescription(), body.length());
-        logger.info("send fingerprint enroll message {} successful", messageId);
-
-        //等待回复
-        //TODO worker线程被阻塞
-        pendingMessageLatchMap.put(messageId, new CountDownLatch(1));
-        try {
-            //若后续处理步骤无异常，则再发送登记成功提示消息
-            sendFingerprintEnrollPostProcess(messageId, pendingMessageLatchMap.get(messageId));
-            sendFingerprintEnrollSuccessMessage(param.getSendTo());
-        } catch (BizException e) {
-            //处理登记失败和登记超时两种情况
-            //TODO 只有重复登记的异常 登记手指过多等？
-            if (BizResultEnum.FINGERPRINT_ALREADY_ENROLL.getCode().equals(e.getCode())) {
-                sendFingerprintEnrollFailureMessage(param.getSendTo());
-            }
-            if (BizResultEnum.MESSAGE_REPLY_TIMEOUT.getCode().equals(e.getCode())) {
-                sendFingerprintEnrollTimeoutMessage(param.getSendTo());
-
-            }
-            throw e;
-        } finally {
-            pendingMessageLatchMap.remove(messageId);
+        //index=0 等待结果
+        message.getExtras().add(MessageResourceConstant.EXTRA_FINGERPRINT_ENROLL_WAIT);
+        message.getResources().add(
+                buildResource(MessageResourceConstant.IMAGE_FINGERPRINT_ENROLL_WAIT, null));
+        //index=1 出错
+        message.getExtras().add(MessageResourceConstant.EXTRA_FINGERPRINT_ENROLL_ERROR);
+        message.getResources().add(
+                buildResource(MessageResourceConstant.IMAGE_FINGERPRINT_ENROLL_ERROR,
+                        MessageResourceConstant.VOICE_FINGERPRINT_ENROLL_ERROR));
+        //index=2 超时
+        message.getExtras().add(MessageResourceConstant.EXTRA_FINGERPRINT_ENROLL_TIMEOUT);
+        message.getResources().add(
+                buildResource(MessageResourceConstant.IMAGE_FINGERPRINT_ENROLL_TIMEOUT,
+                        MessageResourceConstant.VOICE_FINGERPRINT_ENROLL_TIMEOUT));
+        //index=3~6 等待操作(视指纹登记采集次数设置)
+        switch (times) {
+            case "1":
+                message.getExtras().add(MessageResourceConstant.EXTRA_FINGERPRINT_ENROLL_1_1);
+                message.getResources().add(
+                        buildResource(MessageResourceConstant.IMAGE_FINGERPRINT_ENROLL_1_1,
+                                MessageFormat.format(MessageResourceConstant.VOICE_FINGERPRINT_ENROLL_1_1, finger)));
+                break;
+            case "2":
+                message.getExtras().add(MessageResourceConstant.EXTRA_FINGERPRINT_ENROLL_1_2);
+                message.getResources().add(
+                        buildResource(MessageResourceConstant.IMAGE_FINGERPRINT_ENROLL_1_2,
+                                MessageFormat.format(MessageResourceConstant.VOICE_FINGERPRINT_ENROLL_1_2, finger)));
+                message.getExtras().add(MessageResourceConstant.EXTRA_FINGERPRINT_ENROLL_2_2);
+                message.getResources().add(
+                        buildResource(MessageResourceConstant.IMAGE_FINGERPRINT_ENROLL_2_2,
+                                MessageResourceConstant.VOICE_FINGERPRINT_ENROLL_2_2));
+                break;
+            case "3":
+                message.getExtras().add(MessageResourceConstant.EXTRA_FINGERPRINT_ENROLL_1_3);
+                message.getResources().add(
+                        buildResource(MessageResourceConstant.IMAGE_FINGERPRINT_ENROLL_1_3,
+                                MessageFormat.format(MessageResourceConstant.VOICE_FINGERPRINT_ENROLL_1_3, finger)));
+                message.getExtras().add(MessageResourceConstant.EXTRA_FINGERPRINT_ENROLL_2_3);
+                message.getResources().add(
+                        buildResource(MessageResourceConstant.IMAGE_FINGERPRINT_ENROLL_2_3,
+                                MessageResourceConstant.VOICE_FINGERPRINT_ENROLL_2_3));
+                message.getExtras().add(MessageResourceConstant.EXTRA_FINGERPRINT_ENROLL_3_3);
+                message.getResources().add(
+                        buildResource(MessageResourceConstant.IMAGE_FINGERPRINT_ENROLL_3_3,
+                                MessageResourceConstant.VOICE_FINGERPRINT_ENROLL_3_3));
+                break;
+            case "4":
+                message.getExtras().add(MessageResourceConstant.EXTRA_FINGERPRINT_ENROLL_1_4);
+                message.getResources().add(
+                        buildResource(MessageResourceConstant.IMAGE_FINGERPRINT_ENROLL_1_4,
+                                MessageFormat.format(MessageResourceConstant.VOICE_FINGERPRINT_ENROLL_1_4, finger)));
+                message.getExtras().add(MessageResourceConstant.EXTRA_FINGERPRINT_ENROLL_2_4);
+                message.getResources().add(
+                        buildResource(MessageResourceConstant.IMAGE_FINGERPRINT_ENROLL_2_4,
+                                MessageResourceConstant.VOICE_FINGERPRINT_ENROLL_2_4));
+                message.getExtras().add(MessageResourceConstant.EXTRA_FINGERPRINT_ENROLL_3_4);
+                message.getResources().add(
+                        buildResource(MessageResourceConstant.IMAGE_FINGERPRINT_ENROLL_3_4,
+                                MessageResourceConstant.VOICE_FINGERPRINT_ENROLL_3_4));
+                message.getExtras().add(MessageResourceConstant.EXTRA_FINGERPRINT_ENROLL_4_4);
+                message.getResources().add(
+                        buildResource(MessageResourceConstant.IMAGE_FINGERPRINT_ENROLL_4_4,
+                                MessageResourceConstant.VOICE_FINGERPRINT_ENROLL_4_4));
+                break;
         }
+
+        String body = JsonUtil.toJson(message);
+        Long id = createSend(param.getTarget(), session.getId(), message.getUid(),
+                MessageTypeEnum.FINGERPRINT_ENROLL, body);
+        sendAndScheduleRetry(id, session.getToken(), body);
+    }
+
+    private void sendFingerprintEnrollSuccess(Long target, String finger) {
+        SessionQuerySimpleResult session = getTargetSession(target);
+
+        FingerprintEnrollSuccessMessage message = new FingerprintEnrollSuccessMessage();
+        message.setExtra(MessageResourceConstant.EXTRA_FINGERPRINT_ENROLL_SUCCESS);
+        message.getResources().add(
+                buildResource(MessageResourceConstant.IMAGE_FINGERPRINT_ENROLL_SUCCESS,
+                        MessageFormat.format(MessageResourceConstant.VOICE_FINGERPRINT_ENROLL_SUCCESS, finger)));
+
+        String body = JsonUtil.toJson(message);
+        Long id = createSend(target, session.getId(), message.getUid(),
+                MessageTypeEnum.FINGERPRINT_ENROLL_SUCCESS, body);
+        sendAndScheduleRetry(id, session.getToken(), body);
+    }
+
+    private void sendFingerprintEnrollFailure(Long target, String finger) {
+        SessionQuerySimpleResult session = getTargetSession(target);
+
+        FingerprintEnrollFailureMessage message = new FingerprintEnrollFailureMessage();
+        message.setExtra(MessageResourceConstant.EXTRA_FINGERPRINT_ENROLL_FAILURE);
+        message.getResources().add(
+                buildResource(MessageResourceConstant.IMAGE_FINGERPRINT_ENROLL_FAILURE,
+                        MessageFormat.format(MessageResourceConstant.VOICE_FINGERPRINT_ENROLL_FAILURE, finger)));
+
+        String body = JsonUtil.toJson(message);
+        Long id = createSend(target, session.getId(), message.getUid(),
+                MessageTypeEnum.FINGERPRINT_ENROLL_FAILURE, body);
+        sendAndScheduleRetry(id, session.getToken(), body);
     }
 
     @Override
     @Transactional
-    public MessageFingerprintIdentifyResult sendFingerprintIdentify(MessageFingerprintIdentifyParam param) {
+    public void sendFingerprintIdentify(MessageSendFingerprintIdentifyParam param) {
+        SessionQuerySimpleResult session = getTargetSession(param.getTarget());
+
+        String timeout = settingService.getValueByKeyOrDefault(SettingEnum.FINGERPRINT_IDENTIFY_TIMEOUT);
+
         FingerprintIdentifyMessage message = new FingerprintIdentifyMessage();
-        message.setResource(buildResource(MessageResourceNameConstant.IMAGE_FINGERPRINT_IDENTIFY,
-                MessageResourceNameConstant.VOICE_FINGERPRINT_IDENTIFY));
+        message.setTimeout(Integer.valueOf(timeout));
+        //index=0 等待结果
+        message.getExtras().add(MessageResourceConstant.EXTRA_FINGERPRINT_IDENTIFY_WAIT);
+        message.getResources().add(
+                buildResource(MessageResourceConstant.IMAGE_FINGERPRINT_IDENTIFY_WAIT, null));
+        //index=1 出错
+        message.getExtras().add(MessageResourceConstant.EXTRA_FINGERPRINT_IDENTIFY_ERROR);
+        message.getResources().add(
+                buildResource(MessageResourceConstant.IMAGE_FINGERPRINT_IDENTIFY_ERROR,
+                        MessageResourceConstant.VOICE_FINGERPRINT_IDENTIFY_ERROR));
+        //index=2 超时
+        message.getExtras().add(MessageResourceConstant.EXTRA_FINGERPRINT_IDENTIFY_TIMEOUT);
+        message.getResources().add(
+                buildResource(MessageResourceConstant.IMAGE_FINGERPRINT_IDENTIFY_TIMEOUT,
+                        MessageResourceConstant.VOICE_FINGERPRINT_IDENTIFY_TIMEOUT));
+        //index=3 等待操作
+        message.getExtras().add(MessageResourceConstant.EXTRA_FINGERPRINT_IDENTIFY);
+        message.getResources().add(
+                buildResource(MessageResourceConstant.IMAGE_FINGERPRINT_IDENTIFY,
+                        MessageResourceConstant.VOICE_FINGERPRINT_IDENTIFY));
 
-        Long sessionId = getSendToSession(param.getSendTo());
-        Long messageId = createMessage(param.getSendTo().getId(), sessionId, message);
-
-        String token = sessionService.getTokenById(sessionId);
         String body = JsonUtil.toJson(message);
-        sendRemote(token, messageId, body);
+        Long id = createSend(param.getTarget(), session.getId(), message.getUid(),
+                MessageTypeEnum.FINGERPRINT_IDENTIFY, body);
+        sendAndScheduleRetry(id, session.getToken(), body);
+    }
 
-        logService.logMessageSend(messageId, param.getSendTo().getId(), sessionId,
-                MessageTypeEnum.FINGERPRINT_IDENTIFY.getDescription(), body.length());
-        logger.info("send fingerprint identify message {} successful", messageId);
+    private void sendFingerprintIdentifySuccess(Long target) {
+        SessionQuerySimpleResult session = getTargetSession(target);
 
-        //等待回复
-        //TODO worker线程被阻塞
-        pendingMessageLatchMap.put(messageId, new CountDownLatch(1));
-        try {
-            return sendFingerprintIdentifyPostProcess(messageId, pendingMessageLatchMap.get(messageId));
-        } catch (BizException e) {
-            //辨识失败和回复超时两种情况，需要再发送一条相应的提示消息
-            if (BizResultEnum.FINGERPRINT_IDENTIFY_MISMATCH.getCode().equals(e.getCode())) {
-                sendFingerprintIdentifyFailureMessage(param.getSendTo());
-            }
-            if (BizResultEnum.MESSAGE_REPLY_TIMEOUT.getCode().equals(e.getCode())) {
-                sendFingerprintIdentifyTimeoutMessage(param.getSendTo());
-            }
-            throw e;
-        } finally {
-            pendingMessageLatchMap.remove(messageId);
-        }
+        FingerprintIdentifySuccessMessage message = new FingerprintIdentifySuccessMessage();
+        message.setExtra(MessageResourceConstant.EXTRA_FINGERPRINT_IDENTIFY_SUCCESS);
+        message.getResources().add(
+                buildResource(MessageResourceConstant.IMAGE_FINGERPRINT_IDENTIFY_SUCCESS, null));
+
+        String body = JsonUtil.toJson(message);
+        Long id = createSend(target, session.getId(), message.getUid(),
+                MessageTypeEnum.FINGERPRINT_IDENTIFY_SUCCESS, body);
+        sendAndScheduleRetry(id, session.getToken(), body);
+    }
+
+    private void sendFingerprintIdentifyFailure(Long target) {
+        SessionQuerySimpleResult session = getTargetSession(target);
+
+        FingerprintIdentifyFailureMessage message = new FingerprintIdentifyFailureMessage();
+        message.setExtra(MessageResourceConstant.EXTRA_FINGERPRINT_IDENTIFY_FAILURE);
+        message.getResources().add(
+                buildResource(MessageResourceConstant.IMAGE_FINGERPRINT_IDENTIFY_FAILURE,
+                        MessageResourceConstant.VOICE_FINGERPRINT_IDENTIFY_FAILURE));
+
+        String body = JsonUtil.toJson(message);
+        Long id = createSend(target, session.getId(), message.getUid(),
+                MessageTypeEnum.FINGERPRINT_IDENTIFY_FAILURE, body);
+        sendAndScheduleRetry(id, session.getToken(), body);
     }
 
     @Override
     @Transactional
-    public void sendClose(MessageCloseParam param) {
-        CloseMessage message = new CloseMessage();
+    public void sendUpdateCompanyInfo(String logo, String name) {
+        List<SessionQuerySimpleResult> sessions = sessionService.queryAllOnline();
 
-        Long sessionId = getSendToSession(param.getSendTo());
-        Long messageId = createMessage(param.getSendTo().getId(), sessionId, message);
+        //向所有在线会话同时发送
+        sessions.forEach(session -> {
+            UpdateCompanyInfoMessage message = new UpdateCompanyInfoMessage();
+            message.setName(name);
+            message.getResources().add(buildResource(logo, null));
 
-        String token = sessionService.getTokenById(sessionId);
-        String body = JsonUtil.toJson(message);
-        sendRemote(token, messageId, body);
-
-        logService.logMessageSend(messageId, param.getSendTo().getId(), sessionId,
-                MessageTypeEnum.CLOSE.getDescription(), body.length());
-        logger.info("send close message {} successful", messageId);
+            String body = JsonUtil.toJson(message);
+            Long id = createSend(session.getCounterId(), session.getId(), message.getUid(),
+                    MessageTypeEnum.UPDATE_COMPANY_INFO, body);
+            sendAndScheduleRetry(id, session.getToken(), body);
+        });
     }
 
     @Override
     @Transactional
-    public void sendCounterInfo(MessageCounterInfoParam param) {
-        CounterInfoMessage message = new CounterInfoMessage();
+    public void sendUpdateCounterInfo(Long target, String number, String name) {
+        SessionQuerySimpleResult session = getTargetSession(target);
+
+        UpdateCounterInfoMessage message = new UpdateCounterInfoMessage();
+        message.setNumber(number);
+        message.setName(name);
+
+        String body = JsonUtil.toJson(message);
+        Long id = createSend(target, session.getId(), message.getUid(),
+                MessageTypeEnum.UPDATE_COUNTER_INFO, body);
+        sendAndScheduleRetry(id, session.getToken(), body);
+    }
+
+    @Override
+    @Transactional
+    public void sendUpdateUserInfo(MessageSendUpdateUserInfoParam param) {
+        SessionQuerySimpleResult session = getTargetSession(param.getTarget());
+
+        UpdateUserInfoMessage message = new UpdateUserInfoMessage();
         message.setNumber(param.getNumber());
         message.setName(param.getName());
-        message.setResource(buildResource(null, MessageResourceNameConstant.VOICE_COUNTER_INFO));
+        message.getResources().add(
+                buildResource(param.getPhoto(),
+                        MessageFormat.format(MessageResourceConstant.VOICE_UPDATE_USER_INFO, param.getName())));
 
-        Long sessionId = getSendToSession(param.getSendTo());
-        Long messageId = createMessage(param.getSendTo().getId(), sessionId, message);
-
-        String token = sessionService.getTokenById(sessionId);
         String body = JsonUtil.toJson(message);
-        sendRemote(token, messageId, body);
-
-        logService.logMessageSend(messageId, param.getSendTo().getId(), sessionId,
-                MessageTypeEnum.COUNTER_INFO.getDescription(), body.length());
-        logger.info("send counter info message {} successful", messageId);
+        Long id = createSend(param.getTarget(), session.getId(), message.getUid(),
+                MessageTypeEnum.UPDATE_USER_INFO, body);
+        sendAndScheduleRetry(id, session.getToken(), body);
     }
 
     @Override
     @Transactional
-    public void sendUserInfo(MessageUserInfoParam param) {
-        UserInfoMessage message = new UserInfoMessage();
-        message.setNumber(param.getNumber());
-        message.setName(param.getName());
-        message.setPhoto(param.getPhoto());
-        message.setResource(buildResource(null, MessageResourceNameConstant.VOICE_USER_INFO + param.getName()));
-
-        Long sessionId = getSendToSession(param.getSendTo());
-        Long messageId = createMessage(param.getSendTo().getId(), sessionId, message);
-
-        String token = sessionService.getTokenById(sessionId);
-        String body = JsonUtil.toJson(message);
-        sendRemote(token, messageId, body);
-
-        logService.logMessageSend(messageId, param.getSendTo().getId(), sessionId,
-                MessageTypeEnum.USER_INFO.getDescription(), body.length());
-        logger.info("send user info message {} successful", messageId);
-    }
-
-    @Override
-    @Transactional
-    public void receiveReply(MessageReplyParam param) {
-        String body = param.getBody();
-        //先转换成BaseMessage判断类型
-        BaseMessage message = JsonUtil.toObject(body, BaseMessage.class);
-        if (MessageTypeEnum.FINGERPRINT_ENROLL_REPLY.getType().equals(message.getType())) {
-            message = JsonUtil.toObject(body, FingerprintEnrollReplyMessage.class);
-        } else if (MessageTypeEnum.FINGERPRINT_IDENTIFY_REPLY.getType().equals(message.getType())) {
-            message = JsonUtil.toObject(body, FingerprintIdentifyReplyMessage.class);
-        } else {
-            logger.error("receive reply message with unknown type {}", message.getType());
-            throw new BizException(BizResultEnum.MESSAGE_REPLY_UNKNOWN_TYPE);
+    public void resend(Long uid) {
+        List<MessageDO> domains = messageMapper.getByUid(uid, MessageDirectionEnum.SEND.getDirection());
+        if (CollectionUtils.isEmpty(domains)) {
+            logger.error("message with uid {} not exist", uid);
+            throw new BizException(BizResultEnum.MESSAGE_UID_NOT_EXIST);
         }
 
-        Long messageId = createMessage(message.getId(), message);
-
-        logService.logMessageReceive(messageId, message.getId(),
-                MessageTypeEnum.getDescriptionByType(message.getType()), body.length());
-        logger.info("receive reply {} for message {} successful", messageId, message.getId());
-
-        //释放等待的锁
-        CountDownLatch latch = pendingMessageLatchMap.get(message.getId());
-        if (latch == null) {
-            logger.error("receive reply message for non-pending message {}", message.getId());
-            throw new BizException(BizResultEnum.MESSAGE_REPLY_NON_PENDING, message.getId());
+        MessageDO before = domains.get(0);
+        //获取原Token
+        String token = sessionService.queryIfOnline(before.getSessionId()).getToken();
+        //更新重试次数
+        MessageDO after = new MessageDO();
+        after.setId(before.getId());
+        after.setRetry(before.getRetry() + 1);
+        if (messageMapper.updateById(after) != CommonConstant.UPDATE_DOMAIN_SUCCESSFUL) {
+            logger.error("update message {} failed", after.getId());
+            throw new BizException(BizResultEnum.MESSAGE_UPDATE_ERROR);
         }
-        latch.countDown();
+        //再次发送
+        sendAndScheduleRetry(before.getId(), token, before.getBody());
     }
+
+    //发送消息辅助逻辑
+    //-----------------------------------------------------------------------
 
     /**
-     * 批量查询消息回复，Map出回复消息ID
+     * 查询消息发送目标当前在线会话
      *
-     * @param ids 消息ID
+     * @param target 消息发送目标
      * @return 查询结果
      */
-    private Map<Long, MessageReplyQueryResult> batchQueryReplyAndMap(List<Long> ids) {
-        List<MessageDO> domains = messageMapper.listByReplyId(ids);
-        if (CollectionUtils.isEmpty(domains)) {
-            logger.warn("message reply query result is empty");
-            return Collections.emptyMap();
-        }
-        logger.info("query {} message reply(ies)", domains.size());
-        return domains.stream()
-                .collect(Collectors.toMap(MessageDO::getReplyId,
-                        domain -> POJOConvertUtil.convert(domain, MessageReplyQueryResult.class)));
-    }
-
-    /**
-     * 构造消息中的资源
-     *
-     * @param image 图像
-     * @param voice 声音
-     * @return 资源URI的封装
-     */
-    private BaseMessageResource buildResource(String image, String voice) {
-        BaseMessageResource resource = new BaseMessageResource();
-        if (!StringUtils.isEmpty(image)) {
-            //兼容性需要封装成List
-            List<String> images = new ArrayList<>();
-            images.add(image);
-            resource.setImage(resourceService.getUriByTypeAndName(ResourceTypeEnum.IMAGE, images).get(0));
-        }
-        if (!StringUtils.isEmpty(voice)) {
-            //将文本按标点符号分割，分割后的子句可复用，减少资源数量和体积
-            List<String> voices = new ArrayList<>();
-            voices.addAll(Arrays.asList(voice.split(RegExpConstant.PUNCTUATION)));
-            resource.setVoices(resourceService.getUriByTypeAndName(ResourceTypeEnum.VOICE, voices));
-        }
-        return resource;
-    }
-
-    private Long getSendToSession(MessageSendToParam param) {
-        if (param.getId() == null && param.getNumber() == null) {
-            logger.error("message send to counter id & number both null");
-            throw new BizException(BizResultEnum.MESSAGE_SEND_TO_NULL);
-        }
-        //只提供了窗口编号的情形：查询窗口ID
-        if (param.getId() == null && param.getNumber() != null) {
-            Long counterId = counterService.getIdByNumberOptional(param.getNumber())
-                    .orElseThrow(() -> {
-                        logger.error("message send to counter number {} not exist", param.getNumber());
-                        return new BizException(BizResultEnum.MESSAGE_SEND_TO_COUNTER_NOT_EXIST);
-                    });
-            param.setId(counterId);
-        }
-        //根据查询窗口ID查询在线会话ID
-        return sessionService.getOnlineIdByCounterIdOptional(param.getId())
+    private SessionQuerySimpleResult getTargetSession(Long target) {
+        return sessionService.queryOnline(target)
                 .orElseThrow(() -> {
-                    logger.error("message send to counter {} session not online", param.getId());
-                    return new BizException(BizResultEnum.MESSAGE_SEND_TO_SESSION_NOT_ONLINE);
+                    logger.error("target counter {} has no session online", target);
+                    return new BizException(BizResultEnum.MESSAGE_TARGET_NOT_ONLINE);
                 });
     }
 
     /**
-     * 创建消息
+     * 构造发送的消息中的资源
      *
-     * @param counterId 窗口ID
-     * @param sessionId 会话ID
-     * @param message   消息
-     * @return 消息ID
+     * @param image  图像
+     * @param voices 声音
+     * @return 资源
      */
-    private Long createMessage(Long counterId, Long sessionId, BaseMessage message) {
-        MessageDO domain = new MessageDO();
-        domain.setReplyId(0L);
-        domain.setCounterId(counterId);
-        domain.setSessionId(sessionId);
-        domain.setType(message.getType());
-        domain.setBody(message.toString());
-        domain.setSendTime(DateTimeUtil.getNow());
-
-        if (messageMapper.save(domain) != CommonConstant.SAVE_DOMAIN_SUCCESSFUL) {
-            logger.error("create message {} failed", domain.getId());
-            throw new BizException(BizResultEnum.MESSAGE_CREATE_ERROR);
+    private BaseSendMessage.Resource buildResource(String image, String voices) {
+        BaseSendMessage.Resource resource = new BaseSendMessage.Resource();
+        if (!StringUtils.isEmpty(image)) {
+            if (image.matches(RegExpConstant.HTTP_URL_PREFIX)) {
+                //绝对地址说明资源来自外部系统
+                resource.setImage(image);
+            } else {
+                Optional<ResourceQuerySimpleResult> result =
+                        resourceService.queryByTag(ResourceTypeEnum.IMAGE.getType(), image);
+                resource.setImage(result.map(ResourceQuerySimpleResult::getUrl).orElse(null));
+            }
         }
-        //消息ID需要消息持久化之后才能获得
-        Long messageId = domain.getId();
-        message.setId(messageId);
-        return messageId;
+        if (!StringUtils.isEmpty(voices)) {
+            //将文本按标点符号分割，分割后的子句可复用，减少资源数量和体积
+            for (String voice : voices.split(RegExpConstant.PUNCTUATION)) {
+                Optional<ResourceQuerySimpleResult> result =
+                        resourceService.queryByTag(ResourceTypeEnum.VOICE.getType(), voice);
+                if (result.isPresent()) {
+                    resource.getVoices().add(result.get().getUrl());
+                } else {
+                    String filename = ttsService.ttsSync(voice, false);
+                    //资源URL格式：类型+“/”+文件名
+                    String url = ResourceTypeEnum.VOICE.getType() + CommonConstant.SLASH_STRING + filename;
+                    resource.getVoices().add(url);
+                }
+            }
+        }
+        return resource;
     }
 
     /**
-     * 创建回复消息
+     * 创建发送的消息
      *
-     * @param replyId 回复ID
-     * @param message 消息
+     * @param counterId 窗口ID
+     * @param sessionId 会话ID
+     * @param uid       UID
+     * @param type      消息类型
+     * @param body      消息体
      * @return 消息ID
      */
-    private Long createMessage(Long replyId, BaseMessage message) {
+    private Long createSend(Long counterId, Long sessionId, Long uid, MessageTypeEnum type, String body) {
         MessageDO domain = new MessageDO();
-        domain.setReplyId(replyId);
-        domain.setCounterId(0L);
-        domain.setSessionId(0L);
-        domain.setType(message.getType());
-        domain.setBody(message.toString());
+        domain.setCounterId(counterId);
+        domain.setSessionId(sessionId);
+        domain.setUid(uid);
+        domain.setDirection(MessageDirectionEnum.SEND.getDirection());
+        domain.setType(type.getType());
+        domain.setBody(body);
+        domain.setRetry(1);
         domain.setSendTime(DateTimeUtil.getNow());
 
         if (messageMapper.save(domain) != CommonConstant.SAVE_DOMAIN_SUCCESSFUL) {
-            logger.error("create message {} failed", domain.getId());
+            logger.error("create send message {} failed", domain.getId());
             throw new BizException(BizResultEnum.MESSAGE_CREATE_ERROR);
         }
+        logService.logMessageSend(domain.getId(), counterId, sessionId, uid, type, body.length());
+        logger.info("create send message {}", domain.getId());
 
         return domain.getId();
     }
 
     /**
-     * 调用Msg远程服务
+     * 发送消息并计划重试
      *
-     * @param api     API
-     * @param request 请求体
-     * @return 响应体(JSON)
-     */
-    private JsonNode callRemote(String api, String request) {
-        String url = dependencyConfigItem.getHostMsg() + api;
-        logger.info("call downstream url {}", url);
-        try {
-            JsonNode response = HttpUtils.executeAsJson(url, request);
-            logger.info("call downstream msg service get return {}", response);
-            return response;
-        } catch (IOException e) {
-            logger.error("call downstream msg service failed", e);
-            throw new BizException(BizResultEnum.MESSAGE_REMOTE_CALL_ERROR);
-        }
-    }
-
-    /**
-     * 调用远程服务发送消息
-     *
-     * @param token Token
      * @param id    消息ID
+     * @param token Token
      * @param body  消息体
      */
-    private void sendRemote(String token, Long id, String body) {
-        MessageSendRemoteParam param = new MessageSendRemoteParam();
-        param.setToken(token);
-        param.setId(id);
-        param.setBody(body);
+    private void sendAndScheduleRetry(Long id, String token, String body) {
+        webSocketService.sendMessage(token, body);
+        messageResendJob.schedule(id);
+    }
 
-        JsonNode response = callRemote(dependencyConfigItem.getApiMsgMessageSend(), JsonUtil.toJson(param));
+    //接收消息处理逻辑
+    //-----------------------------------------------------------------------
+    @Override
+    @Transactional
+    public void receive(String token, String body, LocalDateTime timestamp) {
+        //先转换成BaseMessage判断类型
+        BaseMessage message = JsonUtil.toObject(body, BaseMessage.class);
+        MessageTypeEnum type = MessageTypeEnum.getByType(message.getType());
 
-        int code = response.get(BaseFieldNameConstant.CODE).asInt();
-        if (code != BaseResultEnum.OK.getCode()) {
-            logger.error("send message to remote get error {}", code);
-            throw new BizException(BizResultEnum.MESSAGE_REMOTE_SERVICE_ERROR, code);
+        if (MessageTypeEnum.ACK.equals(type)) {
+            receiveAck(body);
+        } else {
+            sendAck(token, message.getUid());
+            receiveOther(message.getUid(), type, body, timestamp);
         }
     }
 
     /**
-     * 等待阻塞型消息的锁释放或超时
+     * 接收到ACK
      *
-     * @param latch   锁
-     * @param timeout 超时时间
-     * @return true-锁释放，false-锁超时
+     * @param body 消息体
      */
-    private boolean waitPendingLatch(CountDownLatch latch, Long timeout) {
+    private void receiveAck(String body) {
+        //根据UID查询关联消息
+        MessageDO associated = getAssociated(JsonUtil.toObject(body, AckMessage.class).getUid());
+
+        MessageDO domain = new MessageDO();
+        domain.setId(associated.getId());
+        domain.setAckTime(DateTimeUtil.getNow());
+        if (messageMapper.updateById(domain) != CommonConstant.UPDATE_DOMAIN_SUCCESSFUL) {
+            logger.error("update message {} failed", domain.getId());
+            throw new BizException(BizResultEnum.MESSAGE_UPDATE_ERROR);
+        }
+
+        //消息已确认，取消重发
+        messageResendJob.cancel(associated.getId());
+    }
+
+    /**
+     * 接收到其他类型消息
+     *
+     * @param uid       UID
+     * @param type      类型
+     * @param body      消息体
+     * @param timestamp 时间戳
+     */
+    private void receiveOther(Long uid, MessageTypeEnum type, String body, LocalDateTime timestamp) {
+        boolean flag = createReceive(uid, type, body, timestamp);
+        //根据flag & type进一步处理
+        if (flag) {
+            if (MessageTypeEnum.FINGERPRINT_ENROLL_REPLY.equals(type)) {
+                BaseReceiveMessage message = JsonUtil.toObject(body, FingerprintEnrollReplyMessage.class);
+                receiveFingerprintEnrollReply((FingerprintEnrollReplyMessage) message);
+            } else if (MessageTypeEnum.FINGERPRINT_IDENTIFY_REPLY.equals(type)) {
+                BaseReceiveMessage message = JsonUtil.toObject(body, FingerprintIdentifyReplyMessage.class);
+                receiveFingerprintIdentifyReply((FingerprintIdentifyReplyMessage) message);
+            } else {
+                logger.error("receive message with uid {} has unknown type {}", uid);
+                throw new BizException(BizResultEnum.MESSAGE_RECEIVE_UNKNOWN_TYPE);
+            }
+        }
+    }
+
+    /**
+     * 发送ACK
+     * 用于接收到指纹登记回复/指纹辨识回复
+     *
+     * @param token Token
+     * @param uid   UID
+     */
+    private void sendAck(String token, Long uid) {
+        AckMessage message = new AckMessage();
+        message.setUid(uid);
+
+        String body = JsonUtil.toJson(message);
+        webSocketService.sendMessage(token, body);
+    }
+
+    /**
+     * 接收指纹登记回复
+     *
+     * @param message 消息
+     */
+    private void receiveFingerprintEnrollReply(FingerprintEnrollReplyMessage message) {
+        //仅处理正确提取到模板的情形
+        if (FingerprintConstant.MESSAGE_REPLY_STATUS_EXTRACT.equals(message.getStatus())) {
+            //重新解析原来发送的消息
+            MessageDO associated = getAssociated(message.getUid());
+            FingerprintEnrollMessage sent =
+                    JsonUtil.toObject(associated.getBody(), FingerprintEnrollMessage.class);
+
+            //进行指纹登记，如果抛出异常回复登记失败
+            try {
+                fingerprintService.enroll(sent.getUser(), sent.getFinger(), message.getTemplate());
+            } catch (BizException e) {
+                sendFingerprintEnrollFailure(associated.getCounterId(),
+                        FingerprintFingerEnum.getByCode(sent.getFinger()).getName());
+                return;
+            }
+
+            sendFingerprintEnrollSuccess(associated.getCounterId(),
+                    FingerprintFingerEnum.getByCode(sent.getFinger()).getName());
+        }
+    }
+
+    /**
+     * 接收到指纹辨识回复
+     *
+     * @param message 消息
+     */
+    private void receiveFingerprintIdentifyReply(FingerprintIdentifyReplyMessage message) {
+        if (FingerprintConstant.MESSAGE_REPLY_STATUS_EXTRACT.equals(message.getStatus())) {
+            //重新解析原来发送的消息
+            MessageDO associated = getAssociated(message.getUid());
+
+            //辨识指纹对应的用户ID，获取该用户详细信息，并调用第三方回调
+            try {
+                Long userId = fingerprintService.identify(message.getTemplate());
+                UserQueryResult result = userService.queryById(userId);
+                invokeFingerprintIdentifyCallback(result.getNumber(), result.getName(), result.getPhoto());
+            } catch (BizException e) {
+                sendFingerprintIdentifyFailure(associated.getCounterId());
+                return;
+            }
+
+            sendFingerprintIdentifySuccess(associated.getCounterId());
+        }
+    }
+
+    //接收消息辅助逻辑
+    //-----------------------------------------------------------------------
+
+    /**
+     * 创建接收的消息
+     *
+     * @param uid       消息ID
+     * @param type      消息类型
+     * @param body      消息体
+     * @param timestamp 时间戳
+     * @return true-继续处理，false-停止处理
+     */
+    private boolean createReceive(Long uid, MessageTypeEnum type, String body, LocalDateTime timestamp) {
+        MessageDO idempotent = getIdempotent(uid);
+        if (idempotent == null) {
+            MessageDO associated = getAssociated(uid);
+
+            MessageDO domain = new MessageDO();
+            domain.setCounterId(associated.getCounterId());
+            domain.setSessionId(associated.getSessionId());
+            domain.setUid(uid);
+            domain.setDirection(MessageDirectionEnum.RECEIVE.getDirection());
+            domain.setType(type.getType());
+            domain.setBody(body);
+            domain.setRetry(1);
+            domain.setReceiveTime(timestamp);
+
+            if (messageMapper.save(domain) != CommonConstant.SAVE_DOMAIN_SUCCESSFUL) {
+                logger.error("create receive message {} failed", domain.getId());
+                throw new BizException(BizResultEnum.MESSAGE_CREATE_ERROR);
+            }
+            logService.logMessageReceive(domain.getId(), uid, type.getType(), body.length());
+            logger.info("create receive message {}", domain.getId());
+        } else {
+            MessageDO domain = new MessageDO();
+            domain.setId(idempotent.getId());
+            domain.setRetry(idempotent.getRetry() + 1);
+
+            if (messageMapper.updateById(domain) != CommonConstant.UPDATE_DOMAIN_SUCCESSFUL) {
+                logger.error("update message {} failed", domain.getId());
+                throw new BizException(BizResultEnum.MESSAGE_UPDATE_ERROR);
+            }
+            logger.info("update message {}", domain.getId());
+        }
+
+        return idempotent == null;
+    }
+
+    /**
+     * 获取与接收到的消息关联的发送的消息
+     *
+     * @param uid UID
+     * @return 关联的发送的消息
+     */
+    private MessageDO getAssociated(Long uid) {
+        List<MessageDO> domains = messageMapper.getByUid(uid, MessageDirectionEnum.SEND.getDirection());
+        if (CollectionUtils.isEmpty(domains)) {
+            logger.error("message associate to uid {} not exist", uid);
+            throw new BizException(BizResultEnum.MESSAGE_UID_NOT_EXIST, uid);
+        }
+        return domains.get(0);
+    }
+
+    /**
+     * 获取幂等的接收的消息
+     * 若幂等返回null，否则返回已有消息
+     *
+     * @param uid UID
+     * @return 已有的消息
+     */
+    private MessageDO getIdempotent(Long uid) {
+        List<MessageDO> domains = messageMapper.getByUid(uid, MessageDirectionEnum.RECEIVE.getDirection());
+        return !CollectionUtils.isEmpty(domains) ? domains.get(0) : null;
+    }
+
+    /**
+     * 向第三方系统反馈指纹辨识结果
+     *
+     * @param number 用户编号
+     * @param name   用户姓名
+     * @param photo  用户照片
+     */
+    private void invokeFingerprintIdentifyCallback(String number, String name, String photo) {
+        String callback = settingService.getValueByKeyOrDefault(SettingEnum.FINGERPRINT_IDENTIFY_CALLBACK);
+        if (StringUtils.isEmpty(callback)) {
+            logger.warn("fingerprint identify callback is empty");
+            return;
+        }
+
+        FingerprintIdentifyCallbackDTO result = new FingerprintIdentifyCallbackDTO();
+        result.setName(number);
+        result.setName(name);
+        result.setPhoto(photo);
+
+        //调用设置的回调API
         try {
-            return latch.await(timeout, TimeUnit.SECONDS);
-        } catch (InterruptedException ignored) {
+            HttpUtils.execute(callback, JsonUtil.toJson(result));
+        } catch (IOException e) {
+            logger.error("invoke fingerprint identify callback {} failed", callback);
+            throw new BizException(BizResultEnum.MESSAGE_INVOKE_CALLBACK_ERROR);
         }
-        return false;
-    }
-
-    /**
-     * 指纹登记消息发送后，后续处理步骤
-     *
-     * @param messageId 原消息ID
-     * @param latch     阻塞锁
-     */
-    private void sendFingerprintEnrollPostProcess(Long messageId, CountDownLatch latch) {
-        String timeout = settingService.getValueByKeyOptional(SettingEnum.FINGERPRINT_ENROLL_TIMEOUT.getKey())
-                .orElse(SettingEnum.FINGERPRINT_ENROLL_TIMEOUT.getDefaultValue());
-
-        //等待超时
-        if (!waitPendingLatch(latch, Long.parseLong(timeout))) {
-            logger.error("wait fingerprint enroll message {} reply timeout {}", messageId, timeout);
-            throw new BizException(BizResultEnum.MESSAGE_REPLY_TIMEOUT);
-        }
-
-        //查询回复的消息
-        MessageDO domain = messageMapper.getByReplyId(messageId);
-        if (domain == null) {
-            logger.error("message reply {} not exist", messageId);
-            throw new BizException(BizResultEnum.MESSAGE_REPLY_NO_EXIST, messageId);
-        }
-        String body = domain.getBody();
-        FingerprintEnrollReplyMessage message = JsonUtil.toObject(body, FingerprintEnrollReplyMessage.class);
-
-        //调用Fp服务登记回复的指纹模型
-        FingerprintEnrollParam param = new FingerprintEnrollParam();
-        param.setTemplate(message.getTemplate());
-        fingerprintService.enroll(param);
-    }
-
-    /**
-     * 指纹辨识消息发送后，后续处理步骤
-     *
-     * @param messageId 原消息ID
-     * @param latch     阻塞锁
-     * @return 指纹辨识结果
-     */
-    private MessageFingerprintIdentifyResult sendFingerprintIdentifyPostProcess(Long messageId, CountDownLatch latch) {
-        String timeout = settingService.getValueByKeyOptional(SettingEnum.FINGERPRINT_IDENTIFY_TIMEOUT.getKey())
-                .orElse(SettingEnum.FINGERPRINT_IDENTIFY_TIMEOUT.getDefaultValue());
-
-        //等待超时
-        if (!waitPendingLatch(latch, Long.parseLong(timeout))) {
-            logger.error("wait fingerprint identify message {} reply timeout {}", messageId, timeout);
-            throw new BizException(BizResultEnum.MESSAGE_REPLY_TIMEOUT);
-        }
-
-        //查询回复的消息
-        MessageDO domain = messageMapper.getByReplyId(messageId);
-        if (domain == null) {
-            logger.error("message reply {} not exist", messageId);
-            throw new BizException(BizResultEnum.MESSAGE_REPLY_NO_EXIST, messageId);
-        }
-        String body = domain.getBody();
-        FingerprintIdentifyReplyMessage message = JsonUtil.toObject(body, FingerprintIdentifyReplyMessage.class);
-
-        //调用Fp服务辨识回复的指纹模型，反查用户ID和用户编号
-        FingerprintIdentifyParam param = new FingerprintIdentifyParam();
-        param.setTemplate(message.getTemplate());
-
-        Long userId = fingerprintService.identify(param);
-        String userNumber = userService.getNumberByIdOptional(userId).orElse(null);
-
-        MessageFingerprintIdentifyResult result = new MessageFingerprintIdentifyResult();
-        result.setId(userId);
-        result.setNumber(userNumber);
-        return result;
-    }
-
-    /**
-     * 追加发送指纹登记成功消息
-     *
-     * @param sendTo 消息接收目标
-     */
-    private void sendFingerprintEnrollSuccessMessage(MessageSendToParam sendTo) {
-        FingerprintEnrollSuccessMessage message = new FingerprintEnrollSuccessMessage();
-        message.setResource(buildResource(MessageResourceNameConstant.IMAGE_FINGERPRINT_ENROLL_SUCCESS,
-                MessageResourceNameConstant.VOICE_FINGERPRINT_ENROLL_SUCCESS));
-
-        Long sessionId = getSendToSession(sendTo);
-        Long messageId = createMessage(sendTo.getId(), sessionId, message);
-
-        String token = sessionService.getTokenById(sessionId);
-        String body = JsonUtil.toJson(message);
-        sendRemote(token, messageId, body);
-
-        logService.logMessageSend(messageId, sendTo.getId(), sessionId,
-                MessageTypeEnum.FINGERPRINT_ENROLL_SUCCESS.getDescription(), body.length());
-        logger.info("send fingerprint enroll success message {} successful", messageId);
-    }
-
-    /**
-     * 追加发送指纹登记失败消息
-     *
-     * @param sendTo 消息接收目标
-     */
-    private void sendFingerprintEnrollFailureMessage(MessageSendToParam sendTo) {
-        FingerprintEnrollSuccessMessage message = new FingerprintEnrollSuccessMessage();
-        message.setResource(buildResource(MessageResourceNameConstant.IMAGE_FINGERPRINT_ENROLL_FAILURE,
-                MessageResourceNameConstant.VOICE_FINGERPRINT_ENROLL_FAILURE));
-
-        Long sessionId = getSendToSession(sendTo);
-        Long messageId = createMessage(sendTo.getId(), sessionId, message);
-
-        String token = sessionService.getTokenById(sessionId);
-        String body = JsonUtil.toJson(message);
-        sendRemote(token, messageId, body);
-
-        logService.logMessageSend(messageId, sendTo.getId(), sessionId,
-                MessageTypeEnum.FINGERPRINT_ENROLL_FAILURE.getDescription(), body.length());
-        logger.info("send fingerprint enroll failure message {} successful", messageId);
-    }
-
-    /**
-     * 追加发送指纹登记失败消息
-     *
-     * @param sendTo 消息接收目标
-     */
-    private void sendFingerprintEnrollTimeoutMessage(MessageSendToParam sendTo) {
-        FingerprintEnrollSuccessMessage message = new FingerprintEnrollSuccessMessage();
-        message.setResource(buildResource(MessageResourceNameConstant.IMAGE_FINGERPRINT_ENROLL_TIMEOUT,
-                MessageResourceNameConstant.VOICE_FINGERPRINT_ENROLL_TIMEOUT));
-
-        Long sessionId = getSendToSession(sendTo);
-        Long messageId = createMessage(sendTo.getId(), sessionId, message);
-
-        String token = sessionService.getTokenById(sessionId);
-        String body = JsonUtil.toJson(message);
-        sendRemote(token, messageId, body);
-
-        logService.logMessageSend(messageId, sendTo.getId(), sessionId,
-                MessageTypeEnum.FINGERPRINT_ENROLL_TIMEOUT.getDescription(), body.length());
-        logger.info("send fingerprint enroll timeout message {} successful", messageId);
-    }
-
-    /**
-     * 追加发送指纹辨识失败消息
-     *
-     * @param sendTo 消息接收目标
-     */
-    private void sendFingerprintIdentifyFailureMessage(MessageSendToParam sendTo) {
-        FingerprintIdentifyFailureMessage message = new FingerprintIdentifyFailureMessage();
-        message.setResource(buildResource(MessageResourceNameConstant.IMAGE_FINGERPRINT_IDENTIFY_FAILURE,
-                MessageResourceNameConstant.VOICE_FINGERPRINT_IDENTIFY_FAILURE));
-
-        Long sessionId = getSendToSession(sendTo);
-        Long messageId = createMessage(sendTo.getId(), sessionId, message);
-
-        String token = sessionService.getTokenById(sessionId);
-        String body = JsonUtil.toJson(message);
-        sendRemote(token, messageId, body);
-
-        logService.logMessageSend(messageId, sendTo.getId(), sessionId,
-                MessageTypeEnum.FINGERPRINT_IDENTIFY_FAILURE.getDescription(), body.length());
-        logger.info("send fingerprint identify failure message {} successful", messageId);
-    }
-
-    /**
-     * 追加发送指纹辨识超时消息
-     *
-     * @param sendTo 消息接收目标
-     */
-    private void sendFingerprintIdentifyTimeoutMessage(MessageSendToParam sendTo) {
-        FingerprintIdentifyTimeoutMessage message = new FingerprintIdentifyTimeoutMessage();
-        message.setResource(buildResource(MessageResourceNameConstant.IMAGE_FINGERPRINT_IDENTIFY_TIMEOUT,
-                MessageResourceNameConstant.VOICE_FINGERPRINT_IDENTIFY_TIMEOUT));
-
-        Long sessionId = getSendToSession(sendTo);
-        Long messageId = createMessage(sendTo.getId(), sessionId, message);
-
-        String token = sessionService.getTokenById(sessionId);
-        String body = JsonUtil.toJson(message);
-        sendRemote(token, messageId, body);
-
-        logService.logMessageSend(messageId, sendTo.getId(), sessionId,
-                MessageTypeEnum.FINGERPRINT_IDENTIFY_TIMEOUT.getDescription(), body.length());
-        logger.info("send fingerprint identify timeout message {} successful", messageId);
     }
 }

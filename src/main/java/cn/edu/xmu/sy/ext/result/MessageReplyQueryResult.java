@@ -17,23 +17,26 @@ import java.time.LocalDateTime;
  */
 public class MessageReplyQueryResult extends BaseResult {
     /**
-     * 消息ID
+     * ID
      */
     private Long id;
+    /**
+     * 类型
+     */
+    private String type;
     /**
      * 消息体
      */
     private String body;
     /**
-     * 发送时间
+     * 重试次数
      */
-    @JsonFormat(pattern = DateTimeConstant.DATETIME_PATTERN_WITH_BAR)
-    private LocalDateTime sendTime;
+    private Integer retry;
     /**
-     * 确认时间
+     * 接收时间
      */
     @JsonFormat(pattern = DateTimeConstant.DATETIME_PATTERN_WITH_BAR)
-    private LocalDateTime ackTime;
+    private LocalDateTime receiveTime;
 
     public Long getId() {
         return id;
@@ -41,6 +44,14 @@ public class MessageReplyQueryResult extends BaseResult {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getBody() {
@@ -51,19 +62,19 @@ public class MessageReplyQueryResult extends BaseResult {
         this.body = body;
     }
 
-    public LocalDateTime getSendTime() {
-        return sendTime;
+    public Integer getRetry() {
+        return retry;
     }
 
-    public void setSendTime(LocalDateTime sendTime) {
-        this.sendTime = sendTime;
+    public void setRetry(Integer retry) {
+        this.retry = retry;
     }
 
-    public LocalDateTime getAckTime() {
-        return ackTime;
+    public LocalDateTime getReceiveTime() {
+        return receiveTime;
     }
 
-    public void setAckTime(LocalDateTime ackTime) {
-        this.ackTime = ackTime;
+    public void setReceiveTime(LocalDateTime receiveTime) {
+        this.receiveTime = receiveTime;
     }
 }

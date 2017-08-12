@@ -4,21 +4,20 @@
 package cn.edu.xmu.sy.ext.service;
 
 import cn.com.lx1992.lib.base.result.BasePagingResult;
-import cn.edu.xmu.sy.ext.param.MessageBusinessFailureParam;
-import cn.edu.xmu.sy.ext.param.MessageBusinessPauseParam;
-import cn.edu.xmu.sy.ext.param.MessageBusinessProcessParam;
-import cn.edu.xmu.sy.ext.param.MessageBusinessResumeParam;
-import cn.edu.xmu.sy.ext.param.MessageBusinessSuccessParam;
-import cn.edu.xmu.sy.ext.param.MessageCloseParam;
-import cn.edu.xmu.sy.ext.param.MessageCounterInfoParam;
-import cn.edu.xmu.sy.ext.param.MessageFingerprintEnrollParam;
-import cn.edu.xmu.sy.ext.param.MessageFingerprintIdentifyParam;
 import cn.edu.xmu.sy.ext.param.MessageQueryParam;
-import cn.edu.xmu.sy.ext.param.MessageReplyParam;
-import cn.edu.xmu.sy.ext.param.MessageUserInfoParam;
-import cn.edu.xmu.sy.ext.result.MessageFingerprintIdentifyResult;
+import cn.edu.xmu.sy.ext.param.MessageSendFingerprintEnrollParam;
+import cn.edu.xmu.sy.ext.param.MessageSendFingerprintIdentifyParam;
+import cn.edu.xmu.sy.ext.param.MessageSendGeneralBusinessFailureParam;
+import cn.edu.xmu.sy.ext.param.MessageSendGeneralBusinessParam;
+import cn.edu.xmu.sy.ext.param.MessageSendGeneralBusinessSuccessParam;
+import cn.edu.xmu.sy.ext.param.MessageSendServiceCancelParam;
+import cn.edu.xmu.sy.ext.param.MessageSendServicePauseParam;
+import cn.edu.xmu.sy.ext.param.MessageSendServiceResumeParam;
+import cn.edu.xmu.sy.ext.param.MessageSendUpdateUserInfoParam;
 import cn.edu.xmu.sy.ext.result.MessageQueryResult;
 import cn.edu.xmu.sy.ext.result.MessageTypeListResult;
+
+import java.time.LocalDateTime;
 
 /**
  * 消息Service
@@ -43,94 +42,105 @@ public interface MessageService {
     BasePagingResult<MessageQueryResult> query(MessageQueryParam param);
 
     /**
-     * 发送Token注册消息
-     *
-     * @param token Token
+     * 删除窗口全部消息
+     * @param counterId 窗口ID
      */
-    void sendTokenRegister(String token);
+    void deleteByCounter(Long counterId);
 
     /**
-     * 发送Token解除注册消息
-     *
-     * @param token Token
-     */
-    void sendTokenUnregister(String token);
-
-    /**
-     * 发送业务暂停受理消息
+     * 发送暂停服务消息
      *
      * @param param 消息参数
      */
-    void sendBusinessPause(MessageBusinessPauseParam param);
+    void sendServicePause(MessageSendServicePauseParam param);
 
     /**
-     * 发送业务恢复受理消息
+     * 发送恢复服务消息
      *
      * @param param 消息参数
      */
-    void sendBusinessResume(MessageBusinessResumeParam param);
+    void sendServiceResume(MessageSendServiceResumeParam param);
 
     /**
-     * 发送业务正在受理消息
+     * 发送取消服务消息
      *
      * @param param 消息参数
      */
-    void sendBusinessProcess(MessageBusinessProcessParam param);
+    void sendServiceCancel(MessageSendServiceCancelParam param);
 
     /**
-     * 发送业务受理成功消息
+     * 发送一般业务消息
      *
      * @param param 消息参数
      */
-    void sendBusinessSuccess(MessageBusinessSuccessParam param);
+    void sendGeneralBusiness(MessageSendGeneralBusinessParam param);
 
     /**
-     * 发送业务受理失败消息
+     * 发送一般业务成功消息
      *
      * @param param 消息参数
      */
-    void sendBusinessFailure(MessageBusinessFailureParam param);
+    void sendGeneralBusinessSuccess(MessageSendGeneralBusinessSuccessParam param);
+
+    /**
+     * 发送一般业务失败消息
+     *
+     * @param param 消息参数
+     */
+    void sendGeneralBusinessFailure(MessageSendGeneralBusinessFailureParam param);
 
     /**
      * 发送指纹登记消息
      *
      * @param param 消息参数
      */
-    void sendFingerprintEnroll(MessageFingerprintEnrollParam param);
+    void sendFingerprintEnroll(MessageSendFingerprintEnrollParam param);
 
     /**
      * 发送指纹辨识消息
      *
      * @param param 消息参数
-     * @return 辨识结果(用户信息)
      */
-    MessageFingerprintIdentifyResult sendFingerprintIdentify(MessageFingerprintIdentifyParam param);
+    void sendFingerprintIdentify(MessageSendFingerprintIdentifyParam param);
 
     /**
-     * 发送关闭客户端消息
+     * 发送更新公司信息消息
+     * 该消息会批量发送给全部在线会话
      *
-     * @param param 消息参数
+     * @param logo 公司LOGO
+     * @param name 公司名称
      */
-    void sendClose(MessageCloseParam param);
+    void sendUpdateCompanyInfo(String logo, String name);
 
     /**
      * 发送更新窗口信息消息
      *
-     * @param param 消息参数
+     * @param target 消息发送目标(接收窗口ID)
+     * @param number 窗口编号
+     * @param name   窗口名称
      */
-    void sendCounterInfo(MessageCounterInfoParam param);
+    void sendUpdateCounterInfo(Long target, String number, String name);
 
     /**
      * 发送更新用户信息消息
      *
      * @param param 消息参数
      */
-    void sendUserInfo(MessageUserInfoParam param);
+    void sendUpdateUserInfo(MessageSendUpdateUserInfoParam param);
 
     /**
-     * 接收消息回复
+     * 重新发送消息
      *
-     * @param param 消息参数
+     * @param id 消息ID
      */
-    void receiveReply(MessageReplyParam param);
+    void resend(Long id);
+
+    /**
+     * 接收回复消息
+     *
+     * @param token     Token
+     * @param message   消息
+     * @param timestamp 时间戳
+     */
+    void receive(String token, String message, LocalDateTime timestamp);
 }
