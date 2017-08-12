@@ -9,24 +9,24 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 /**
- * 会话服务端失联Param
+ * 查询设置Param
  *
  * @author luoxin
- * @version 2017-5-14
+ * @version 2017-3-27
  */
-public class SessionLostServerParam extends BaseParam {
+public class SettingQueryParam extends BaseParam {
     /**
-     * Token
+     * 设置组名称
      */
     @NotNull
-    @Size(min = 32, max = 32)
-    private String token;
+    @Size(min = 1, max = 32)
+    private String parent;
 
-    public String getToken() {
-        return token;
+    public String getParent() {
+        return parent;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setParent(String parent) {
+        this.parent = parent;
     }
 }

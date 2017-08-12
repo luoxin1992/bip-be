@@ -51,7 +51,7 @@ public class LogController {
      * @apiSuccess {String} message 提示信息
      * @apiSuccess {Object} result 具体结果
      * @apiSuccess {Number} result.total 总记录数
-     * @apiSuccess {Array}  result.page 日志(分页)
+     * @apiSuccess {Array}  result.page 查询结果
      * @apiSuccess {Number} result.page.id ID
      * @apiSuccess {String} result.page.type 类型
      * @apiSuccess {String} result.page.content 内容

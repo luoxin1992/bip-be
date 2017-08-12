@@ -99,6 +99,13 @@
         limit 1
     </select>
 
+    <select id="getByCounterId" parameterType="java.lang.Long" resultMap="messageMap">
+        select
+        <include refid="generalColumns"/>
+        from tbl_message
+        where counter_id = #{counterId} and is_delete = 0
+    </select>
+
     <select id="getByUid" parameterType="java.lang.Long" resultMap="messageMap">
         select
         <include refid="generalColumns"/>
