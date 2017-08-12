@@ -10,6 +10,10 @@ package cn.edu.xmu.sy.ext.meta;
  * @version 2017-3-27
  */
 public enum SettingEnum {
+    //公司信息设置
+    COMPANY("company", null),
+    COMPANY_LOGO("company-logo", null),
+    COMPANY_NAME("company-name", null),
     //语音合成设置
     TTS("tts", null),
     TTS_NUS("tts-nus", "1"),
@@ -19,11 +23,12 @@ public enum SettingEnum {
     TTS_VOLUME("tts-volume", "100"),
     TTS_PITCH_RATE("tts-pitch-rate", "0"),
     TTS_SPEECH_RATE("tts-speech-rate", "0"),
-    //指纹设置
+    //指纹识别设置
     FINGERPRINT("fingerprint", null),
-    FINGERPRINT_MAX_ENROLL_COUNT("fingerprint-max-enroll-count", "10"),
-    FINGERPRINT_ENROLL_TIMES("fingerprint-enroll-times", "4"),
+    FINGERPRINT_ENROLL_MAX_COUNT("fingerprint-enroll-max-count", "10"),
+    FINGERPRINT_ENROLL_TIMES("fingerprint-enroll-times", "3"),
     FINGERPRINT_ENROLL_TIMEOUT("fingerprint-enroll-timeout", "60"),
+    FINGERPRINT_IDENTIFY_CALLBACK("fingerprint-identify-callback", null),
     FINGERPRINT_IDENTIFY_TIMEOUT("fingerprint-identify-timeout", "30"),
     //其他设置
     MISC("misc", null),

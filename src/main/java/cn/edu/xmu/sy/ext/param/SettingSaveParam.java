@@ -6,7 +6,7 @@ package cn.edu.xmu.sy.ext.param;
 import cn.com.lx1992.lib.base.param.BaseParam;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
+import javax.validation.constraints.Size;
 
 /**
  * 保存设置Param
@@ -16,16 +16,31 @@ import java.util.List;
  */
 public class SettingSaveParam extends BaseParam {
     /**
-     * 设置项
+     * 键
      */
     @NotNull
-    private List<SettingItemSaveParam> items;
+    @Size(min = 1, max = 32)
+    private String key;
+    /**
+     * 值
+     */
+    @NotNull
+    @Size(min = 1, max = 128)
+    private String value;
 
-    public List<SettingItemSaveParam> getItems() {
-        return items;
+    public String getKey() {
+        return key;
     }
 
-    public void setItems(List<SettingItemSaveParam> items) {
-        this.items = items;
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 }
