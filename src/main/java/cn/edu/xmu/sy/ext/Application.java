@@ -4,11 +4,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
 
 import java.io.InputStream;
 import java.util.Properties;
 
 @SpringBootApplication(scanBasePackages = {"cn.com.lx1992.lib", "cn.edu.xmu.sy.ext"})
+@EnableWebSocket
+@EnableScheduling
 public class Application {
     private static final String APP_PROPS_FILE = "META-INF/app.properties";
 

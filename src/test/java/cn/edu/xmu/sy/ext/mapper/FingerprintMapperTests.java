@@ -35,7 +35,7 @@ public class FingerprintMapperTests {
         FingerprintDO domain = new FingerprintDO();
         domain.setUserId(0L);
         domain.setUid(UIDGenerateUtil.Compact.nextId());
-        domain.setFinger("手指");
+        domain.setFinger(-1);
         domain.setTemplate("模板");
         domain.setEnrollTime(LocalDateTime.of(2017, 1, 13, 15, 23, 39));
         domain.setIdentifyTime(LocalDateTime.of(2017, 2, 28, 8, 17, 56));
@@ -50,7 +50,7 @@ public class FingerprintMapperTests {
                 FingerprintDO domain = new FingerprintDO();
                 domain.setUserId(j);
                 domain.setUid(UIDGenerateUtil.Compact.nextId());
-                domain.setFinger("手指_" + i);
+                domain.setFinger(i);
                 domain.setTemplate("模板_" + i);
                 domain.setEnrollTime(LocalDateTime.now());
                 domains.add(domain);
@@ -63,7 +63,6 @@ public class FingerprintMapperTests {
     public void testUpdateById() {
         FingerprintDO domain = new FingerprintDO();
         domain.setId(78820791101161475L);
-        domain.setFinger("手指_修改");
         domain.setTemplate("模板_修改");
         Assert.assertTrue(fingerprintMapper.updateById(domain) == 1);
     }

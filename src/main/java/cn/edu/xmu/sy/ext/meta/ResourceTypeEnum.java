@@ -3,6 +3,7 @@
  */
 package cn.edu.xmu.sy.ext.meta;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -12,9 +13,9 @@ import java.util.Objects;
  * @version 2017-3-28
  */
 public enum ResourceTypeEnum {
+    UNKNOWN(null, "未知"),
     VOICE("voice", "语音"),
-    IMAGE("image", "图片"),
-    UNKNOWN("unknown", "未知");
+    IMAGE("image", "图片");
 
     private String type;
     private String description;
@@ -33,11 +34,10 @@ public enum ResourceTypeEnum {
     }
 
     public static String getDescriptionByType(String type) {
-        for (ResourceTypeEnum value : values()) {
-            if (Objects.equals(value.type, type)) {
-                return value.getDescription();
-            }
-        }
-        return UNKNOWN.getDescription();
+        return Arrays.stream(values())
+                .filter(value -> Objects.equals(value.type, type))
+                .map(ResourceTypeEnum::getDescription)
+                .findFirst()
+                .orElse(UNKNOWN.description);
     }
 }

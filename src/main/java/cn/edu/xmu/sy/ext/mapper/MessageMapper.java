@@ -32,6 +32,8 @@ public interface MessageMapper {
 
     MessageDO getById(Long id);
 
+    List<MessageDO> getByCounterId(Long counterId);
+
     List<MessageDO> getByUid(@Param("uid") Long uid, @Param("direction") Integer direction);
 
     List<MessageDO> listByUid(@Param("uids") List<Long> uids, @Param("direction") Integer direction);

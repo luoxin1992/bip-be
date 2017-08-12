@@ -16,6 +16,7 @@ import cn.edu.xmu.sy.ext.param.SyncUserModifyParam;
 import cn.edu.xmu.sy.ext.param.UserCreateParam;
 import cn.edu.xmu.sy.ext.param.UserDeleteParam;
 import cn.edu.xmu.sy.ext.param.UserModifyParam;
+import cn.edu.xmu.sy.ext.result.UserQueryResult;
 import cn.edu.xmu.sy.ext.service.FingerprintService;
 import cn.edu.xmu.sy.ext.service.LogService;
 import cn.edu.xmu.sy.ext.service.SyncService;
@@ -25,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 /**
  * @author luoxin
@@ -84,7 +87,7 @@ public class SyncServiceImpl implements SyncService {
     public void fingerprintEnroll(SyncFingerprintEnrollParam param) {
         Long userId = getIdByNumber(param.getNumber());
 
-        fingerprintService.enroll(userId, FingerprintFingerEnum.UNKNOWN.getFinger(), param.getTemplate());
+        fingerprintService.enroll(userId, FingerprintFingerEnum.UNKNOWN.getCode(), param.getTemplate());
         logService.logSyncFingerprintEnroll(param.getNumber());
         logger.info("sync enroll fingerprint for user {}", userId);
     }
@@ -106,11 +109,11 @@ public class SyncServiceImpl implements SyncService {
      * @return 用户ID
      */
     private Long getIdByNumber(String number) {
-        return userService.queryByNumber(number)
-                .orElseThrow(() -> {
-                    logger.error("sync user with number {} not exist", number);
-                    throw new BizException(BizResultEnum.SYNC_USER_NUMBER_NOT_EXIST, number);
-                })
-                .getId();
+        Optional<UserQueryResult> result = userService.queryByNumber(number);
+        if (!result.isPresent()) {
+            logger.error("sync user with number {} not exist", number);
+            throw new BizException(BizResultEnum.SYNC_USER_NUMBER_NOT_EXIST, number);
+        }
+        return result.get().getId();
     }
 }
