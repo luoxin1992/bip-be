@@ -5,8 +5,6 @@ package cn.edu.xmu.sy.ext.result;
 
 import cn.com.lx1992.lib.base.result.BaseResult;
 
-import java.util.List;
-
 /**
  * 指纹手指名称Result
  *
@@ -15,15 +13,27 @@ import java.util.List;
  */
 public class FingerprintListFingerResult extends BaseResult {
     /**
-     * 手指名称
+     * 编号
      */
-    private List<String> fingers;
+    private Integer code;
+    /**
+     * 名称
+     */
+    private String name;
 
-    public List<String> getFingers() {
-        return fingers;
+    public Integer getCode() {
+        return code;
     }
 
-    public void setFingers(List<String> fingers) {
-        this.fingers = fingers;
+    public void setCode(Integer code) {
+        this.code = code;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

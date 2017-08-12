@@ -50,7 +50,7 @@ public interface FingerprintService {
      * @param finger   手指
      * @param template 模板
      */
-    void enroll(Long userId, String finger, String template);
+    void enroll(Long userId, Integer finger, String template);
 
     /**
      * 辨识指纹
@@ -66,7 +66,7 @@ public interface FingerprintService {
      * @param param 查询参数
      * @return 查询结果
      */
-    FingerprintListFingerResult listFinger(FingerprintListFingerParam param);
+    BaseListResult<FingerprintListFingerResult> listFinger(FingerprintListFingerParam param);
 
     /**
      * 查询全部指纹模型

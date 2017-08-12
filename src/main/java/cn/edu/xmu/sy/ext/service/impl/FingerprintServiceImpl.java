@@ -123,7 +123,7 @@ public class FingerprintServiceImpl implements FingerprintService {
 
     @Override
     @Transactional
-    public void enroll(Long userId, String finger, String template) {
+    public void enroll(Long userId, Integer finger, String template) {
         checkEnrollMaxCount(userId);
 
         FingerprintDO domain = new FingerprintDO();
@@ -153,43 +153,50 @@ public class FingerprintServiceImpl implements FingerprintService {
         Integer uid = fingerprintSdkService.identify(template);
 
         //根据UID反查指纹
-        FingerprintDO domain = fingerprintMapper.getByUid(uid);
-        if (domain == null) {
+        FingerprintDO before = fingerprintMapper.getByUid(uid);
+        if (before == null) {
             logger.error("fingerprint with uid {} not exist", uid);
             throw new BizException(BizResultEnum.FINGERPRINT_UID_NOT_EXIST, uid);
         }
 
         //更新辨识时间
-        FingerprintDO domain1 = new FingerprintDO();
-        domain1.setId(domain.getId());
-        domain1.setIdentifyTime(DateTimeUtil.getNow());
-        if (fingerprintMapper.updateById(domain1) != CommonConstant.UPDATE_DOMAIN_SUCCESSFUL) {
-            logger.error("identify fingerprint {} failed", domain1.getId());
+        FingerprintDO after = new FingerprintDO();
+        after.setId(before.getId());
+        after.setIdentifyTime(DateTimeUtil.getNow());
+        if (fingerprintMapper.updateById(after) != CommonConstant.UPDATE_DOMAIN_SUCCESSFUL) {
+            logger.error("identify fingerprint {} failed", after.getId());
             throw new BizException(BizResultEnum.FINGERPRINT_IDENTIFY_ERROR);
         }
 
-        logService.logFingerprintIdentify(domain.getId(), domain.getUserId(), domain.getUid());
-        logger.info("identify fingerprint {} for user {}", domain.getId(), domain.getUserId());
+        logService.logFingerprintIdentify(before.getId(), before.getUserId(), before.getUid());
+        logger.info("identify fingerprint {} for user {}", before.getId(), before.getUserId());
 
-        return domain.getUserId();
+        return before.getUserId();
     }
 
     @Override
-    public FingerprintListFingerResult listFinger(FingerprintListFingerParam param) {
-        List<String> all = Arrays.stream(FingerprintFingerEnum.values())
+    public BaseListResult<FingerprintListFingerResult> listFinger(FingerprintListFingerParam param) {
+        List<FingerprintFingerEnum> all = Arrays.stream(FingerprintFingerEnum.values())
                 .filter(value -> value != FingerprintFingerEnum.UNKNOWN)
-                .map(FingerprintFingerEnum::getFinger)
                 .collect(Collectors.toList());
-        List<String> used = fingerprintMapper.getByUserId(param.getUserId()).stream()
-                .map(FingerprintDO::getFinger)
+        List<FingerprintFingerEnum> used = fingerprintMapper.getByUserId(param.getUserId()).stream()
+                .map(domain -> FingerprintFingerEnum.getByCode(domain.getFinger()))
                 .collect(Collectors.toList());
 
         //全部手指和已用手指的差集即可用手指
-        List<String> usable = new ArrayList<>(CollectionUtils.subtract(all, used));
+        List<FingerprintListFingerResult> usable = CollectionUtils.subtract(all, used).stream()
+                .map(value -> {
+                    FingerprintListFingerResult result = new FingerprintListFingerResult();
+                    result.setCode(value.getCode());
+                    result.setName(value.getName());
+                    return result;
+                })
+                .collect(Collectors.toList());
 
         logger.info("list {} usable finger(s) for user {}", usable.size(), param.getUserId());
-        FingerprintListFingerResult result = new FingerprintListFingerResult();
-        result.setFingers(usable);
+        BaseListResult<FingerprintListFingerResult> result = new BaseListResult<>();
+        result.setTotal(usable.size());
+        result.setList(usable);
         return result;
     }
 

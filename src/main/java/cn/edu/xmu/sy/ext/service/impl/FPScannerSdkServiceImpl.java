@@ -6,7 +6,7 @@ package cn.edu.xmu.sy.ext.service.impl;
 import cn.com.lx1992.lib.cat.annotation.CatTransaction;
 import cn.com.lx1992.lib.constant.NativeConstant;
 import cn.com.lx1992.lib.util.NativeUtil;
-import cn.edu.xmu.sy.ext.constant.FPScannerSdkConstant;
+import cn.edu.xmu.sy.ext.constant.FingerprintConstant;
 import cn.edu.xmu.sy.ext.exception.BizException;
 import cn.edu.xmu.sy.ext.meta.BizResultEnum;
 import cn.edu.xmu.sy.ext.service.FingerprintSdkService;
@@ -105,7 +105,7 @@ public class FPScannerSdkServiceImpl implements FingerprintSdkService {
         };
 
         int result = invokeMethod(supplier);
-        if (result == FPScannerSdkConstant.TEMPLATE_NOT_EXIST) {
+        if (result == FingerprintConstant.SDK_TEMPLATE_NOT_EXIST) {
             logger.error("identify in-sdk fingerprint failed");
             throw new BizException(BizResultEnum.FINGERPRINT_SDK_IDENTIFY_ERROR);
         }
@@ -155,7 +155,7 @@ public class FPScannerSdkServiceImpl implements FingerprintSdkService {
         };
 
         int result = invokeMethod(supplier);
-        if (result != FPScannerSdkConstant.CREATE_CACHE_SUCCESS) {
+        if (result != FingerprintConstant.SDK_CREATE_CACHE_SUCCESS) {
             logger.error("create in-sdk cache failed");
             throw new BizException(BizResultEnum.FINGERPRINT_SDK_CACHE_CREATE_ERROR);
         }
@@ -176,7 +176,7 @@ public class FPScannerSdkServiceImpl implements FingerprintSdkService {
         };
 
         int result = invokeMethod(supplier);
-        if (result != FPScannerSdkConstant.TEMPLATE_NOT_EXIST) {
+        if (result != FingerprintConstant.SDK_TEMPLATE_NOT_EXIST) {
             logger.warn("in-sdk template duplicate between {} and {}", uid, result);
             return false;
         }

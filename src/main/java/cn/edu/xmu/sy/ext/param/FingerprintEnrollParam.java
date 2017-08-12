@@ -17,9 +17,9 @@ public class FingerprintEnrollParam extends BaseParam {
      */
     private Long userId;
     /**
-     * 手指名称
+     * 手指
      */
-    private String finger;
+    private Integer finger;
     /**
      * 指纹模板
      */
@@ -33,11 +33,11 @@ public class FingerprintEnrollParam extends BaseParam {
         this.userId = userId;
     }
 
-    public String getFinger() {
+    public Integer getFinger() {
         return finger;
     }
 
-    public void setFinger(String finger) {
+    public void setFinger(Integer finger) {
         this.finger = finger;
     }
 

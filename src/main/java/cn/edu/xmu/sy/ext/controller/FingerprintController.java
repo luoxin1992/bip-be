@@ -45,11 +45,15 @@ public class FingerprintController {
      * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
      * @apiSuccess {String} message 提示信息
      * @apiSuccess {Object} result 具体结果
-     * @apiSuccess {Array}  result.fingers 手指名称
+     * @apiSuccess {Number} result.total 总记录数
+     * @apiSuccess {Object} result.list 查询结果
+     * @apiSuccess {Number} result.list.code 编号
+     * @apiSuccess {String} result.list.name 名称
      */
     @RequestMapping(value = "/list/finger", method = RequestMethod.POST)
-    public BaseResponse<FingerprintListFingerResult> listFinger(@RequestBody @Valid FingerprintListFingerParam param) {
-        FingerprintListFingerResult result = fingerprintService.listFinger(param);
+    public BaseResponse<BaseListResult<FingerprintListFingerResult>> listFinger(@RequestBody @Valid
+                                                                                            FingerprintListFingerParam param) {
+        BaseListResult<FingerprintListFingerResult> result = fingerprintService.listFinger(param);
         return new BaseResponse<>(result);
     }
 
