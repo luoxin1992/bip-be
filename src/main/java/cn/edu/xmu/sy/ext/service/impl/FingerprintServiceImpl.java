@@ -70,6 +70,8 @@ public class FingerprintServiceImpl implements FingerprintService {
             throw new BizException(BizResultEnum.FINGERPRINT_NOT_EXIST, param.getId());
         }
 
+        checkFingerUsable(before.getUserId(), param.getFinger());
+
         FingerprintDO after = POJOConvertUtil.convert(param, FingerprintDO.class);
         if (fingerprintMapper.updateById(after) != CommonConstant.UPDATE_DOMAIN_SUCCESSFUL) {
             logger.error("modify fingerprint {} failed", param.getId());
@@ -285,6 +287,22 @@ public class FingerprintServiceImpl implements FingerprintService {
         if (current >= Integer.parseInt(max)) {
             logger.error("user {} already enroll {} fingerprint(s)", userId, current);
             throw new BizException(BizResultEnum.FINGERPRINT_ENROLL_MAX_COUNT);
+        }
+    }
+
+    /**
+     * 检查手指是否可用
+     *
+     * @param userId 用户ID
+     * @param finger 手指
+     */
+    private void checkFingerUsable(Long userId, Integer finger) {
+        List<Integer> results = fingerprintMapper.getByUserId(userId).stream()
+                .map(FingerprintDO::getFinger)
+                .collect(Collectors.toList());
+        if (results.contains(finger)) {
+            logger.error("finger {} already exist", finger);
+            throw new BizException(BizResultEnum.FINGERPRINT_FINGER_EXIST, finger);
         }
     }
 }

@@ -88,7 +88,7 @@ public class FingerprintController {
      * @apiVersion 1.0.0
      *
      * @apiParam {Number} id 指纹ID
-     * @apiParam {String} finger 手指名称
+     * @apiParam {Number} finger 手指
      *
      * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
      * @apiSuccess {String} message 提示信息
