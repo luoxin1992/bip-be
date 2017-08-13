@@ -81,6 +81,9 @@
         select count(1)
         from tbl_resource
         where is_delete = 0
+        <if test="type != null">
+            and type = #{type}
+        </if>
         <if test="period != null">
             and gmt_modify >= #{period.start} and #{period.end} >= gmt_modify
         </if>
@@ -94,6 +97,9 @@
         <include refid="generalColumns"/>
         from tbl_resource
         where is_delete = 0
+        <if test="type != null">
+            and type = #{type}
+        </if>
         <if test="period != null">
             and gmt_modify >= #{period.start} and #{period.end} >= gmt_modify
         </if>
