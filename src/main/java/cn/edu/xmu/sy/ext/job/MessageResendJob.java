@@ -36,7 +36,7 @@ public class MessageResendJob {
     private MessageService messageService;
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
-
+    @Autowired
     private MessageConfigItem messageConfig;
 
     @PreDestroy

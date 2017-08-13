@@ -92,7 +92,7 @@ public class WebSocketServiceImpl extends TextWebSocketHandler implements WebSoc
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         //连接已关闭，从Map中移除
         sessions.remove(getToken(session));
-        logger.info("web socket connection {} close because of {}", session.getRemoteAddress(), status.getReason());
+        logger.info("web socket connection {} close, reason {}", session.getRemoteAddress(), status.getCode());
     }
 
     @Override
