@@ -6,27 +6,27 @@ package cn.edu.xmu.sy.ext.result;
 import cn.com.lx1992.lib.base.result.BaseResult;
 
 /**
- * 查询手指Result
+ * 查询资源类型Result
  *
  * @author luoxin
  * @version 2017-5-11
  */
-public class FingerprintListFingerResult extends BaseResult {
+public class ResourceListTypeResult extends BaseResult {
     /**
-     * 手指
+     * 类型
      */
-    private Integer finger;
+    private String type;
     /**
      * 描述
      */
     private String description;
 
-    public Integer getFinger() {
-        return finger;
+    public String getType() {
+        return type;
     }
 
-    public void setFinger(Integer finger) {
-        this.finger = finger;
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getDescription() {

@@ -26,25 +26,25 @@ public enum FingerprintFingerEnum {
     RIGHT_RING_FINGER(8, "右手无名指"),
     RIGHT_LITTLE_FINGER(9, "右手小指");
 
-    private Integer code;
-    private String name;
+    private Integer finger;
+    private String description;
 
     FingerprintFingerEnum(Integer code, String finger) {
-        this.code = code;
-        this.name = finger;
+        this.finger = code;
+        this.description = finger;
     }
 
-    public Integer getCode() {
-        return code;
+    public Integer getFinger() {
+        return finger;
     }
 
-    public String getName() {
-        return name;
+    public String getDescription() {
+        return description;
     }
 
-    public static FingerprintFingerEnum getByCode(Integer code) {
+    public static FingerprintFingerEnum getByFinger(Integer finger) {
         Optional<FingerprintFingerEnum> result = Arrays.stream(values())
-                .filter(value -> Objects.equals(value.code, code))
+                .filter(value -> Objects.equals(value.finger, finger))
                 .findFirst();
         return result.orElse(UNKNOWN);
     }

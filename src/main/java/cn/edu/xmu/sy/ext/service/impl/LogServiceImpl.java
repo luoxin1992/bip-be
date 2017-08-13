@@ -15,8 +15,8 @@ import cn.edu.xmu.sy.ext.meta.BizResultEnum;
 import cn.edu.xmu.sy.ext.meta.LogEnum;
 import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
 import cn.edu.xmu.sy.ext.param.LogQueryParam;
+import cn.edu.xmu.sy.ext.result.LogListTypeResult;
 import cn.edu.xmu.sy.ext.result.LogQueryResult;
-import cn.edu.xmu.sy.ext.result.LogTypeListResult;
 import cn.edu.xmu.sy.ext.service.LogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,13 +42,13 @@ public class LogServiceImpl implements LogService {
     private LogMapper logMapper;
 
     @Override
-    public LogTypeListResult listType() {
+    public LogListTypeResult listType() {
         List<String> results = Arrays.stream(LogEnum.values())
                 .map(LogEnum::getType)
                 .collect(Collectors.toList());
         logger.info("list {} log type(s)", results.size());
 
-        LogTypeListResult result = new LogTypeListResult();
+        LogListTypeResult result = new LogListTypeResult();
         result.setTypes(results);
         return result;
     }

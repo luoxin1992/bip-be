@@ -8,12 +8,12 @@ import cn.com.lx1992.lib.base.result.BaseResult;
 import java.util.List;
 
 /**
- * 查询全部消息类型Result
+ * 日志类型查询Result
  *
  * @author luoxin
- * @version 2017-5-19
+ * @version 2017-4-23
  */
-public class MessageTypeListResult extends BaseResult {
+public class LogListTypeResult extends BaseResult {
     /**
      * 类型
      */

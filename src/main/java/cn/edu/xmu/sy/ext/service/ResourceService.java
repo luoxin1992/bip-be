@@ -7,6 +7,7 @@ import cn.com.lx1992.lib.base.result.BaseListResult;
 import cn.com.lx1992.lib.base.result.BasePagingResult;
 import cn.edu.xmu.sy.ext.param.ResourceQueryParam;
 import cn.edu.xmu.sy.ext.result.ResourceListResult;
+import cn.edu.xmu.sy.ext.result.ResourceListTypeResult;
 import cn.edu.xmu.sy.ext.result.ResourceQueryResult;
 import cn.edu.xmu.sy.ext.result.ResourceQuerySimpleResult;
 
@@ -26,6 +27,13 @@ public interface ResourceService {
      * @return 查询结果
      */
     BaseListResult<ResourceListResult> list();
+
+    /**
+     * 查询资源类型
+     *
+     * @return 查询结果
+     */
+    BaseListResult<ResourceListTypeResult> listType();
 
     /**
      * 查询资源

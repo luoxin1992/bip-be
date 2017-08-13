@@ -5,6 +5,7 @@ package cn.edu.xmu.sy.ext.controller;
 
 import cn.com.lx1992.lib.base.meta.BaseResultEnum;
 import cn.com.lx1992.lib.base.response.BaseResponse;
+import cn.com.lx1992.lib.base.result.BaseListResult;
 import cn.com.lx1992.lib.base.result.BasePagingResult;
 import cn.com.lx1992.lib.util.PagingUtil;
 import cn.edu.xmu.sy.ext.param.MessageQueryParam;
@@ -17,8 +18,8 @@ import cn.edu.xmu.sy.ext.param.MessageSendGeneralBusinessSuccessParam;
 import cn.edu.xmu.sy.ext.param.MessageSendFingerprintEnrollParam;
 import cn.edu.xmu.sy.ext.param.MessageSendFingerprintIdentifyParam;
 import cn.edu.xmu.sy.ext.param.MessageSendUpdateUserInfoParam;
+import cn.edu.xmu.sy.ext.result.MessageListTypeResult;
 import cn.edu.xmu.sy.ext.result.MessageQueryResult;
-import cn.edu.xmu.sy.ext.result.MessageTypeListResult;
 import cn.edu.xmu.sy.ext.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -50,11 +51,14 @@ public class MessageController {
      * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
      * @apiSuccess {String} message 提示信息
      * @apiSuccess {Object} result 具体结果
-     * @apiSuccess {Array}  result.types 消息类型
+     * @apiSuccess {Number} result.total 总记录数
+     * @apiSuccess {Array}  result.list 查询结果
+     * @apiSuccess {String} result.list.type 类型
+     * @apiSuccess {String} result.list.description 描述
      */
     @RequestMapping(value = "/list/type", method = RequestMethod.POST)
-    public BaseResponse<MessageTypeListResult> listType() {
-        MessageTypeListResult result = messageService.listType();
+    public BaseResponse<BaseListResult<MessageListTypeResult>> listType() {
+        BaseListResult<MessageListTypeResult> result = messageService.listType();
         return new BaseResponse<>(result);
     }
 

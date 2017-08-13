@@ -180,20 +180,20 @@ public class FingerprintServiceImpl implements FingerprintService {
                 .filter(value -> value != FingerprintFingerEnum.UNKNOWN)
                 .collect(Collectors.toList());
         List<FingerprintFingerEnum> used = fingerprintMapper.getByUserId(param.getUserId()).stream()
-                .map(domain -> FingerprintFingerEnum.getByCode(domain.getFinger()))
+                .map(domain -> FingerprintFingerEnum.getByFinger(domain.getFinger()))
                 .collect(Collectors.toList());
 
         //全部手指和已用手指的差集即可用手指
         List<FingerprintListFingerResult> usable = CollectionUtils.subtract(all, used).stream()
                 .map(value -> {
                     FingerprintListFingerResult result = new FingerprintListFingerResult();
-                    result.setCode(value.getCode());
-                    result.setName(value.getName());
+                    result.setFinger(value.getFinger());
+                    result.setDescription(value.getDescription());
                     return result;
                 })
                 .collect(Collectors.toList());
-
         logger.info("list {} usable finger(s) for user {}", usable.size(), param.getUserId());
+
         BaseListResult<FingerprintListFingerResult> result = new BaseListResult<>();
         result.setTotal(usable.size());
         result.setList(usable);

@@ -87,7 +87,7 @@ public class SyncServiceImpl implements SyncService {
     public void fingerprintEnroll(SyncFingerprintEnrollParam param) {
         Long userId = getIdByNumber(param.getNumber());
 
-        fingerprintService.enroll(userId, FingerprintFingerEnum.UNKNOWN.getCode(), param.getTemplate());
+        fingerprintService.enroll(userId, FingerprintFingerEnum.UNKNOWN.getFinger(), param.getTemplate());
         logService.logSyncFingerprintEnroll(param.getNumber());
         logger.info("sync enroll fingerprint for user {}", userId);
     }

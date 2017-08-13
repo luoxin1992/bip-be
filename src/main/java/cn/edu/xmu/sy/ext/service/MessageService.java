@@ -3,6 +3,7 @@
  */
 package cn.edu.xmu.sy.ext.service;
 
+import cn.com.lx1992.lib.base.result.BaseListResult;
 import cn.com.lx1992.lib.base.result.BasePagingResult;
 import cn.edu.xmu.sy.ext.param.MessageQueryParam;
 import cn.edu.xmu.sy.ext.param.MessageSendFingerprintEnrollParam;
@@ -14,8 +15,8 @@ import cn.edu.xmu.sy.ext.param.MessageSendServiceCancelParam;
 import cn.edu.xmu.sy.ext.param.MessageSendServicePauseParam;
 import cn.edu.xmu.sy.ext.param.MessageSendServiceResumeParam;
 import cn.edu.xmu.sy.ext.param.MessageSendUpdateUserInfoParam;
+import cn.edu.xmu.sy.ext.result.MessageListTypeResult;
 import cn.edu.xmu.sy.ext.result.MessageQueryResult;
-import cn.edu.xmu.sy.ext.result.MessageTypeListResult;
 
 import java.time.LocalDateTime;
 
@@ -31,7 +32,7 @@ public interface MessageService {
      *
      * @return 查询结果
      */
-    MessageTypeListResult listType();
+    BaseListResult<MessageListTypeResult> listType();
 
     /**
      * 查询消息

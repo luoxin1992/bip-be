@@ -47,8 +47,8 @@ public class FingerprintController {
      * @apiSuccess {Object} result 具体结果
      * @apiSuccess {Number} result.total 总记录数
      * @apiSuccess {Object} result.list 查询结果
-     * @apiSuccess {Number} result.list.code 编号
-     * @apiSuccess {String} result.list.name 名称
+     * @apiSuccess {Number} result.list.finger 手指
+     * @apiSuccess {String} result.list.description 描述
      */
     @RequestMapping(value = "/list/finger", method = RequestMethod.POST)
     public BaseResponse<BaseListResult<FingerprintListFingerResult>> listFinger(@RequestBody @Valid

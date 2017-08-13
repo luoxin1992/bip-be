@@ -10,6 +10,7 @@ import cn.com.lx1992.lib.base.result.BasePagingResult;
 import cn.com.lx1992.lib.util.PagingUtil;
 import cn.edu.xmu.sy.ext.param.ResourceQueryParam;
 import cn.edu.xmu.sy.ext.result.ResourceListResult;
+import cn.edu.xmu.sy.ext.result.ResourceListTypeResult;
 import cn.edu.xmu.sy.ext.result.ResourceQueryResult;
 import cn.edu.xmu.sy.ext.service.ResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +53,28 @@ public class ResourceController {
         BaseListResult<ResourceListResult> results = resourceService.list();
         return new BaseResponse<>(results);
     }
+
+    /**
+     * @api {POST} /api/v1/resource/list/type 查询资源类型
+     * @apiName list-type
+     * @apiGroup resource
+     * @apiVersion 1.0.0
+     *
+     * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
+     * @apiSuccess {String} message 提示信息
+     * @apiSuccess {Object} result 具体结果
+     * @apiSuccess {Number} result.total 总记录数
+     * @apiSuccess {Array}  result.list 查询结果
+     * @apiSuccess {String} result.list.type 类型
+     * @apiSuccess {String} result.list.description 描述
+     */
+    @RequestMapping(value = "/list/type", method = RequestMethod.POST)
+    public BaseResponse<BaseListResult<ResourceListTypeResult>> listType() {
+        BaseListResult<ResourceListTypeResult> results = resourceService.listType();
+        return new BaseResponse<>(results);
+    }
+
+
 
     /**
      * @api {POST} /api/v1/resource/query 查询资源

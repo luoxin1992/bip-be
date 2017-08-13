@@ -18,6 +18,7 @@ import cn.edu.xmu.sy.ext.meta.BizResultEnum;
 import cn.edu.xmu.sy.ext.meta.ResourceTypeEnum;
 import cn.edu.xmu.sy.ext.param.ResourceQueryParam;
 import cn.edu.xmu.sy.ext.result.ResourceListResult;
+import cn.edu.xmu.sy.ext.result.ResourceListTypeResult;
 import cn.edu.xmu.sy.ext.result.ResourceQueryResult;
 import cn.edu.xmu.sy.ext.result.ResourceQuerySimpleResult;
 import cn.edu.xmu.sy.ext.service.LogService;
@@ -31,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -82,6 +84,25 @@ public class ResourceServiceImpl implements ResourceService {
         BaseListResult<ResourceListResult> result = new BaseListResult<>();
         result.setTotal(all.size());
         result.setList(all);
+        return result;
+    }
+
+    @Override
+    public BaseListResult<ResourceListTypeResult> listType() {
+        List<ResourceListTypeResult> results = Arrays.stream(ResourceTypeEnum.values())
+                .filter(value -> !ResourceTypeEnum.UNKNOWN.equals(value))
+                .map(value -> {
+                    ResourceListTypeResult result = new ResourceListTypeResult();
+                    result.setType(value.getType());
+                    result.setDescription(value.getDescription());
+                    return result;
+                })
+                .collect(Collectors.toList());
+        logger.info("list {} resource type(s)", results.size());
+
+        BaseListResult<ResourceListTypeResult> result = new BaseListResult<>();
+        result.setTotal(results.size());
+        result.setList(results);
         return result;
     }
 

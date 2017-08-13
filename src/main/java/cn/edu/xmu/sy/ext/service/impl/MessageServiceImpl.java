@@ -3,6 +3,7 @@
  */
 package cn.edu.xmu.sy.ext.service.impl;
 
+import cn.com.lx1992.lib.base.result.BaseListResult;
 import cn.com.lx1992.lib.base.result.BasePagingResult;
 import cn.com.lx1992.lib.cat.annotation.CatTransaction;
 import cn.com.lx1992.lib.constant.CommonConstant;
@@ -56,9 +57,9 @@ import cn.edu.xmu.sy.ext.param.MessageSendServicePauseParam;
 import cn.edu.xmu.sy.ext.param.MessageSendServiceResumeParam;
 import cn.edu.xmu.sy.ext.param.MessageSendUpdateUserInfoParam;
 import cn.edu.xmu.sy.ext.result.CounterQueryResult;
+import cn.edu.xmu.sy.ext.result.MessageListTypeResult;
 import cn.edu.xmu.sy.ext.result.MessageQueryResult;
 import cn.edu.xmu.sy.ext.result.MessageReplyQueryResult;
-import cn.edu.xmu.sy.ext.result.MessageTypeListResult;
 import cn.edu.xmu.sy.ext.result.ResourceQuerySimpleResult;
 import cn.edu.xmu.sy.ext.result.SessionQueryResult;
 import cn.edu.xmu.sy.ext.result.SessionQuerySimpleResult;
@@ -124,15 +125,21 @@ public class MessageServiceImpl implements MessageService {
     private MessageMapper messageMapper;
 
     @Override
-    public MessageTypeListResult listType() {
-        List<String> types = Stream.of(MessageTypeEnum.values())
+    public BaseListResult<MessageListTypeResult> listType() {
+        List<MessageListTypeResult> results = Stream.of(MessageTypeEnum.values())
                 .filter(value -> value != MessageTypeEnum.UNKNOWN)
-                .map(MessageTypeEnum::getDescription)
+                .map(value -> {
+                    MessageListTypeResult result = new MessageListTypeResult();
+                    result.setType(value.getType());
+                    result.setDescription(value.getDescription());
+                    return result;
+                })
                 .collect(Collectors.toList());
-        logger.info("list {} message type(s)", types.size());
+        logger.info("list {} message type(s)", results.size());
 
-        MessageTypeListResult result = new MessageTypeListResult();
-        result.setTypes(types);
+        BaseListResult<MessageListTypeResult> result = new BaseListResult<>();
+        result.setTotal(results.size());
+        result.setList(results);
         return result;
     }
 
@@ -353,7 +360,7 @@ public class MessageServiceImpl implements MessageService {
         String timeout = settingService.getValueByKeyOrDefault(SettingEnum.FINGERPRINT_ENROLL_TIMEOUT);
         String times = settingService.getValueByKeyOrDefault(SettingEnum.FINGERPRINT_ENROLL_TIMES);
         //此finger变量为手指名称
-        String finger = FingerprintFingerEnum.getByCode(param.getFinger()).getName();
+        String finger = FingerprintFingerEnum.getByFinger(param.getFinger()).getDescription();
 
         FingerprintEnrollMessage message = new FingerprintEnrollMessage();
         message.setUser(param.getUser());
@@ -795,12 +802,12 @@ public class MessageServiceImpl implements MessageService {
                 fingerprintService.enroll(sent.getUser(), sent.getFinger(), message.getTemplate());
             } catch (BizException e) {
                 sendFingerprintEnrollFailure(associated.getCounterId(),
-                        FingerprintFingerEnum.getByCode(sent.getFinger()).getName());
+                        FingerprintFingerEnum.getByFinger(sent.getFinger()).getDescription());
                 return;
             }
 
             sendFingerprintEnrollSuccess(associated.getCounterId(),
-                    FingerprintFingerEnum.getByCode(sent.getFinger()).getName());
+                    FingerprintFingerEnum.getByFinger(sent.getFinger()).getDescription());
         }
     }
 

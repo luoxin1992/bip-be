@@ -7,7 +7,7 @@ import cn.com.lx1992.lib.base.response.BaseResponse;
 import cn.com.lx1992.lib.base.result.BasePagingResult;
 import cn.com.lx1992.lib.util.PagingUtil;
 import cn.edu.xmu.sy.ext.param.LogQueryParam;
-import cn.edu.xmu.sy.ext.result.LogTypeListResult;
+import cn.edu.xmu.sy.ext.result.LogListTypeResult;
 import cn.edu.xmu.sy.ext.result.LogQueryResult;
 import cn.edu.xmu.sy.ext.service.LogService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,8 +76,8 @@ public class LogController {
      * @apiSuccess {Array}  result.types 日志类型
      */
     @RequestMapping(value = "/list/type", method = RequestMethod.POST)
-    public BaseResponse<LogTypeListResult> listType() {
-        LogTypeListResult result = logService.listType();
+    public BaseResponse<LogListTypeResult> listType() {
+        LogListTypeResult result = logService.listType();
         return new BaseResponse<>(result);
     }
 }

@@ -7,8 +7,8 @@ import cn.com.lx1992.lib.base.result.BasePagingResult;
 import cn.com.lx1992.lib.dto.DiffFieldDTO;
 import cn.edu.xmu.sy.ext.meta.MessageTypeEnum;
 import cn.edu.xmu.sy.ext.param.LogQueryParam;
+import cn.edu.xmu.sy.ext.result.LogListTypeResult;
 import cn.edu.xmu.sy.ext.result.LogQueryResult;
-import cn.edu.xmu.sy.ext.result.LogTypeListResult;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ public interface LogService {
      *
      * @return 查询结果
      */
-    LogTypeListResult listType();
+    LogListTypeResult listType();
 
     /**
      * 查询日志
