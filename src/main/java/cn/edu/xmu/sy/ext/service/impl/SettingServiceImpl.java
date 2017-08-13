@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -114,8 +115,9 @@ public class SettingServiceImpl implements SettingService {
         return params.stream()
                 .filter(param -> {
                     SettingDO domain = settingMapper.getByKey(param.getKey());
-                    //过滤掉key无效/group级配置/value未被修改
-                    return !(domain == null || domain.getParentId() == 0 || domain.getValue().equals(param.getValue()));
+                    //过滤掉key无效/分组/value未被修改
+                    return !(domain == null || domain.getParentId() == 0
+                            || Objects.equals(domain.getValue(), param.getValue()));
                 })
                 .collect(Collectors.toList());
     }
