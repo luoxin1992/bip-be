@@ -16,7 +16,7 @@ import javax.validation.constraints.Size;
  */
 public class SettingQueryParam extends BaseParam {
     /**
-     * 设置组名称
+     * 分组名称
      */
     @NotNull
     @Size(min = 1, max = 32)

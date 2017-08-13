@@ -60,8 +60,8 @@ public class SettingServiceImpl implements SettingService {
     public BaseListResult<SettingQueryResult> query(SettingQueryParam param) {
         List<SettingDO> domains = settingMapper.listByParam(param);
         if (CollectionUtils.isEmpty(domains)) {
-            logger.warn("setting with parent {} query result is empty", param.getParent());
-            throw new BizException(BizResultEnum.SETTING_NOT_EXIST);
+            logger.error("setting with parent {} query result is empty", param.getParent());
+            throw new BizException(BizResultEnum.SETTING_NOT_EXIST, param.getParent());
         }
 
         List<SettingQueryResult> results = domains.stream()

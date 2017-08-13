@@ -38,7 +38,7 @@ public class SettingController {
      * @apiGroup setting
      * @apiVersion 1.0.0
      *
-     * @apiParam {String} parent 设置组名称
+     * @apiParam {String} parent 分组名称
      *
      * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
      * @apiSuccess {String} message 提示信息

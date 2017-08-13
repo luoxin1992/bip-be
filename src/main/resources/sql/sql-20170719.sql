@@ -149,4 +149,4 @@ CREATE TABLE `tbl_log` (
   `is_delete` tinyint(4) NOT NULL DEFAULT '0' COMMENT '删除标记',
   PRIMARY KEY (`id`),
   FULLTEXT KEY `idx_keyword` (`content`) WITH PARSER `ngram`
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='资源';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='日志';

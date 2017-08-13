@@ -71,7 +71,7 @@ public enum BizResultEnum implements IResultEnum {
     //数据同步Service错误码(208**)
     SYNC_USER_NUMBER_NOT_EXIST(20801, "编号为{0}的用户不存在"),
     //设置错误码(209**)
-    SETTING_NOT_EXIST(20901, "该分组下没有可供设置的参数."),
+    SETTING_NOT_EXIST(20901, "分组{0}下没有可供设置的参数."),
     SETTING_NOT_MODIFY(20902, "设置未被修改，无需保存."),
     SETTING_VALUE_INVALID(20903, "设置项''{0}''取值未能通过校验，请检查."),
     SETTING_SAVE_ERROR(20904, "保存设置失败."),
