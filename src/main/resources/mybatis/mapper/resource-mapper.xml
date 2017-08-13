@@ -88,7 +88,7 @@
             and gmt_modify >= #{period.start} and #{period.end} >= gmt_modify
         </if>
         <if test="search.keyword != null">
-            and match(name) against (#{search.keyword} in boolean mode)
+            and match(tag) against (#{search.keyword} in boolean mode)
         </if>
     </select>
 
@@ -104,7 +104,7 @@
             and gmt_modify >= #{period.start} and #{period.end} >= gmt_modify
         </if>
         <if test="search.keyword != null">
-            and match(name) against (#{search.keyword} in boolean mode)
+            and match(tag) against (#{search.keyword} in boolean mode)
         </if>
         <if test="search.keyword == null">
             order by id desc
