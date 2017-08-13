@@ -5,6 +5,7 @@ package cn.edu.xmu.sy.ext.disconf;
 
 import cn.com.lx1992.lib.config.meta.IDebugConfigItem;
 import com.baidu.disconf.client.common.annotations.DisconfItem;
+import org.springframework.stereotype.Component;
 
 /**
  * 调试配置项
@@ -15,6 +16,7 @@ import com.baidu.disconf.client.common.annotations.DisconfItem;
  * @author luoxin
  * @version 2017-7-13
  */
+@Component
 public class DebugConfigItem implements IDebugConfigItem {
     /**
      * 允许打印API日志
