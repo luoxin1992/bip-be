@@ -239,7 +239,11 @@ public class FingerprintServiceImpl implements FingerprintService {
         }
 
         List<FingerprintQueryResult> results = domains.stream()
-                .map((domain) -> POJOConvertUtil.convert(domain, FingerprintQueryResult.class))
+                .map(domain -> {
+                    FingerprintQueryResult result = POJOConvertUtil.convert(domain, FingerprintQueryResult.class);
+                    result.setFinger(FingerprintFingerEnum.getByFinger(domain.getFinger()).getDescription());
+                    return result;
+                })
                 .collect(Collectors.toList());
         logger.info("query {} fingerprint(s) for user {}", domains.size(), param.getUserId());
 

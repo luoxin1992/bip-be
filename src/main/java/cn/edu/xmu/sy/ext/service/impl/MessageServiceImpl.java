@@ -240,7 +240,7 @@ public class MessageServiceImpl implements MessageService {
         }
 
         logService.logMessageDeleteByCounter(counterId);
-        logger.info("delete message for counter {}", counterId);
+        logger.info("delete {} message(s) for counter {}", domains.size(), counterId);
     }
 
     //发送消息处理逻辑
@@ -591,7 +591,7 @@ public class MessageServiceImpl implements MessageService {
         List<MessageDO> domains = messageMapper.getByUid(uid, MessageDirectionEnum.SEND.getDirection());
         if (CollectionUtils.isEmpty(domains)) {
             logger.error("message with uid {} not exist", uid);
-            throw new BizException(BizResultEnum.MESSAGE_UID_NOT_EXIST);
+            throw new BizException(BizResultEnum.MESSAGE_UID_NOT_EXIST, uid);
         }
 
         MessageDO before = domains.get(0);

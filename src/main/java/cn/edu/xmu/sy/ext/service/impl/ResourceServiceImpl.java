@@ -116,7 +116,7 @@ public class ResourceServiceImpl implements ResourceService {
 
         List<ResourceDO> domains = resourceMapper.listByParam(param);
         List<ResourceQueryResult> results = domains.stream()
-                .map((domain) -> {
+                .map(domain -> {
                     ResourceQueryResult result = POJOConvertUtil.convert(domain, ResourceQueryResult.class);
                     result.setType(ResourceTypeEnum.getDescriptionByType(domain.getType()));
                     result.setUrl(buildUrl(domain.getType(), domain.getFilename()));
@@ -142,7 +142,7 @@ public class ResourceServiceImpl implements ResourceService {
 
         logger.info("query {} resource(s) with type {}", domains.size(), type);
         return domains.stream()
-                .map((domain) -> {
+                .map(domain -> {
                     ResourceQuerySimpleResult result = POJOConvertUtil.convert(domain, ResourceQuerySimpleResult.class);
                     result.setUrl(buildUrl(domain.getType(), domain.getFilename()));
                     return result;

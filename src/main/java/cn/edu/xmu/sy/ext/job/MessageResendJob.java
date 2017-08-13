@@ -42,7 +42,7 @@ public class MessageResendJob {
     @PreDestroy
     public void destroy() {
         String pattern = RedisKeyConstant.RETRY_PREFIX + CommonConstant.ASTERISK_STRING;
-        redisTemplate.keys(pattern).forEach((key) -> redisTemplate.delete(key));
+        redisTemplate.keys(pattern).forEach(key -> redisTemplate.delete(key));
     }
 
     @Scheduled(cron = "0/1 * * * * ?")

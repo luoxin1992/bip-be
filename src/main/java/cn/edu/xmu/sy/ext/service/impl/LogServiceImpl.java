@@ -293,8 +293,8 @@ public class LogServiceImpl implements LogService {
     private String buildModifyContent(List<DiffFieldDTO> diffFields) {
         return diffFields.stream()
                 //修改为null表示未修改，不记录日志
-                .filter((field) -> field.getToValue() != null)
-                .map((field) -> field.getFieldName() + "由'" + field.getFromValue() + "'改为'" + field.getToValue() + "'")
+                .filter(field -> field.getToValue() != null)
+                .map(field -> field.getFieldName() + "由'" + field.getFromValue() + "'改为'" + field.getToValue() + "'")
                 .collect(Collectors.joining(", "));
     }
 
