@@ -90,7 +90,7 @@ public class SettingServiceImpl implements SettingService {
         items.forEach(item -> {
             SettingDO domain = settingMapper.getByKey(item.getKey());
             validate(item.getValue(), domain.getRegExp(), domain.getDescription());
-            save(domain.getId(), domain.getDescription(), domain.getValue(), item.getValue());
+            save(domain.getId(), domain.getValue(), item.getValue(), domain.getDescription());
         });
         logger.info("save {} setting(s)", items.size());
 
