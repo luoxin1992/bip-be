@@ -52,7 +52,7 @@ public class ResourceServiceImpl implements ResourceService {
 
     @Autowired
     private ResourceMapper resourceMapper;
-
+    @Autowired
     private ServletConfigItem servletConfig;
 
     @Override
