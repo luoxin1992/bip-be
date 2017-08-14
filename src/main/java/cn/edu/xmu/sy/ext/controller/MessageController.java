@@ -43,7 +43,7 @@ public class MessageController {
     private MessageService messageService;
 
     /**
-     * @api {POST} /api/v1/message/list/type 查询全部消息类型
+     * @api {POST} /api/v1/message/list/type 查询消息类型
      * @apiName list-type
      * @apiGroup message
      * @apiVersion 1.0.0
@@ -110,7 +110,7 @@ public class MessageController {
      * @apiSuccess {String} result.page.reply.receiveTime 接收时间
      */
     @RequestMapping(value = "/query", method = RequestMethod.POST)
-    public BaseResponse<BasePagingResult<MessageQueryResult>> query(MessageQueryParam param) {
+    public BaseResponse<BasePagingResult<MessageQueryResult>> query(@RequestBody @Valid MessageQueryParam param) {
         PagingUtil.setStartByNow(param.getPaging());
         BasePagingResult<MessageQueryResult> result = messageService.query(param);
         return new BaseResponse<>(result);

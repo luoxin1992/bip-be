@@ -65,7 +65,7 @@ public class LogController {
     }
 
     /**
-     * @api {POST} /api/v1/log/list/type 查询全部日志类型
+     * @api {POST} /api/v1/log/list/type 查询日志类型
      * @apiName list-type
      * @apiGroup log
      * @apiVersion 1.0.0
