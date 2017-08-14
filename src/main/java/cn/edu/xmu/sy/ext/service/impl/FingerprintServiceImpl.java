@@ -286,7 +286,7 @@ public class FingerprintServiceImpl implements FingerprintService {
      */
     private void checkEnrollMaxCount(Long userId) {
         Long current = fingerprintMapper.countByUserId(userId);
-        String max = settingService.getValueByKeyOrDefault(SettingEnum.FINGERPRINT_ENROLL_MAX_COUNT);
+        String max = settingService.getValueByKeyOrDefault(SettingEnum.FINGERPRINT_ENROLL_MAX);
 
         if (current >= Integer.parseInt(max)) {
             logger.error("user {} already enroll {} fingerprint(s)", userId, current);
