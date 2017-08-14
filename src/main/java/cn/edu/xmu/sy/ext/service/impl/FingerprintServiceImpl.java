@@ -271,7 +271,11 @@ public class FingerprintServiceImpl implements FingerprintService {
         logger.info("batch query {} fingerprint(s) for {} user(s)", domains.size(), userIds.size());
         return domains.stream()
                 .collect(Collectors.groupingBy(FingerprintDO::getUserId, TreeMap::new,
-                        Collectors.mapping(domain -> POJOConvertUtil.convert(domain, FingerprintQueryResult.class),
+                        Collectors.mapping(domain -> {
+                                    FingerprintQueryResult result = POJOConvertUtil.convert(domain, FingerprintQueryResult.class);
+                                    result.setFinger(FingerprintFingerEnum.getByFinger(domain.getFinger()).getDescription());
+                                    return result;
+                                },
                                 Collectors.toList())));
     }
 
