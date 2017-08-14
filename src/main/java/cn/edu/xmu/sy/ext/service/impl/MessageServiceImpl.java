@@ -14,6 +14,7 @@ import cn.com.lx1992.lib.util.JsonUtil;
 import cn.com.lx1992.lib.util.POJOConvertUtil;
 import cn.edu.xmu.sy.ext.constant.FingerprintConstant;
 import cn.edu.xmu.sy.ext.constant.MessageResourceConstant;
+import cn.edu.xmu.sy.ext.disconf.MessageConfigItem;
 import cn.edu.xmu.sy.ext.domain.MessageDO;
 import cn.edu.xmu.sy.ext.dto.FingerprintIdentifyCallbackDTO;
 import cn.edu.xmu.sy.ext.exception.BizException;
@@ -118,8 +119,11 @@ public class MessageServiceImpl implements MessageService {
     private LogService logService;
     @Autowired
     private TtsService ttsService;
+
     @Autowired
     private MessageResendJob messageResendJob;
+    @Autowired
+    private MessageConfigItem messageConfig;
 
     @Autowired
     private MessageMapper messageMapper;
@@ -587,16 +591,21 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     @Transactional
-    public void resend(Long uid) {
-        List<MessageDO> domains = messageMapper.getByUid(uid, MessageDirectionEnum.SEND.getDirection());
-        if (CollectionUtils.isEmpty(domains)) {
-            logger.error("message with uid {} not exist", uid);
-            throw new BizException(BizResultEnum.MESSAGE_UID_NOT_EXIST, uid);
+    public void resend(Long id) {
+        MessageDO before = messageMapper.getById(id);
+        if (before == null) {
+            logger.error("message {} not exist", id);
+            throw new BizException(BizResultEnum.MESSAGE_NOT_EXIST, id);
         }
 
-        MessageDO before = domains.get(0);
+        //检查重试次数未超过上限
+        if (before.getRetry() >= messageConfig.getRetryTimes()) {
+            logger.warn("message {} already retry {} time(s)", before.getId(), before.getRetry());
+            return;
+        }
         //获取原Token
         String token = sessionService.queryIfOnline(before.getSessionId()).getToken();
+
         //更新重试次数
         MessageDO after = new MessageDO();
         after.setId(before.getId());
