@@ -49,7 +49,6 @@ public class SyncServiceImpl implements SyncService {
     @Transactional
     public void userCreate(SyncUserCreateParam param) {
         UserCreateParam param1 = POJOConvertUtil.convert(param, UserCreateParam.class);
-        param1.setFromSync(true);
 
         userService.create(param1);
         logService.logSyncUserCreate(param.getNumber());
@@ -63,7 +62,6 @@ public class SyncServiceImpl implements SyncService {
         UserModifyParam param1 = POJOConvertUtil.convert(param, UserModifyParam.class);
         param1.setId(getIdByNumber(param.getNumber()));
         param1.setNumber(null);
-        param1.setFromSync(true);
 
         userService.modify(param1);
         logService.logSyncUserModify(param.getNumber());
@@ -75,7 +73,6 @@ public class SyncServiceImpl implements SyncService {
     public void userDelete(SyncUserDeleteParam param) {
         UserDeleteParam param1 = new UserDeleteParam();
         param1.setId(getIdByNumber(param.getNumber()));
-        param1.setFromSync(true);
 
         userService.delete(param1);
         logService.logSyncUserDelete(param.getNumber());

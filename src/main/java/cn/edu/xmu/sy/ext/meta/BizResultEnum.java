@@ -13,12 +13,11 @@ import cn.com.lx1992.lib.base.meta.IResultEnum;
  */
 public enum BizResultEnum implements IResultEnum {
     //用户Service错误码(201**)
-    USER_MGR_DISABLE(20101, "用户管理功能被禁用."),
-    USER_NUMBER_DUPLICATE(20102, "编号为{0}的用户已存在."),
-    USER_CREATE_ERROR(20103, "创建用户失败."),
-    USER_NOT_EXIST(20104, "ID为{0,number,#}的用户不存在."),
-    USER_MODIFY_ERROR(20105, "修改用户失败."),
-    USER_DELETE_ERROR(20106, "删除用户失败."),
+    USER_NUMBER_DUPLICATE(20101, "编号为{0}的用户已存在."),
+    USER_CREATE_ERROR(20102, "创建用户失败."),
+    USER_NOT_EXIST(20103, "ID为{0,number,#}的用户不存在."),
+    USER_MODIFY_ERROR(20104, "修改用户失败."),
+    USER_DELETE_ERROR(20105, "删除用户失败."),
     //指纹Service错误码(202**)
     FINGERPRINT_NOT_EXIST(20201, "ID为{0,number,#}的指纹不存在."),
     FINGERPRINT_FINGER_EXIST(20202, "手指{0}已经登记为其他指纹."),

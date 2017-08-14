@@ -84,7 +84,6 @@ public class UserController {
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     public BaseResponse create(@RequestBody @Valid UserCreateParam param) {
         //同步标记，区别请求是否来自/sync/**接口
-        param.setFromSync(false);
         userService.create(param);
         return new BaseResponse(BaseResultEnum.OK);
     }
@@ -105,7 +104,6 @@ public class UserController {
      */
     @RequestMapping(value = "/modify", method = RequestMethod.POST)
     public BaseResponse modify(@RequestBody @Valid UserModifyParam param) {
-        param.setFromSync(false);
         userService.modify(param);
         return new BaseResponse(BaseResultEnum.OK);
     }
@@ -123,7 +121,6 @@ public class UserController {
      */
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public BaseResponse delete(@RequestBody @Valid UserDeleteParam param) {
-        param.setFromSync(false);
         userService.delete(param);
         return new BaseResponse(BaseResultEnum.OK);
     }

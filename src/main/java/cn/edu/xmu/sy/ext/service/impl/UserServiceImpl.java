@@ -12,7 +12,6 @@ import cn.edu.xmu.sy.ext.domain.UserDO;
 import cn.edu.xmu.sy.ext.exception.BizException;
 import cn.edu.xmu.sy.ext.mapper.UserMapper;
 import cn.edu.xmu.sy.ext.meta.BizResultEnum;
-import cn.edu.xmu.sy.ext.meta.SettingEnum;
 import cn.edu.xmu.sy.ext.param.UserCreateParam;
 import cn.edu.xmu.sy.ext.param.UserDeleteParam;
 import cn.edu.xmu.sy.ext.param.UserModifyParam;
@@ -98,10 +97,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void create(UserCreateParam param) {
-        if (!param.getFromSync()) {
-            checkUserMgrEnable();
-        }
-
         checkNumberDuplicate(param.getNumber(), null);
 
         UserDO domain = POJOConvertUtil.convert(param, UserDO.class);
@@ -121,10 +116,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void modify(UserModifyParam param) {
-        if (!param.getFromSync()) {
-            checkUserMgrEnable();
-        }
-
         UserDO before = userMapper.getById(param.getId());
         if (before == null) {
             logger.error("user {} not exist", param.getId());
@@ -151,10 +142,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void delete(UserDeleteParam param) {
-        if (!param.getFromSync()) {
-            checkUserMgrEnable();
-        }
-
         //删除用户前先删除关联的指纹
         fingerprintService.deleteByUser(param.getId());
 
@@ -179,17 +166,6 @@ public class UserServiceImpl implements UserService {
 
         Map<Long, List<FingerprintQueryResult>> fingerprints = fingerprintService.queryBatchAndGroup(userIds);
         results.forEach(result -> result.setFingerprints(fingerprints.get(result.getId())));
-    }
-
-    /**
-     * 检查参数设置中的启用用户管理功能
-     */
-    private void checkUserMgrEnable() {
-        String userMgrEnable = settingService.getValueByKeyOrDefault(SettingEnum.MISC_USER_MGR_ENABLE);
-        if (!CommonConstant.TRUE.equals(userMgrEnable)) {
-            logger.error("user management is disabled");
-            throw new BizException(BizResultEnum.USER_MGR_DISABLE);
-        }
     }
 
     /**
