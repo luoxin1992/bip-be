@@ -18,7 +18,7 @@ public class MessageSendGeneralBusinessParam extends MessageSendBaseParam {
      * 超时时间
      */
     @NotNull
-    @Max(180)
+    @Max(300)
     private Integer timeout;
     /**
      * 附加信息

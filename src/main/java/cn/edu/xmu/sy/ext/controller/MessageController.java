@@ -174,6 +174,7 @@ public class MessageController {
      * @apiVersion 1.0.0
      *
      * @apiParam {Number} target 消息发送目标(接收窗口ID)
+     * @apiParam {Number} timeout 超时时间
      * @apiParam {String} [extra] 附加信息
      *
      * @apiSuccess {Number} code 错误代码，0-成功，其他-失败
