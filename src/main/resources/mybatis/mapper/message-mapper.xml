@@ -156,7 +156,7 @@
         select
         <include refid="generalColumns"/>
         from tbl_message
-        where direction > 0 and is_delete = 0
+        where direction = 0 and is_delete = 0
         <if test="type != null">
             and type = #{type}
         </if>
