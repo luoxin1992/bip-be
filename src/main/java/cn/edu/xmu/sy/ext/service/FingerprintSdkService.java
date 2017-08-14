@@ -11,26 +11,35 @@ package cn.edu.xmu.sy.ext.service;
  */
 public interface FingerprintSdkService {
     /**
-     * 将指纹模板添加到内部缓冲
+     * 检查指纹模板是否已经存在于内部缓冲
      *
-     * @param uid                UID
-     * @param template           模板
-     * @param throwWhenDuplicate 模板重复时抛出异常
+     * @param template 模板
+     * @return -1表示不存在，正数表示已存在的UID
      */
-    void enroll(Integer uid, String template, boolean throwWhenDuplicate);
+    int check(String template);
+
+    /**
+     * 将指纹模板登记到内部缓冲
+     *
+     * @param uid      UID
+     * @param template 模板
+     * @return true-登记成功，false-登记失败
+     */
+    boolean enroll(Integer uid, String template);
 
     /**
      * 从内部缓冲移除指纹模板
      *
      * @param uid UID
+     * @return true-移除成功，false-移除失败
      */
-    void remove(Integer uid);
+    boolean remove(Integer uid);
 
     /**
      * 从内部缓冲辨识指纹模板
      *
      * @param template 模板
-     * @return UID
+     * @return -1表示辨识失败，正数表示辨识的UID
      */
-    Integer identify(String template);
+    int identify(String template);
 }

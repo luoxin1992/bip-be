@@ -32,10 +32,6 @@ public enum BizResultEnum implements IResultEnum {
     FINGERPRINT_SDK_UNSUPPORTED_JVM(20302, "指纹仪SDK仅支持32位Java虚拟机."),
     FINGERPRINT_SDK_INVOKE_METHOD_ERROR(20303, "指纹仪SDK方法调用失败."),
     FINGERPRINT_SDK_CACHE_CREATE_ERROR(20304, "指纹仪SDK内部缓冲创建失败."),
-    FINGERPRINT_SDK_TEMPLATE_DUPLICATE(20305, "此指纹已经登记过."),
-    FINGERPRINT_SDK_ENROLL_ERROR(20306, "向指纹仪SDK登记指纹失败."),
-    FINGERPRINT_SDK_REMOVE_ERROR(20317, "从指纹仪SDK移除指纹失败."),
-    FINGERPRINT_SDK_IDENTIFY_ERROR(20308, "从指纹仪SDK辨识指纹失败."),
     //窗口Service错误码(204**)
     COUNTER_NUMBER_DUPLICATE(20401, "编号{0}与其他窗口重复."),
     COUNTER_ALREADY_BIND(20402, "MAC地址{0}和IP地址{1}已经绑定其他窗口."),

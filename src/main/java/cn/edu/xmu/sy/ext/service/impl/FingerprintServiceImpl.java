@@ -10,6 +10,7 @@ import cn.com.lx1992.lib.util.DateTimeUtil;
 import cn.com.lx1992.lib.util.POJOCompareUtil;
 import cn.com.lx1992.lib.util.POJOConvertUtil;
 import cn.com.lx1992.lib.util.UIDGenerateUtil;
+import cn.edu.xmu.sy.ext.constant.FingerprintConstant;
 import cn.edu.xmu.sy.ext.domain.FingerprintDO;
 import cn.edu.xmu.sy.ext.exception.BizException;
 import cn.edu.xmu.sy.ext.mapper.FingerprintMapper;
@@ -97,7 +98,9 @@ public class FingerprintServiceImpl implements FingerprintService {
         }
 
         //删除指纹仪SDK缓存
-        fingerprintSdkService.remove(domain.getUid());
+        if (!fingerprintSdkService.remove(domain.getUid())) {
+            logger.warn("remove fingerprint with uid {} from sdk failed", domain.getUid());
+        }
 
         logService.logFingerprintDelete(param.getId());
         logger.info("delete fingerprint {}", param.getId());
@@ -117,7 +120,11 @@ public class FingerprintServiceImpl implements FingerprintService {
             throw new BizException(BizResultEnum.FINGERPRINT_DELETE_ERROR);
         }
 
-        domains.forEach(domain -> fingerprintSdkService.remove(domain.getUid()));
+        domains.forEach(domain -> {
+            if (!fingerprintSdkService.remove(domain.getUid())) {
+                logger.warn("remove fingerprint with uid {} from sdk failed", domain.getUid());
+            }
+        });
 
         logService.logFingerprintDeleteByUser(userId);
         logger.info("delete {} fingerprint(s) for user {}", domains.size(), userId);
@@ -141,8 +148,11 @@ public class FingerprintServiceImpl implements FingerprintService {
             throw new BizException(BizResultEnum.FINGERPRINT_ENROLL_ERROR);
         }
 
-        //登记到指纹仪SDK缓存
-        fingerprintSdkService.enroll(domain.getUid(), domain.getTemplate(), true);
+        //登记到指纹仪SDK缓存 需事先检查指纹是否存在
+        if (fingerprintSdkService.check(domain.getTemplate()) != FingerprintConstant.SDK_TEMPLATE_NOT_EXIST &&
+                fingerprintSdkService.enroll(domain.getUid(), domain.getTemplate())) {
+            logger.warn("enroll fingerprint {} to sdk failed, probably template is duplicate");
+        }
 
         logService.logFingerprintEnroll(domain.getId(), domain.getUserId(), domain.getUid());
         logger.info("enroll fingerprint {} for user {}", domain.getId(), domain.getUserId());
@@ -152,7 +162,11 @@ public class FingerprintServiceImpl implements FingerprintService {
     @Transactional
     public Long identify(String template) {
         //从指纹仪SDK缓存辨识指纹模板
-        Integer uid = fingerprintSdkService.identify(template);
+        int uid = fingerprintSdkService.identify(template);
+        if (uid == FingerprintConstant.SDK_TEMPLATE_NOT_EXIST) {
+            logger.warn("identify fingerprint in sdk failed");
+            return null;
+        }
 
         //根据UID反查指纹
         FingerprintDO before = fingerprintMapper.getByUid(uid);
