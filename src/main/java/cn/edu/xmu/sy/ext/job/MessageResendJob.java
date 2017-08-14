@@ -82,7 +82,7 @@ public class MessageResendJob {
         String key = RedisKeyConstant.RETRY_PREFIX + slot;
 
         SetOperations<String, String> setOps = redisTemplate.opsForSet();
-        setOps.remove(key, id);
+        setOps.remove(key, String.valueOf(id));
 
         setSlotIndex(id, null);
         logger.info("cancel scheduled resend for message {} at slot {}", id, slot);

@@ -739,18 +739,23 @@ public class MessageServiceImpl implements MessageService {
      */
     private void receiveAck(String body) {
         //根据UID查询关联消息
-        MessageDO associated = getAssociated(JsonUtil.toObject(body, AckMessage.class).getUid());
+        AckMessage message = JsonUtil.toObject(body, AckMessage.class);
+        MessageDO before = getAssociated(message.getUid());
+        if (before.getAckTime() != null) {
+            logger.warn("message {} already ack", before.getId());
+            return;
+        }
 
-        MessageDO domain = new MessageDO();
-        domain.setId(associated.getId());
-        domain.setAckTime(DateTimeUtil.getNow());
-        if (messageMapper.updateById(domain) != CommonConstant.UPDATE_DOMAIN_SUCCESSFUL) {
-            logger.error("update message {} failed", domain.getId());
+        MessageDO after = new MessageDO();
+        after.setId(before.getId());
+        after.setAckTime(DateTimeUtil.getNow());
+        if (messageMapper.updateById(after) != CommonConstant.UPDATE_DOMAIN_SUCCESSFUL) {
+            logger.error("update message {} failed", after.getId());
             throw new BizException(BizResultEnum.MESSAGE_UPDATE_ERROR);
         }
 
         //消息已确认，取消重发
-        messageResendJob.cancel(associated.getId());
+        messageResendJob.cancel(before.getId());
     }
 
     /**
