@@ -22,6 +22,8 @@ import com.alibaba.idst.nls.event.NlsEvent;
 import com.alibaba.idst.nls.event.NlsListener;
 import com.alibaba.idst.nls.protocol.NlsRequest;
 import com.alibaba.idst.nls.session.NlsSession;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,7 @@ import javax.annotation.PreDestroy;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -213,22 +216,27 @@ public class TtsServiceImpl implements TtsService {
         request.authorize(nlsConfig.getAccessKeyId(), nlsConfig.getAccessKeySecret());
 
         //执行TTS任务
-        String outputPath = buildOutputPath(param.getEncodeType());
-        try (FileOutputStream fos = new FileOutputStream(outputPath)) {
+        FileOutputStream outputStream = null;
+        try {
+            String outputPath = buildOutputPath(param.getEncodeType());
+            outputStream = new FileOutputStream(outputPath);
             logger.info("tts task start, from text {} to file {}", content, outputPath);
+
             NlsFuture future = client.createNlsFuture(request, new NlsListenerImpl());
             byte[] buffer;
             //read方法内部hard-coding限制至多10秒超时返回
             while ((buffer = future.read()) != null) {
-                fos.write(buffer);
+                outputStream.write(buffer);
             }
-            fos.flush();
+            outputStream.flush();
+
             //1. onOperationFailed在netty的worker线程上回调，但抛出异常时State会变为FAILED
             //2. 若onMessageReceived回调后任务失败，不会再回调onOperationFailed，也需要通过State进一步判断
             if (!(NlsSession.State.FINISHED.equals(future.getSession().getState()))) {
                 logger.error("tts task state {} error", future.getSession().getState());
                 throw new BizException(BizResultEnum.TTS_STATE_ERROR);
             }
+            return getFilename(outputPath);
         } catch (BizException e) {
             //避免state错误的exception再被sdk错误的exception捕获
             throw e;
@@ -238,8 +246,9 @@ public class TtsServiceImpl implements TtsService {
         } catch (Exception e) {
             logger.error("tts sdk error", e);
             throw new BizException(BizResultEnum.TTS_SDK_ERROR);
+        } finally {
+            IOUtils.closeQuietly(outputStream);
         }
-        return getFilename(outputPath);
     }
 
     /**
@@ -248,10 +257,12 @@ public class TtsServiceImpl implements TtsService {
      * @param encodeType 编码类型
      * @return 完整输出路径
      */
-    private String buildOutputPath(String encodeType) {
-        String outputDir = servletConfig.getDocumentRoot() + File.separatorChar;
+    private String buildOutputPath(String encodeType) throws IOException {
+        String outputDir = servletConfig.getDocumentRoot() + File.separatorChar + ResourceTypeEnum.VOICE.getType();
         String filename = UUIDUtil.randomUUID() + '.' + encodeType;
-        return outputDir + ResourceTypeEnum.VOICE.getType() + File.separatorChar + filename;
+        //创建输出目录
+        FileUtils.forceMkdir(Paths.get(outputDir).toFile());
+        return outputDir + File.separatorChar + filename;
     }
 
     /**
