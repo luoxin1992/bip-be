@@ -836,14 +836,15 @@ public class MessageServiceImpl implements MessageService {
             MessageDO associated = getAssociated(message.getUid());
 
             //辨识指纹对应的用户ID，获取该用户详细信息，并调用第三方回调
-            Long userId = fingerprintService.identify(message.getTemplate());
-            if (userId == null) {
+            try {
+                Long userId = fingerprintService.identify(message.getTemplate());
+                UserQueryResult result = userService.queryById(userId);
+                invokeFingerprintIdentifyCallback(result.getNumber(), result.getName(), result.getPhoto());
+            } catch (BizException e) {
                 sendFingerprintIdentifyFailure(associated.getCounterId());
                 return;
             }
 
-            UserQueryResult result = userService.queryById(userId);
-            invokeFingerprintIdentifyCallback(result.getNumber(), result.getName(), result.getPhoto());
             sendFingerprintIdentifySuccess(associated.getCounterId());
         }
     }

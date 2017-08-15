@@ -60,43 +60,56 @@ public class FPScannerSdkServiceImpl implements FingerprintSdkService {
     }
 
     @Override
-    public int check(String template) {
-        Supplier<Integer> supplier = () -> {
-            int result = sdk.verifyRegTemplateFromStr(template);
-            logger.info("check in-sdk template duplicate get result {}", result);
-            return result;
-        };
-        return invokeMethod(supplier);
-    }
+    public void enroll(Integer uid, String template, boolean throwWhenDuplicate) {
+        if (!checkDuplicate(uid, template)) {
+            if (throwWhenDuplicate) {
+                throw new BizException(BizResultEnum.FINGERPRINT_SDK_TEMPLATE_DUPLICATE);
+            }
+            return;
+        }
 
-    @Override
-    public boolean enroll(Integer uid, String template) {
         Supplier<Boolean> supplier = () -> {
             boolean result = sdk.addTemplateStrToRam(template, uid);
             logger.info("enroll in-sdk fingerprint {} get result {}", uid, result);
             return result;
         };
-        return invokeMethod(supplier);
+
+        boolean result = invokeMethod(supplier);
+        if (!result) {
+            logger.error("enroll template {} to sdk failed", uid);
+            throw new BizException(BizResultEnum.FINGERPRINT_SDK_ENROLL_ERROR);
+        }
     }
 
     @Override
-    public boolean remove(Integer uid) {
+    public void remove(Integer uid) {
         Supplier<Boolean> supplier = () -> {
             boolean result = sdk.removeUser(uid);
             logger.info("remove in-sdk fingerprint {} get result {}", uid, result);
             return result;
         };
-        return invokeMethod(supplier);
+
+        boolean result = invokeMethod(supplier);
+        if (!result) {
+            logger.error("remove in-sdk fingerprint {} failed", uid);
+            throw new BizException(BizResultEnum.FINGERPRINT_SDK_REMOVE_ERROR);
+        }
     }
 
     @Override
-    public int identify(String template) {
+    public Integer identify(String template) {
         Supplier<Integer> supplier = () -> {
             int result = sdk.verifyTemplateOneToManyFromStr(template);
             logger.info("identify in-sdk fingerprint get result {}", result);
             return result;
         };
-        return invokeMethod(supplier);
+
+        int result = invokeMethod(supplier);
+        if (result == FingerprintConstant.SDK_TEMPLATE_NOT_EXIST) {
+            logger.error("identify in-sdk fingerprint failed");
+            throw new BizException(BizResultEnum.FINGERPRINT_SDK_IDENTIFY_ERROR);
+        }
+        return result;
     }
 
     /**
@@ -146,5 +159,27 @@ public class FPScannerSdkServiceImpl implements FingerprintSdkService {
             logger.error("create in-sdk cache failed");
             throw new BizException(BizResultEnum.FINGERPRINT_SDK_CACHE_CREATE_ERROR);
         }
+    }
+
+    /**
+     * 检查内部缓冲中的指纹模板是否重复
+     *
+     * @param uid      UID
+     * @param template 模板
+     * @return true-未重复，false-重复
+     */
+    private boolean checkDuplicate(Integer uid, String template) {
+        Supplier<Integer> supplier = () -> {
+            int result = sdk.verifyRegTemplateFromStr(template);
+            logger.info("check in-sdk template duplicate get result {}", result);
+            return result;
+        };
+
+        int result = invokeMethod(supplier);
+        if (result != FingerprintConstant.SDK_TEMPLATE_NOT_EXIST) {
+            logger.warn("in-sdk template duplicate between {} and {}", uid, result);
+            return false;
+        }
+        return true;
     }
 }

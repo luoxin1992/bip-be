@@ -28,7 +28,6 @@ public class FingerprintSdkCacheLoader implements CommandLineRunner {
     @Override
     public void run(String... strings) {
         List<FingerprintListTemplateResult> results = fingerprintService.listTemplate().getList();
-        //直接写入SDK 不检查既有模板是否重复
-        results.forEach(result -> fingerprintSdkService.enroll(result.getUid(), result.getTemplate()));
+        results.forEach(result -> fingerprintSdkService.enroll(result.getUid(), result.getTemplate(), false));
     }
 }
