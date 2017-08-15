@@ -57,8 +57,9 @@ public interface SessionService {
      * “会话有效”定义为token存在且session状态为ONLINE
      *
      * @param token Token
+     * @return true-有效，false-无效
      */
-    void verify(String token);
+    boolean verify(String token);
 
     /**
      * 删除窗口全部会话
@@ -93,6 +94,7 @@ public interface SessionService {
 
     /**
      * 查询全部在线会话
+     *
      * @return 查询结果
      */
     List<SessionQuerySimpleResult> queryAllOnline();

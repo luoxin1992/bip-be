@@ -91,16 +91,14 @@ public class SessionServiceImpl implements SessionService {
     @Override
     @Transactional
     public void offline(SessionOfflineParam param) {
-        SessionDO domain = getByToken(param.getToken());
-        checkStatusOnline(domain);
+        SessionDO domain = getByTokenIfOnline(param.getToken());
         updateStatus(domain.getId(), SessionStatusEnum.OFFLINE);
     }
 
     @Override
     @Transactional
     public void kick(SessionKickParam param) {
-        SessionDO domain = getById(param.getId());
-        checkStatusOnline(domain);
+        SessionDO domain = getByIdIfOnline(param.getId());
         updateStatus(param.getId(), SessionStatusEnum.KICK);
         //强制关闭WebSocket连接
         webSocketService.closeSession(domain.getToken());
@@ -109,15 +107,14 @@ public class SessionServiceImpl implements SessionService {
     @Override
     @Transactional
     public void lost(String token) {
-        SessionDO domain = getByToken(token);
-        checkStatusOnline(domain);
+        SessionDO domain = getByTokenIfOnline(token);
         updateStatus(domain.getId(), SessionStatusEnum.LOST);
     }
 
     @Override
-    public void verify(String token) {
-        SessionDO domain = getByToken(token);
-        checkStatusOnline(domain);
+    public boolean verify(String token) {
+        SessionDO domain = getByTokenIfOnline(token);
+        return domain.getStatus() == SessionStatusEnum.ONLINE.getStatus();
     }
 
     @Override
@@ -191,8 +188,8 @@ public class SessionServiceImpl implements SessionService {
             throw new BizException(BizResultEnum.SESSION_NOT_EXIST, sessionId);
         }
         if (domain.getStatus() != SessionStatusEnum.ONLINE.getStatus()) {
-            logger.error("session {} token is no longer online", sessionId);
-            throw new BizException(BizResultEnum.SESSION_TOKEN_INVALIDATE, domain.getToken());
+            logger.error("session {} is no longer online", sessionId);
+            throw new BizException(BizResultEnum.SESSION_INVALIDATE, domain.getId());
         }
         return POJOConvertUtil.convert(domain, SessionQuerySimpleResult.class);
     }
@@ -284,11 +281,15 @@ public class SessionServiceImpl implements SessionService {
      * @param id 会话ID
      * @return 查询结果
      */
-    private SessionDO getById(Long id) {
+    private SessionDO getByIdIfOnline(Long id) {
         SessionDO domain = sessionMapper.getById(id);
         if (domain == null) {
             logger.error("session {} not exist", id);
             throw new BizException(BizResultEnum.SESSION_NOT_EXIST, id);
+        }
+        if (domain.getStatus() != SessionStatusEnum.ONLINE.getStatus()) {
+            logger.error("session {} status is {} instead of online", domain.getId(), domain.getStatus());
+            throw new BizException(BizResultEnum.SESSION_INVALIDATE, domain.getToken());
         }
         return domain;
     }
@@ -299,25 +300,17 @@ public class SessionServiceImpl implements SessionService {
      * @param token Token
      * @return 查询结果
      */
-    private SessionDO getByToken(String token) {
+    private SessionDO getByTokenIfOnline(String token) {
         SessionDO domain = sessionMapper.getByToken(token);
         if (domain == null) {
             logger.error("session with token {} not exist", token);
             throw new BizException(BizResultEnum.SESSION_TOKEN_NOT_EXIST, token);
         }
-        return domain;
-    }
-
-    /**
-     * 检查Session状态是否为在线
-     *
-     * @param domain 会话
-     */
-    private void checkStatusOnline(SessionDO domain) {
         if (domain.getStatus() != SessionStatusEnum.ONLINE.getStatus()) {
-            logger.warn("session {} status is {} instead of online", domain.getId(), domain.getStatus());
-            throw new BizException(BizResultEnum.SESSION_TOKEN_INVALIDATE, domain.getToken());
+            logger.error("session {} status is {} instead of online", domain.getId(), domain.getStatus());
+            throw new BizException(BizResultEnum.SESSION_INVALIDATE, domain.getId());
         }
+        return domain;
     }
 
     /**

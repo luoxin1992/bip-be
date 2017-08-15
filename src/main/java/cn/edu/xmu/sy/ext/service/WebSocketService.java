@@ -3,6 +3,8 @@
  */
 package cn.edu.xmu.sy.ext.service;
 
+import org.springframework.web.socket.WebSocketSession;
+
 /**
  * WebSocket服务
  *
@@ -10,6 +12,14 @@ package cn.edu.xmu.sy.ext.service;
  * @version 2017-7-13
  */
 public interface WebSocketService {
+    /**
+     * 添加Session到内部容器
+     *
+     * @param token   token
+     * @param session WS连接
+     */
+    void addSession(String token, WebSocketSession session);
+
     /**
      * 发送消息到指定Token
      *
@@ -24,4 +34,11 @@ public interface WebSocketService {
      * @param token token
      */
     void closeSession(String token);
+
+    /**
+     * 从内部容器移除Session
+     *
+     * @param token token
+     */
+    void removeSession(String token);
 }

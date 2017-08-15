@@ -46,8 +46,8 @@ public enum BizResultEnum implements IResultEnum {
     SESSION_ONLINE_ERROR(20503, "会话上线失败."),
     SESSION_NOT_EXIST(20501,"ID为{0,number,#}的会话不存在"),
     SESSION_TOKEN_NOT_EXIST(20504, "Token为{0}的会话不存在."),
+    SESSION_INVALIDATE(20505, "ID为{0,number,#}的的会话已失效."),
     SESSION_UPDATE_STATUS_ERROR(20506, "更新会话状态失败."),
-    SESSION_TOKEN_INVALIDATE(20505, "Token为{0}的的会话已失效."),
     SESSION_DELETE_ONLINE(20506, "无法删除处于在线状态的会话."),
     SESSION_DELETE_ERROR(20506, "删除会话失败."),
     //消息错误码(206**)
@@ -61,9 +61,9 @@ public enum BizResultEnum implements IResultEnum {
     MESSAGE_NOT_EXIST(20607, "ID为{0,number,#}的消息不存在."),
     MESSAGE_UID_NOT_EXIST(20607, "UID为{0,number,#}的消息不存在."),
     //WebSocket错误码(207**)
-    WEB_SOCKET_TOKEN_NOT_EXIST(20701, "WebSocket连接中不存在Token."),
-    WEB_SOCKET_CONNECTION_NOT_EXIST(20701, "WebSocket连接未建立或已关闭."),
+    WEB_SOCKET_CONNECTION_NOT_EXIST(20701, "WebSocket连接尚未建立或已关闭."),
     WEB_SOCKET_CONNECTION_IO_ERROR(20702, "WebSocket通信时发生I/O错误."),
+    WEB_SOCKET_CONNECTION_OPEN(20703, "WebSocket连接尚未关闭."),
     //数据同步Service错误码(208**)
     SYNC_USER_NUMBER_NOT_EXIST(20801, "编号为{0}的用户不存在"),
     //设置错误码(209**)
