@@ -9,7 +9,7 @@ import cn.com.lx1992.lib.cat.annotation.CatTransaction;
 import cn.com.lx1992.lib.constant.CommonConstant;
 import cn.com.lx1992.lib.constant.RegExpConstant;
 import cn.com.lx1992.lib.util.DateTimeUtil;
-import cn.com.lx1992.lib.util.HttpUtils;
+import cn.com.lx1992.lib.util.HttpUtil;
 import cn.com.lx1992.lib.util.JsonUtil;
 import cn.com.lx1992.lib.util.POJOConvertUtil;
 import cn.edu.xmu.sy.ext.constant.FingerprintConstant;
@@ -83,7 +83,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -944,11 +943,6 @@ public class MessageServiceImpl implements MessageService {
         result.setPhoto(photo);
 
         //调用设置的回调API
-        try {
-            HttpUtils.execute(callback, JsonUtil.toJson(result));
-        } catch (IOException e) {
-            logger.error("invoke fingerprint identify callback {} failed", callback);
-            throw new BizException(BizResultEnum.MESSAGE_INVOKE_CALLBACK_ERROR);
-        }
+        HttpUtil.executePost(callback, JsonUtil.toJson(result));
     }
 }

@@ -59,8 +59,6 @@ public enum BizResultEnum implements IResultEnum {
     MESSAGE_CREATE_ERROR(20604, "创建消息失败."),
     MESSAGE_UPDATE_ERROR(20604, "修改消息失败."),
     MESSAGE_DELETE_ERROR(20604, "删除消息失败."),
-    //TODO 临时错误，合并HttpUtil
-    MESSAGE_INVOKE_CALLBACK_ERROR(20605, "调用第三方接口失败."),
     MESSAGE_RECEIVE_UNKNOWN_TYPE(20606, "未知的回复消息类型."),
     MESSAGE_NOT_EXIST(20607, "ID为{0,number,#}的消息不存在."),
     MESSAGE_UID_NOT_EXIST(20607, "UID为{0,number,#}的消息不存在."),
