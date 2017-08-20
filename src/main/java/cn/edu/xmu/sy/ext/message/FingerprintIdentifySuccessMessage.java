@@ -18,7 +18,7 @@ public class FingerprintIdentifySuccessMessage extends BaseSendMessage {
     private String extra;
 
     public FingerprintIdentifySuccessMessage() {
-        super(MessageTypeEnum.FINGERPRINT_ENROLL_SUCCESS);
+        super(MessageTypeEnum.FINGERPRINT_IDENTIFY_SUCCESS);
     }
 
     public String getExtra() {
