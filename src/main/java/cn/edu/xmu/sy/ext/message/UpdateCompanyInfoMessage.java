@@ -18,7 +18,7 @@ public class UpdateCompanyInfoMessage extends BaseSendMessage {
     private String name;
 
     public UpdateCompanyInfoMessage() {
-        super(MessageTypeEnum.UPDATE_COUNTER_INFO);
+        super(MessageTypeEnum.UPDATE_COMPANY_INFO);
     }
 
     public String getName() {
