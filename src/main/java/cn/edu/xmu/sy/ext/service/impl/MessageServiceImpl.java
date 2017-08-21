@@ -662,8 +662,9 @@ public class MessageServiceImpl implements MessageService {
                     resource.getVoices().add(result.get().getUrl());
                 } else {
                     String filename = ttsService.ttsSync(voice, false);
-                    //资源URL格式：类型+“/”+文件名
-                    String url = ResourceTypeEnum.VOICE.getType() + CommonConstant.SLASH_STRING + filename;
+                    //资源URL格式：“/”+类型+“/”+文件名
+                    String url = CommonConstant.SLASH_STRING +
+                            ResourceTypeEnum.VOICE.getType() + CommonConstant.SLASH_STRING + filename;
                     resource.getVoices().add(url);
                 }
             }
