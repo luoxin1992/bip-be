@@ -15,4 +15,7 @@ public class RedisKeyConstant {
 
     public static final String RETRY_INDEX = "retry.index";
     public static final String RETRY_PREFIX = "retry.";
+
+    private RedisKeyConstant() {
+    }
 }

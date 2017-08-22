@@ -112,4 +112,7 @@ public class MessageResourceConstant {
     public static final String EXTRA_FINGERPRINT_IDENTIFY_FAILURE = "指纹辨识失败";
     public static final String IMAGE_FINGERPRINT_IDENTIFY_FAILURE = "指纹辨识失败";
     public static final String VOICE_FINGERPRINT_IDENTIFY_FAILURE = "很抱歉，未能辨识您的指纹";
+
+    private MessageResourceConstant() {
+    }
 }
