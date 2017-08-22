@@ -44,7 +44,7 @@ public enum BizResultEnum implements IResultEnum {
     COUNTER_MODIFY_ERROR(20405, "窗口修改失败."),
     COUNTER_MODIFY_ONLINE(20406, "窗口存在在线会话时不能修改MAC地址或IP地址."),
     COUNTER_DELETE_ERROR(20407, "窗口删除失败."),
-    COUNTER_UNBIND(20409, "MAC地址{0}和IP地址{1}尚未绑定任何窗口."),
+    COUNTER_UNBIND(20408, "MAC地址{0}和IP地址{1}尚未绑定任何窗口."),
     //会话Service错误码(205**)
     SESSION_ANOTHER_ONLINE(20502, "该窗口已有其他客户端在线."),
     SESSION_ONLINE_ERROR(20503, "会话上线失败."),
